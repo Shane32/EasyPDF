@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>
+      A wrapper around the LGPL iTextSharp library to make it easier to use.
+    </Description>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Shane32.EasyPDF</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="iTextSharp.LGPLv2.Core" Version="1.7.5" />
+  </ItemGroup>
+
+</Project>
