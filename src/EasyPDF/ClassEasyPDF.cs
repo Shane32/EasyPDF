@@ -18,6 +18,7 @@ namespace Shane32.EasyPDF
         private Document? _document;
         private iTextPdfWriter? _writer;
         private PdfContentByte? _content2;
+        private PdfStamper? _stamper;
         private PdfContentByte _content => _content2 ?? throw new InvalidOperationException("Create a page first!");
         private ScaleModes _scaleMode = ScaleModes.Hundredths;
         private SizeF _pageSize;
@@ -28,12 +29,22 @@ namespace Shane32.EasyPDF
             _ = FontFactory.RegisterDirectories();
         }
 
+        /// <summary>
+        /// Creates a document for writing to
+        /// </summary>
         public PDFWriter()
         {
             _stream = new MemoryStream();
             _privateStream = true;
         }
 
+        /// <inheritdoc cref="PDFWriter(string)"/>
+        public PDFWriter(string path)
+        {
+            _stream = System.IO.File.Create(path);
+        }
+
+        /// <inheritdoc cref="PDFWriter(Stream)"/>
         public PDFWriter(Stream s)
         {
             _stream = s;
@@ -87,6 +98,27 @@ namespace Shane32.EasyPDF
         /// <inheritdoc cref="NewPage(PaperKind, bool)"/>
         public void NewPage(PaperSize paperSize, bool landscape, Margins margins)
             => NewPageAbs(_Translate(paperSize.Width, ScaleModes.Hundredths), _Translate(paperSize.Height, ScaleModes.Hundredths), _Translate(margins.Left, ScaleModes.Hundredths), _Translate(margins.Top, ScaleModes.Hundredths), landscape);
+
+        /// <summary>
+        /// Allows for Editing a existing pdf will half to save under a different file name
+        /// </summary>
+        public void AnnotatePage(string originalFile)
+        {
+            var reader = new PdfReader(originalFile);
+            AnnotatePage(reader);
+        }
+
+        /// <inheritdoc cref="AnnotatePage(PdfReader)"/>
+        public void AnnotatePage(PdfReader reader)
+        {
+            var stamper = new PdfStamper(reader, _stream);
+            _content2 = stamper.GetOverContent(1);
+
+            var rect = reader.GetPageSizeWithRotation(1);
+            _content.ConcatCtm(1, 0, 0, -1, 0, rect.Height);
+
+            _stamper = stamper;
+        }
 
         private void NewPageAbs(float pageWidth, float pageHeight, float marginLeft, float marginTop, bool landscape)
         {
@@ -155,7 +187,13 @@ namespace Shane32.EasyPDF
                 _writer.Close();
                 _writer = null;
             }
+
+            if (_stamper is object) {
+                _stamper.Close();
+                _stamper = null;
+            }
         }
+
 
         /// <summary>
         /// Gets or sets the scale of coordinate system.
