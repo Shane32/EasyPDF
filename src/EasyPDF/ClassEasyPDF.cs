@@ -11,13 +11,15 @@ using iTextPdfWriter = iTextSharp.text.pdf.PdfWriter;
 
 namespace Shane32.EasyPDF
 {
-    public partial class PDFWriter
+    public partial class PDFWriter : IDisposable
     {
         private readonly Stream _stream;
         private readonly bool _privateStream;
+        private readonly bool _disposeStream;
         private Document? _document;
         private iTextPdfWriter? _writer;
         private PdfContentByte? _content2;
+        private PdfStamper? _stamper;
         private PdfContentByte _content => _content2 ?? throw new InvalidOperationException("Create a page first!");
         private ScaleModes _scaleMode = ScaleModes.Hundredths;
         private SizeF _pageSize;
@@ -28,12 +30,27 @@ namespace Shane32.EasyPDF
             _ = FontFactory.RegisterDirectories();
         }
 
+        /// <summary>
+        /// Creates a new document; use <see cref="ToArray"/> to retrieve the PDF data.
+        /// </summary>
         public PDFWriter()
         {
             _stream = new MemoryStream();
             _privateStream = true;
         }
 
+        /// <summary>
+        /// Creates a new document with the specified filename.
+        /// </summary>
+        public PDFWriter(string path)
+        {
+            _stream = System.IO.File.Create(path);
+            _disposeStream = true;
+        }
+
+        /// <summary>
+        /// Creates a new document which will save to the specified stream.
+        /// </summary>
         public PDFWriter(Stream s)
         {
             _stream = s;
@@ -87,6 +104,30 @@ namespace Shane32.EasyPDF
         /// <inheritdoc cref="NewPage(PaperKind, bool)"/>
         public void NewPage(PaperSize paperSize, bool landscape, Margins margins)
             => NewPageAbs(_Translate(paperSize.Width, ScaleModes.Hundredths), _Translate(paperSize.Height, ScaleModes.Hundredths), _Translate(margins.Left, ScaleModes.Hundredths), _Translate(margins.Top, ScaleModes.Hundredths), landscape);
+
+        /// <summary>
+        /// Allows for editing a existing pdf; will have to save under a different file name
+        /// </summary>
+        public void AnnotatePage(string originalFile)
+        {
+            var reader = new PdfReader(originalFile);
+            //todo: is the file stream held open by the PdfReader?
+            //  if so, it should be disposed by Close/Dispose
+            //  if not, we're good
+            AnnotatePage(reader);
+        }
+
+        /// <inheritdoc cref="AnnotatePage(string)"/>
+        public void AnnotatePage(PdfReader reader)
+        {
+            var stamper = new PdfStamper(reader, _stream);
+            _content2 = stamper.GetOverContent(1);
+
+            var rect = reader.GetPageSizeWithRotation(1);
+            _content.ConcatCtm(1, 0, 0, -1, 0, rect.Height);
+
+            _stamper = stamper;
+        }
 
         private void NewPageAbs(float pageWidth, float pageHeight, float marginLeft, float marginTop, bool landscape)
         {
@@ -155,6 +196,24 @@ namespace Shane32.EasyPDF
                 _writer.Close();
                 _writer = null;
             }
+
+            if (_stamper != null) {
+                _stamper.Close();
+                _stamper = null;
+            }
+            
+            if (_disposeStream && _stream != null) {
+                _stream.Close();
+            }
+        }
+
+        /// <summary>
+        /// Disposes of the underlying stream if necessary.
+        /// Use <see cref="Close"/> to save the file data prior to closing.
+        /// </summary>
+        void IDisposable.Dispose() {
+            if (_disposeStream)
+                _stream.Dispose();
         }
 
         /// <summary>
