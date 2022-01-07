@@ -11,10 +11,11 @@ using iTextPdfWriter = iTextSharp.text.pdf.PdfWriter;
 
 namespace Shane32.EasyPDF
 {
-    public partial class PDFWriter
+    public partial class PDFWriter : IDisposable
     {
         private readonly Stream _stream;
         private readonly bool _privateStream;
+        private readonly bool _disposeStream;
         private Document? _document;
         private iTextPdfWriter? _writer;
         private PdfContentByte? _content2;
@@ -30,7 +31,7 @@ namespace Shane32.EasyPDF
         }
 
         /// <summary>
-        /// Creates a document for writing to
+        /// Creates a new document; use <see cref="ToArray"/> to retrieve the PDF data.
         /// </summary>
         public PDFWriter()
         {
@@ -38,13 +39,18 @@ namespace Shane32.EasyPDF
             _privateStream = true;
         }
 
-        /// <inheritdoc cref="PDFWriter(string)"/>
+        /// <summary>
+        /// Creates a new document with the specified filename.
+        /// </summary>
         public PDFWriter(string path)
         {
             _stream = System.IO.File.Create(path);
+            _disposeStream = true;
         }
 
-        /// <inheritdoc cref="PDFWriter(Stream)"/>
+        /// <summary>
+        /// Creates a new document which will save to the specified stream.
+        /// </summary>
         public PDFWriter(Stream s)
         {
             _stream = s;
@@ -188,12 +194,25 @@ namespace Shane32.EasyPDF
                 _writer = null;
             }
 
-            if (_stamper is object) {
+            if (_stamper != null) {
                 _stamper.Close();
                 _stamper = null;
             }
+            
+            if (_disposeStream && _stream != null) {
+                _stream.Close();
+                _stream = null;
+            }
         }
 
+        /// <summary>
+        /// Disposes of the underlying stream if necessary.
+        /// Use <see cref="Close"/> to save the file data prior to closing.
+        /// </summary>
+        void IDisposable.Dispose() {
+            if (_disposeStream)
+                _stream.Dispose();
+        }
 
         /// <summary>
         /// Gets or sets the scale of coordinate system.
