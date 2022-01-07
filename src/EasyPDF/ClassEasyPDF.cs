@@ -106,11 +106,14 @@ namespace Shane32.EasyPDF
             => NewPageAbs(_Translate(paperSize.Width, ScaleModes.Hundredths), _Translate(paperSize.Height, ScaleModes.Hundredths), _Translate(margins.Left, ScaleModes.Hundredths), _Translate(margins.Top, ScaleModes.Hundredths), landscape);
 
         /// <summary>
-        /// Allows for Editing a existing pdf will half to save under a different file name
+        /// Allows for editing a existing pdf; will have to save under a different file name
         /// </summary>
         public void AnnotatePage(string originalFile)
         {
             var reader = new PdfReader(originalFile);
+            //todo: is the file stream held open by the PdfReader?
+            //  if so, it should be disposed by Close/Dispose
+            //  if not, we're good
             AnnotatePage(reader);
         }
 
