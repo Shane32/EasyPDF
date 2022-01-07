@@ -201,7 +201,6 @@ namespace Shane32.EasyPDF
             
             if (_disposeStream && _stream != null) {
                 _stream.Close();
-                _stream = null;
             }
         }
 
