@@ -114,7 +114,7 @@ namespace Shane32.EasyPDF
             AnnotatePage(reader);
         }
 
-        /// <inheritdoc cref="AnnotatePage(PdfReader)"/>
+        /// <inheritdoc cref="AnnotatePage(string)"/>
         public void AnnotatePage(PdfReader reader)
         {
             var stamper = new PdfStamper(reader, _stream);
