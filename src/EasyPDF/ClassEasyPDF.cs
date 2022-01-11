@@ -11,6 +11,9 @@ using iTextPdfWriter = iTextSharp.text.pdf.PdfWriter;
 
 namespace Shane32.EasyPDF
 {
+    /// <summary>
+    /// Creates a PDF page and writes it to a stream or byte array.
+    /// </summary>
     public partial class PDFWriter : IDisposable
     {
         private readonly Stream _stream;
@@ -51,15 +54,25 @@ namespace Shane32.EasyPDF
         /// <summary>
         /// Creates a new document which will save to the specified stream.
         /// </summary>
-        public PDFWriter(Stream s)
+        public PDFWriter(Stream stream)
         {
-            _stream = s;
+            _stream = stream;
         }
 
+        /// <summary>
+        /// Returns the underlying <see cref="PdfContentByte"/>.
+        /// </summary>
+        /// <returns></returns>
         public PdfContentByte GetDirectContent() => _content;
 
+        /// <summary>
+        /// returns the underlying <see cref="iTextPdfWriter"/>.
+        /// </summary>
         public iTextPdfWriter GetWriter() => _writer ?? throw new InvalidOperationException("Create a page first!");
 
+        /// <summary>
+        /// Returns the underlying <see cref="Document"/>.
+        /// </summary>
         public Document GetDocument() => _document ?? throw new InvalidOperationException("Create a page first!");
 
         private PaperSize _GetPaperSize(PaperKind paperKind) => paperKind switch {
@@ -69,6 +82,9 @@ namespace Shane32.EasyPDF
             _ => throw new NotImplementedException(),
         };
 
+        /// <summary>
+        /// Returns the size of the page
+        /// </summary>
         public SizeF PageSize => new SizeF(_TranslateRev(_pageSize.Width), _TranslateRev(_pageSize.Height));
 
         /// <summary>

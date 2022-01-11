@@ -1,5 +1,6 @@
 using System;
 using iTextSharp.text;
+using iTextFont = iTextSharp.text.Font;
 
 namespace Shane32.EasyPDF
 {
@@ -22,31 +23,29 @@ namespace Shane32.EasyPDF
             => new BaseColor(color.R, color.G, color.B, color.A);
 
         /// <summary>
-        /// Converts a <see cref="System.Drawing.Font"/> to <see cref="Font"/>.
+        /// Converts a <see cref="Font"/> to <see cref="iTextFont"/>.
         /// </summary>
-        public static Font ToiTextSharpFont(this System.Drawing.Font font, System.Drawing.Color color)
+        public static iTextFont ToiTextSharpFont(this Font font, System.Drawing.Color color)
         {
             if (font == null)
                 throw new ArgumentNullException(nameof(font));
 
-            Font f;
             int s = 0;
             if (font.Bold)
-                s |= Font.BOLD;
+                s |= iTextFont.BOLD;
             if (font.Italic)
-                s |= Font.ITALIC;
+                s |= iTextFont.ITALIC;
             if (font.Underline)
-                s |= Font.UNDERLINE;
+                s |= iTextFont.UNDERLINE;
             if (font.Strikeout)
-                s |=Font.STRIKETHRU;
+                s |= iTextFont.STRIKETHRU;
 
             //if font doesnt exist then throws error
-            if (!FontFactory.IsRegistered(font.OriginalFontName)) {
-                throw new InvalidOperationException($"'{font.OriginalFontName}' doesn't exist; please register font using RegisterFont.");
+            if (!FontFactory.IsRegistered(font.FamilyName)) {
+                throw new InvalidOperationException($"'{font.FamilyName}' doesn't exist; please register font using RegisterFont.");
             }
 
-            f = FontFactory.GetFont(font.OriginalFontName, iTextSharp.text.pdf.BaseFont.CP1252, true, font.SizeInPoints, s, color.ToiTextSharpColor());
-            return f;
+            return FontFactory.GetFont(font.FamilyName, iTextSharp.text.pdf.BaseFont.CP1252, true, font.Size, s, color.ToiTextSharpColor());
         }
     }
 }
