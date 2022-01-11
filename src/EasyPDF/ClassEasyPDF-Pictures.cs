@@ -2,7 +2,7 @@ using iTextImage = iTextSharp.text.Image;
 
 namespace Shane32.EasyPDF
 {
-    partial class PDFWriter
+    public partial class PDFWriter
     {
         /// <summary>
         /// Gets or sets the alignment of printed images.

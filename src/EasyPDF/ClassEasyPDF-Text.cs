@@ -1,15 +1,16 @@
 using System;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
+using iTextFont = iTextSharp.text.Font;
 
 namespace Shane32.EasyPDF
 {
-    partial class PDFWriter
+    public partial class PDFWriter
     {
         /// <summary>
         /// Gets or sets the font to use when printing text.
         /// </summary>
-        public System.Drawing.Font Font { get; set; } = new System.Drawing.Font("helvetica", 12);
+        public Font Font { get; set; } = new Font("helvetica", 12);
 
         /// <summary>
         /// Gets or sets the alignment of printed text.
@@ -149,7 +150,7 @@ namespace Shane32.EasyPDF
         /// No word wrapping is applied.
         /// The current position is set to the end of the line of text.
         /// </summary>
-        public void WriteFont(string? text, Font f)
+        public void WriteFont(string? text, iTextFont f)
         {
             _content.SetFontAndSize(f.BaseFont, 12);
             Write(text);
