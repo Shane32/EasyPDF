@@ -29,7 +29,9 @@ namespace Shane32.EasyPDF
 
         static PDFWriter()
         {
+#if NETSTANDARD1_3_OR_GREATER
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#endif
             _ = FontFactory.RegisterDirectories();
         }
 
@@ -219,7 +221,7 @@ namespace Shane32.EasyPDF
             }
             
             if (_disposeStream && _stream != null) {
-                _stream.Close();
+                _stream.Dispose();
             }
         }
 

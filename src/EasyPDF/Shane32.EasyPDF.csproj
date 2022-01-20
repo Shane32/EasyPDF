@@ -1,16 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;netstandard1.5;net40</TargetFrameworks>
     <Description>
       A wrapper around the LGPL iTextSharp library to make it easier to use.
     </Description>
     <Nullable>enable</Nullable>
     <RootNamespace>Shane32.EasyPDF</RootNamespace>
+    <NetStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netstandard1.3' ">1.6.1</NetStandardImplicitPackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="iTextSharp.LGPLv2.Core" Version="1.7.5" />
   </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net40' ">
+    <Reference Include="System.Drawing.Common, Version=4.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51"/>
+  </ItemGroup>
 
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
+    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
+  </ItemGroup>
 </Project>
