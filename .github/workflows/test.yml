@@ -61,7 +61,7 @@ jobs:
         with:
           name: Code coverage artifacts
           path: |
-            ${{ matrix.os }}.lcov.info
+            ${{ matrix.os }}.lcov.net6.0.info
             Clover.xml
             cloverreport/**
             summary.html
