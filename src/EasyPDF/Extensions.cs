@@ -45,7 +45,7 @@ namespace Shane32.EasyPDF
                 throw new InvalidOperationException($"'{font.FamilyName}' doesn't exist; please register font using RegisterFont.");
             }
 
-            return FontFactory.GetFont(font.FamilyName, iTextSharp.text.pdf.BaseFont.CP1252, true, font.Size, s, color.ToiTextSharpColor());
+            return FontFactory.GetFont(font.FamilyName, iTextSharp.text.pdf.BaseFont.IDENTITY_H, true, font.Size, s, color.ToiTextSharpColor());
         }
     }
 }
