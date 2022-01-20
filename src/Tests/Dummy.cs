@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using Moq;
 using Shane32.EasyPDF;
-using Shouldly;
 using Xunit;
 
 namespace EasyPDFTests
