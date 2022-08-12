@@ -39,7 +39,7 @@ namespace Shane32.EasyPDF
                 s |= iTextFont.UNDERLINE;
             if (font.Strikeout)
                 s |= iTextFont.STRIKETHRU;
-
+            
             //if font doesnt exist then throws error
             if (!FontFactory.IsRegistered(font.FamilyName)) {
                 throw new InvalidOperationException($"'{font.FamilyName}' doesn't exist; please register font using RegisterFont.");
