@@ -30,5 +30,13 @@ namespace Shane32.EasyPDF
 
             MoveTo(false, x + size.Value, y + size.Value);
         }
+
+        /// <inheritdoc cref="QRCode(QRCoder.QRCodeData, float?, bool)"/>
+        public void QRCode(string code, QRCoder.QRCodeGenerator.ECCLevel eccLevel = QRCoder.QRCodeGenerator.ECCLevel.L, float? size = null, bool border = false)
+        {
+            var generator = new QRCoder.QRCodeGenerator();
+            var qrCode = generator.CreateQrCode(code, eccLevel);
+            QRCode(qrCode, size, border);
+        }
     }
 }
