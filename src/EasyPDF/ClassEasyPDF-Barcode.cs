@@ -1,4 +1,5 @@
 using System;
+using System.Drawing;
 using iTextSharp.text.pdf;
 
 namespace Shane32.EasyPDF
@@ -16,10 +17,12 @@ namespace Shane32.EasyPDF
         private const float DEFAULT_BARCODE_HEIGHT = 72f * 0.5f;
 
         /// <summary>
-        /// Prints a QR code in the color specified by <see cref="FillColor"/>.
+        /// Prints a QR code in the color specified by <see cref="FillColor"/> in the current
+        /// position, adjusted based on the <see cref="PictureAlignment"/> setting.
         /// If <paramref name="size"/> is not specified, QR code prints with 0.03" dot pitch;
         /// otherwise the overall size of the QR code is the specified size.
-        /// The border, if enabled, prints with the color specified by <see cref="ForeColor"/>.
+        /// The border, if enabled, prints with the color specified by <see cref="ForeColor"/>
+        /// and current line style selections.
         /// </summary>
         public void QRCode(QRCoder.QRCodeData data, float? size = null, bool border = false)
         {
@@ -105,7 +108,8 @@ namespace Shane32.EasyPDF
         }
 
         /// <summary>
-        /// Prints a CODE-128 barcode
+        /// Prints a CODE-128 barcode in the selected <see cref="FillColor"/> at the current position, adjusted
+        /// depending on the <see cref="PictureAlignment"/> value.
         /// </summary>
         public void Barcode(string text, BarcodeType type = BarcodeType.Code128, float? width = null, float? height = null)
         {
@@ -113,19 +117,60 @@ namespace Shane32.EasyPDF
                 throw new ArgumentOutOfRangeException(nameof(type));
 
             FinishLine();
+            var x = CurrentX;
+            var y = CurrentY;
+            width ??= BarcodeSize(text, type);
+            height ??= _TranslateRev(DEFAULT_BARCODE_HEIGHT);
+
+            switch (PictureAlignment) {
+                case PictureAlignment.LeftTop:
+                case PictureAlignment.LeftCenter:
+                case PictureAlignment.LeftBottom:
+                    break;
+                case PictureAlignment.CenterTop:
+                case PictureAlignment.CenterCenter:
+                case PictureAlignment.CenterBottom:
+                    x -= width.Value / 2f;
+                    break;
+                case PictureAlignment.RightTop:
+                case PictureAlignment.RightCenter:
+                case PictureAlignment.RightBottom:
+                    x -= width.Value;
+                    break;
+            }
+
+            switch (PictureAlignment) {
+                case PictureAlignment.LeftTop:
+                case PictureAlignment.CenterTop:
+                case PictureAlignment.RightTop:
+                    break;
+                case PictureAlignment.LeftCenter:
+                case PictureAlignment.CenterCenter:
+                case PictureAlignment.RightCenter:
+                    y -= height.Value / 2f;
+                    break;
+                case PictureAlignment.LeftBottom:
+                case PictureAlignment.CenterBottom:
+                case PictureAlignment.RightBottom:
+                    y -= height.Value;
+                    break;
+            }
+
             var c = new Barcode128();
             c.Code = text;
             c.CodeType = Barcode128.CODE128;
             c.Font = null;
-            c.BarHeight = height == null ? DEFAULT_BARCODE_HEIGHT : _Translate(height.Value);
+            c.BarHeight = _Translate(height.Value);
             _content.SaveState();
             try {
                 var matrix = new System.Drawing.Drawing2D.Matrix();
-                matrix.Translate(_currentX, _currentY);
+                matrix.Translate(_Translate(x), _Translate(y));
                 if (width.HasValue)
                     matrix.Scale(width.Value / BarcodeSize(text), 1f);
                 _content.Transform(matrix);
                 c.PlaceBarcode(_content, null, _GetColor(_foreColor));
+                _currentX = x + width.Value;
+                _currentY = y + height.Value;
             }
             finally {
                 _content.RestoreState();
@@ -133,7 +178,7 @@ namespace Shane32.EasyPDF
         }
 
         /// <summary>
-        /// Returns the default size of the specified barcode
+        /// Returns the default width of the specified barcode.
         /// </summary>
         public float BarcodeSize(string text, BarcodeType type = BarcodeType.Code128)
         {
