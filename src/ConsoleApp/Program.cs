@@ -94,7 +94,7 @@ page.MoveTo(false, 5, 3);
 page.PictureAlignment = PictureAlignment.LeftCenter;
 page.QRCode(qrData, 2, true);
 
-page.Barcode("Hello this is a test", 1, .5f);
+page.Barcode("Hello this is a test", BarcodeType.Code128, 1, .5f);
 
 var data = page.ToArray();
 

@@ -339,7 +339,7 @@ namespace Shane32.EasyPDF
 
                     _content.SetColorFill(f.Color);
                     _content.MoveText(0, 0);
-                    _content.ShowText(text!.Translate(Font));
+                    _content.ShowText(text);
                     // If NewLine Then _Content.NewlineText() 'unused; newline code is below.  (doesn't update CurrentY)
                     if ((f.CalculatedStyle & iTextSharp.text.Font.BOLD) == iTextSharp.text.Font.BOLD) {
                         _content.SetTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
