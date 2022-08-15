@@ -1,43 +1,114 @@
 using System.Net.Sockets;
 using QRCoder;
-using static QRCoder.PayloadGenerator;
+using Shane32.EasyPDF;
 using static QRCoder.QRCodeGenerator;
 
 Console.WriteLine("Creating PDF");
 
-var page = new Shane32.EasyPDF.PDFWriter();
+var page = new PDFWriter();
 page.NewPage(System.Drawing.Printing.PaperKind.Letter, false);
-page.ScaleMode = Shane32.EasyPDF.ScaleModes.Inches;
+page.ScaleMode = ScaleModes.Inches;
 page.CurrentX = 1;
 page.CurrentY = 1;
+page.Circle(true, 0, 0, 0.05f);
+page.Font = new Font(StandardFonts.Courier, 10);
+page.FontAlignment = TextAlignment.LeftTop;
+page.FontLineSpacing = 1.2f;
+page.Write("testing\r\nline2 this is a very long long line of text\nnew line\r  some more text", true);
+page.Write("", true);
+
+page.Font = new Font(StandardFonts.Times, 10);
+page.Write("Times Regular", true);
+page.Font = new Font(StandardFonts.Times, 10, System.Drawing.FontStyle.Bold);
+page.Write("Times Bold", true);
+page.Font = new Font(StandardFonts.Times, 10, System.Drawing.FontStyle.Italic);
+page.Write("Times Italic", true);
+page.Font = new Font(StandardFonts.Times, 10, System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic);
+page.Write("Times Bold Italic", true);
+
+page.Font = new Font(StandardFonts.Helvetica, 10);
+page.Write("Helvetica Regular", true);
+page.Font = new Font(StandardFonts.Helvetica, 10, System.Drawing.FontStyle.Bold);
+page.Write("Helvetica Bold", true);
+page.Font = new Font(StandardFonts.Helvetica, 10, System.Drawing.FontStyle.Italic);
+page.Write("Helvetica Italic", true);
+page.Font = new Font(StandardFonts.Helvetica, 10, System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic);
+page.Write("Helvetica Bold Italic", true);
+
+page.Font = new Font(StandardFonts.Courier, 10);
+page.Write("Courier Regular", true);
+page.Font = new Font(StandardFonts.Courier, 10, System.Drawing.FontStyle.Bold);
+page.Write("Courier Bold", true);
+page.Font = new Font(StandardFonts.Courier, 10, System.Drawing.FontStyle.Italic);
+page.Write("Courier Italic", true);
+page.Font = new Font(StandardFonts.Courier, 10, System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic);
+page.Write("Courier Bold Italic", true);
+
+page.Font = new Font(StandardFonts.Symbol, 8);
+page.Write(
+    @"!	∀	#	∃	%	&	∍	(	)	*	+	,	−	.	/
+3x	0	1	2	3	4	5	6	7	8	9	:	;	<	=	>	?
+4x	≅	Α	Β	Χ	Δ	Ε	Φ	Γ	Η	Ι	ϑ	Κ	Λ	Μ	Ν	Ο
+5x	Π	Θ	Ρ	Σ	Τ	Υ	ς	Ω	Ξ	Ψ	Ζ	[	∴	]	⊥	_
+6x	‾	α	β	χ	δ	ε	φ	γ	η	ι	ϕ	κ	λ	μ	ν	ο
+7x	π	θ	ρ	σ	τ	υ	ϖ	ω	ξ	ψ	ζ	{	|	}	~	
+8x																
+9x																
+Ax	€	ϒ	′	≤	⁄	∞	ƒ	♣	♦	♥	♠	↔	←	↑	→	↓
+Bx	°	±	″	≥	×	∝	∂	•	÷	≠	≡	≈	…	⏐	⎯	↵
+Cx	ℵ	ℑ	ℜ	℘	⊗	⊕	∅	∩	∪	⊃	⊇	⊄	⊂	⊆	∈	∉
+Dx	∠	∇	®	©	™	∏	√	⋅	¬	∧	∨	⇔	⇐	⇑	⇒	⇓
+Ex	◊	〈	®	©	™	∑	⎛	⎜	⎝	⎡	⎢	⎣	⎧	⎨	⎩	⎪
+Fx		〉	∫	⌠	⎮	⌡	⎞	⎟	⎠	⎤	⎥	⎦	⎫	⎬	⎭	".Replace("\t", "  "), true);
+
+page.Font = new Font(StandardFonts.Times, 10);
+page.Write("------------------------------------", true);
+
+page.Font = new Font(StandardFonts.ZapfDingbats, 8);
+page.Write(@"
+2x	SP	✁	✂	✃	✄	☎	✆	✇	✈	✉	☛	☞	✌	✍	✎	✏
+3x	✐	✑	✒	✓	✔	✕	✖	✗	✘	✙	✚	✛	✜	✝	✞	✟
+4x	✠	✡	✢	✣	✤	✥	✦	✧	★	✩	✪	✫	✬	✭	✮	✯
+5x	✰	✱	✲	✳	✴	✵	✶	✷	✸	✹	✺	✻	✼	✽	✾	✿
+6x	❀	❁	❂	❃	❄	❅	❆	❇	❈	❉	❊	❋	●	❍	■	❏
+7x	❐	❑	❒	▲	▼	◆	❖	◗	❘	❙	❚	❛	❜	❝	❞	
+8x	❨	❩	❪	❫	❬	❭	❮	❯	❰	❱	❲	❳	❴	❵		
+9x																
+Ax		❡	❢	❣	❤	❥	❦	❧	♣	♦	♥	♠	①	②	③	④
+Bx	⑤	⑥	⑦	⑧	⑨	⑩	❶	❷	❸	❹	❺	❻	❼	❽	❾	❿
+Cx	➀	➁	➂	➃	➄	➅	➆	➇	➈	➉	➊	➋	➌	➍	➎	➏
+Dx	➐	➑	➒	➓	➔	→	↔	↕	➘	➙	➚	➛	➜	➝	➞	➟
+Ex	➠	➡	➢	➣	➤	➥	➦	➧	➨	➩	➪	➫	➬	➭	➮	➯
+Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "));
 
 var qrCodeGenerator = new QRCodeGenerator();
 var qrData = qrCodeGenerator.CreateQrCode("www.zbox.com", ECCLevel.L);
 
+page.MoveTo(false, 3, 3);
 page.QRCode(qrData);
-page.MoveTo(false, 1, 3);
+page.MoveTo(false, 5, 3);
+//page.QRCode(qrData, 2, true);
+page.MoveTo(false, 5, 3);
+page.PictureAlignment = Shane32.EasyPDF.PictureAlignment.LeftCenter;
 page.QRCode(qrData, 2, true);
 
-//page.Font = new Shane32.EasyPDF.Font("Courier New", 10);
-//page.Write("Testing", true);
-
-//foreach (var row in qrData.ModuleMatrix) {
-//    page.Write(string.Join("", Enumerable.Range(0, row.Length).Select(index => row[index]).Select(x => x ? "XX" : "  ")), true);
-//    Console.WriteLine("b" + string.Join("", Enumerable.Range(0, row.Length).Select(index => row[index]).Select(x => x ? "XX" : "  ")));
-//}
+page.Barcode("Hello this is a test", 0, 1);
 
 var data = page.ToArray();
 
-using var fil = new FileStream("testbarcode.pdf", FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+var filename = Path.ChangeExtension(Path.GetTempFileName(), "pdf");
+using var fil = new FileStream(filename, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
 await fil.WriteAsync(data);
 fil.Close();
 
-Console.WriteLine("Saved to testbarcode.pdf");
+Console.WriteLine("Saved");
 
-//return;
+var processInfo = new System.Diagnostics.ProcessStartInfo(filename);
+processInfo.UseShellExecute = true;
+System.Diagnostics.Process.Start(processInfo);
 
 // 172.18.0.50
-Console.WriteLine("Printer hostname/ip:");
+Console.WriteLine("Printer hostname/ip: (or enter to quit)");
 var ip = Console.ReadLine();
 if (ip == "" || ip == null)
     return;

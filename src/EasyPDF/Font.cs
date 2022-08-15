@@ -26,6 +26,11 @@ namespace Shane32.EasyPDF
         public FontStyle FontStyle { get; }
 
         /// <summary>
+        /// Indicates if this font is embedded or a built-in font.
+        /// </summary>
+        public bool Embedded { get; }
+
+        /// <summary>
         /// Indicates if the font has a bold style.
         /// </summary>
         public bool Bold => FontStyle.HasFlag(FontStyle.Bold);
@@ -49,23 +54,81 @@ namespace Shane32.EasyPDF
         /// Initializes a new instance with the specified variables.
         /// </summary>
         /// <param name="familyName">The family name of this font.</param>
-        /// <param name="size">The font em-size of the font measured in points.</param>
-        public Font(string familyName, float size)
+        /// <param name="size">The font em-size of the font.</param>
+        /// <param name="fontStyle">The style of the font measured in points.</param>
+        public Font(string familyName, float size, FontStyle fontStyle = FontStyle.Regular)
         {
             FamilyName = familyName;
             Size = size;
+            FontStyle = fontStyle;
+            Embedded = true;
         }
 
         /// <summary>
         /// Initializes a new instance with the specified variables.
         /// </summary>
-        /// <param name="familyName">The family name of this font.</param>
+        /// <param name="family">The family name of this font.</param>
         /// <param name="size">The font em-size of the font.</param>
         /// <param name="fontStyle">The style of the font measured in points.</param>
-        public Font(string familyName, float size, FontStyle fontStyle)
-            : this(familyName, size)
+        public Font(StandardFonts family, float size, FontStyle fontStyle = FontStyle.Regular)
         {
+            switch (family) {
+                case StandardFonts.Times:
+                    FamilyName = "Times";
+                    break;
+                case StandardFonts.Helvetica:
+                    FamilyName = "Helvetica";
+                    break;
+                case StandardFonts.Courier:
+                    FamilyName = "Courier";
+                    break;
+                case StandardFonts.Symbol:
+                    if (fontStyle.HasFlag(FontStyle.Bold) || fontStyle.HasFlag(FontStyle.Italic))
+                        throw new ArgumentOutOfRangeException(nameof(fontStyle), "Cannot specify bold or italic for the built-in Symbol font.");
+                    FamilyName = "Symbol";
+                    break;
+                case StandardFonts.ZapfDingbats:
+                    if (fontStyle.HasFlag(FontStyle.Bold) || fontStyle.HasFlag(FontStyle.Italic))
+                        throw new ArgumentOutOfRangeException(nameof(fontStyle), "Cannot specify bold or italic for the built-in ZapfDingbats font.");
+                    FamilyName = "ZapfDingbats";
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(family));
+            }
+            Size = size;
             FontStyle = fontStyle;
+            Embedded = false;
         }
+    }
+
+    /// <summary>
+    /// Specifies constants that define the built-in PDF font to be used.
+    /// </summary>
+    public enum StandardFonts
+    {
+        /// <summary>
+        /// The Times font, which has bold, italic and bold-italic variations.
+        /// </summary>
+        Times = 1,
+
+        /// <summary>
+        /// The Helvetica font, which has bold, italic and bold-italic variations.
+        /// </summary>
+        Helvetica = 2,
+
+        /// <summary>
+        /// The Courier font, which has bold, italic and bold-italic variations.
+        /// </summary>
+        Courier = 3,
+
+        /// <summary>
+        /// The Symbol font.
+        /// </summary>
+        Symbol = 4,
+
+        /// <summary>
+        /// The ZapfDingbats font.
+        /// </summary>
+        ZapfDingbats = 5,
     }
 }

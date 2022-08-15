@@ -8,7 +8,7 @@ namespace Shane32.EasyPDF
         /// Gets or sets the alignment of printed images.
         /// This alignment is relative to the current position when printing.
         /// </summary>
-        public PictureAlignment PictureAlignment;
+        public PictureAlignment PictureAlignment { get; set; }
 
         /// <summary>
         /// Prints the specified image at the current position.

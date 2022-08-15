@@ -10,7 +10,7 @@ namespace Shane32.EasyPDF
         /// <summary>
         /// Gets or sets the font to use when printing text.
         /// </summary>
-        public Font Font { get; set; } = new Font("helvetica", 12);
+        public Font Font { get; set; } = new Font(StandardFonts.Helvetica, 12);
 
         /// <summary>
         /// Gets or sets the alignment of printed text.
@@ -93,7 +93,8 @@ namespace Shane32.EasyPDF
 
         /// <summary>
         /// Writes a single line of text with word wrapping at the current position and returns the text remaining
-        /// to be written (subsequent lines).
+        /// to be written (subsequent lines); returns <see langword="null"/> if there are no more lines remaining
+        /// to be printed.
         /// <para>
         /// The current position's Y offset is incremented by the line height.
         /// </para>
@@ -116,7 +117,7 @@ namespace Shane32.EasyPDF
                     throw new InvalidOperationException("Invalid FontAlignment; use a left-aligned alignment");
             }
 
-            return Write2(text, true, width, true, justify);
+            return Write2(text ?? "", true, width, true, justify);
         }
 
         /// <summary>
@@ -165,10 +166,44 @@ namespace Shane32.EasyPDF
         /// </para>
         /// </summary>
         public void Write(string? text, bool newLine = false)
-            => _ = Write2(text, newLine, 0f, false, false);
-
-        private string? Write2(string? text, bool newLine, float width, bool wordWrap, bool justify)
         {
+            text ??= "";
+            while (text != null) {
+                text = Write2(text, newLine, 0, false, false);
+            }
+        }
+
+        /// <summary>
+        /// Prints a line of text, returning the next line of text or <see langword="null"/> if there are no more lines to be printed.
+        /// Supports CR, LF, or CRLF within the text for line breaks.
+        /// </summary>
+        /// <param name="text">The text to print.</param>
+        /// <param name="newLine">If, for the last line, the position should be positioned below the starting position; otherwise it will be at the end of the line of text.</param>
+        /// <param name="width">Maximum width of text when <paramref name="wordWrap"/> is <see langword="true"/>.</param>
+        /// <param name="wordWrap">Enables word-wrapping if the text extends past the specified width; wraps at spaces.</param>
+        /// <param name="justify">Justifies text if word wrapping was necessary (but not when due to CR/LF).</param>
+        /// <returns></returns>
+        private string? Write2(string text, bool newLine, float width, bool wordWrap, bool justify)
+        {
+            var i = text.IndexOf('\r');
+            var j = text.IndexOf('\n');
+            var k = text.IndexOf("\r\n");
+            if (k >= 0 && k <= i && k <= j) {
+                var ret = Write3(text.Substring(0, k), true, width, wordWrap, justify);
+                return ret == null ? text.Substring(k + 2) : ret + text.Substring(k);
+            } else if (i >= 0 && (j == -1 || i < j)) {
+                var ret = Write3(text.Substring(0, i), true, width, wordWrap, justify);
+                return ret == null ? text.Substring(i + 1) : ret + text.Substring(i);
+            } else if (j >= 0) {
+                var ret = Write3(text.Substring(0, j), true, width, wordWrap, justify);
+                return ret == null ? text.Substring(j + 1) : ret + text.Substring(j);
+            }
+            return Write3(text, newLine, width, wordWrap, justify);
+        }
+
+        private string? Write3(string text, bool newLine, float width, bool wordWrap, bool justify)
+        {
+            System.Diagnostics.Debug.WriteLine("Print: " + (text ?? "(null)").Replace("\r", "\\r").Replace("\n", "\\n"));
             string? remainingText = default;
             FinishLine();
             if (string.IsNullOrEmpty(text) && !newLine)
@@ -305,7 +340,7 @@ namespace Shane32.EasyPDF
 
                     _content.SetColorFill(f.Color);
                     _content.MoveText(0, 0);
-                    _content.ShowText(text);
+                    _content.ShowText(text!.Translate(Font));
                     // If NewLine Then _Content.NewlineText() 'unused; newline code is below.  (doesn't update CurrentY)
                     if ((f.CalculatedStyle & iTextSharp.text.Font.BOLD) == iTextSharp.text.Font.BOLD) {
                         _content.SetTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
