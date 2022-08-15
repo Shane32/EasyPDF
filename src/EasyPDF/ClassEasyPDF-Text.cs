@@ -148,17 +148,6 @@ namespace Shane32.EasyPDF
 
         /// <summary>
         /// Prints specified text in the specified font at the current position.
-        /// No word wrapping is applied.
-        /// The current position is set to the end of the line of text.
-        /// </summary>
-        public void WriteFont(string? text, iTextFont f)
-        {
-            _content.SetFontAndSize(f.BaseFont, 12);
-            Write(text);
-        }
-
-        /// <summary>
-        /// Prints specified text in the specified font at the current position.
         /// No word wrapping or justification is applied.
         /// <para>
         /// When <paramref name="newLine"/> is <see langword="false"/>, the current position is set to the end of the line of text.
