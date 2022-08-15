@@ -49,7 +49,7 @@ namespace Shane32.EasyPDF
         /// </summary>
         /// <param name="border">Draws a border around the polygon with the current <see cref="ForeColor"/>.</param>
         /// <param name="fill">Fills the polygon with the current <see cref="FillColor"/>.</param>
-        /// <param name="eoFill">I can't remember what this does...</param>
+        /// <param name="eoFill">Uses the even-odd fill rule to fill polygons with overlapping boundaries.</param>
         public void FinishPolygon(bool border, bool fill, bool eoFill = false)
         {
             if (_inLine) {
