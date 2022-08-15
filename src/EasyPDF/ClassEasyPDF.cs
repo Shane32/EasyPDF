@@ -2,7 +2,11 @@ using System;
 using System.Drawing;
 using System.Drawing.Printing;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextColor = iTextSharp.text.BaseColor;
@@ -194,6 +198,48 @@ namespace Shane32.EasyPDF
                 throw new InvalidOperationException("This method is only available when using the default constructor.");
             Close();
             return ((MemoryStream)_stream).ToArray();
+        }
+
+        /// <summary>
+        /// Prints to the specified network-attached printer; only supported when the printer supports PDF printing.
+        /// </summary>
+        public async Task PrintAsync(string host, int port = 9100, CancellationToken token = default)
+        {
+            if (!_privateStream)
+                throw new InvalidOperationException("This method is only available when using the default constructor.");
+            Close();
+
+            using var tcpClient = new TcpClient();
+#if NET5_0_OR_GREATER
+            await tcpClient.ConnectAsync(host, port, token);
+#else
+            await tcpClient.ConnectAsync(host, port);
+#endif
+            using var stream = tcpClient.GetStream();
+            _stream.Position = 0;
+            await _stream.CopyToAsync(stream, 81920, token);
+            await stream.FlushAsync(token);
+        }
+
+        /// <summary>
+        /// Prints to the specified network-attached printer; only supported when the printer supports PDF printing.
+        /// </summary>
+        public async Task PrintAsync(IPAddress address, int port = 9100, CancellationToken token = default)
+        {
+            if (!_privateStream)
+                throw new InvalidOperationException("This method is only available when using the default constructor.");
+            Close();
+
+            using var tcpClient = new TcpClient();
+#if NET5_0_OR_GREATER
+            await tcpClient.ConnectAsync(address, port, token);
+#else
+            await tcpClient.ConnectAsync(address, port);
+#endif
+            using var stream = tcpClient.GetStream();
+            _stream.Position = 0;
+            await _stream.CopyToAsync(stream, 81920, token);
+            await stream.FlushAsync(token);
         }
 
         /// <summary>
