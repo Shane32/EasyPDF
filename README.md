@@ -156,3 +156,8 @@ Barcodes are positioned according to the `PictureAlignment` property and colored
 | NewPage             | Creates or appends a new page of the specified size; required before writing to the document |
 | PrintAsync          | Prints the page to a specified network-attached printer that supports direct PDF printing |
 | ToArray             | Returns the PDF as a byte array |
+
+## Credits
+
+Glory to Jehovah, Lord of Lords and King of Kings, creator of Heaven and Earth, who through his Son Jesus Christ,
+has reedemed me to become a child of God. -Shane32
