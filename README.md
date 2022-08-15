@@ -153,6 +153,6 @@ Barcodes are positioned according to the `PictureAlignment` property and colored
 | GetDirectContent    | Returns the underlying `iTextSharp.text.pdf.PdfContentByte` which can be used to perform nearly any drawing action on the PDF |
 | GetDocument         | Returns the underlying `iTextSharp.text.Document` instance |
 | GetWriter           | Returns the underlying `iTextSharp.text.pdf.iTextPdfWriter` instance |
-| NewPage             | Creates a new page of the specified size; required before writing to the document |
+| NewPage             | Creates or appends a new page of the specified size; required before writing to the document |
 | PrintAsync          | Prints the page to a specified network-attached printer that supports direct PDF printing |
 | ToArray             | Returns the PDF as a byte array |
