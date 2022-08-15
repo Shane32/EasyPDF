@@ -81,6 +81,8 @@ Dx	➐	➑	➒	➓	➔	→	↔	↕	➘	➙	➚	➛	➜	➝	➞	➟
 Ex	➠	➡	➢	➣	➤	➥	➦	➧	➨	➩	➪	➫	➬	➭	➮	➯
 Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "));
 
+page.FillColor = System.Drawing.Color.Red;
+
 var qrCodeGenerator = new QRCodeGenerator();
 var qrData = qrCodeGenerator.CreateQrCode("www.zbox.com", ECCLevel.L);
 
@@ -89,10 +91,10 @@ page.QRCode(qrData);
 page.MoveTo(false, 5, 3);
 //page.QRCode(qrData, 2, true);
 page.MoveTo(false, 5, 3);
-page.PictureAlignment = Shane32.EasyPDF.PictureAlignment.LeftCenter;
+page.PictureAlignment = PictureAlignment.LeftCenter;
 page.QRCode(qrData, 2, true);
 
-page.Barcode("Hello this is a test", 0, 1);
+page.Barcode("Hello this is a test", 1, .5f);
 
 var data = page.ToArray();
 

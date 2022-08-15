@@ -203,7 +203,6 @@ namespace Shane32.EasyPDF
 
         private string? Write3(string text, bool newLine, float width, bool wordWrap, bool justify)
         {
-            System.Diagnostics.Debug.WriteLine("Print: " + (text ?? "(null)").Replace("\r", "\\r").Replace("\n", "\\n"));
             string? remainingText = default;
             FinishLine();
             if (string.IsNullOrEmpty(text) && !newLine)

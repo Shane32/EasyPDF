@@ -1,3 +1,6 @@
+using System;
+using iTextSharp.text.pdf;
+
 namespace Shane32.EasyPDF
 {
     public partial class PDFWriter
@@ -6,6 +9,11 @@ namespace Shane32.EasyPDF
         /// Default box size for QR codes in points (0.03" dot pitch)
         /// </summary>
         private const float DEFAULT_BOX_SIZE = 72f / 33;
+
+        /// <summary>
+        /// Default barcode height in points (0.5")
+        /// </summary>
+        private const float DEFAULT_BARCODE_HEIGHT = 72f * 0.5f;
 
         /// <summary>
         /// Prints a QR code in the color specified by <see cref="FillColor"/>.
@@ -99,22 +107,44 @@ namespace Shane32.EasyPDF
         /// <summary>
         /// Prints a CODE-128 barcode
         /// </summary>
-        public void Barcode(string text, float? width = null, float? height = null)
+        public void Barcode(string text, BarcodeType type = BarcodeType.Code128, float? width = null, float? height = null)
         {
+            if (type != BarcodeType.Code128)
+                throw new ArgumentOutOfRangeException(nameof(type));
+
             FinishLine();
-            var c = new iTextSharp.text.pdf.Barcode128();
+            var c = new Barcode128();
             c.Code = text;
-            c.CodeType = iTextSharp.text.pdf.Barcode128.CODE128;
+            c.CodeType = Barcode128.CODE128;
             c.Font = null;
-            c.BarHeight = height == null ? 72f * 0.5f : _Translate(height.Value);
+            c.BarHeight = height == null ? DEFAULT_BARCODE_HEIGHT : _Translate(height.Value);
             _content.SaveState();
             try {
-                //_content.Transform(new System.Drawing.Drawing2D.Matrix()
+                var matrix = new System.Drawing.Drawing2D.Matrix();
+                matrix.Translate(_currentX, _currentY);
+                if (width.HasValue)
+                    matrix.Scale(width.Value / BarcodeSize(text), 1f);
+                _content.Transform(matrix);
                 c.PlaceBarcode(_content, null, _GetColor(_foreColor));
             }
             finally {
                 _content.RestoreState();
             }
+        }
+
+        /// <summary>
+        /// Returns the default size of the specified barcode
+        /// </summary>
+        public float BarcodeSize(string text, BarcodeType type = BarcodeType.Code128)
+        {
+            if (type != BarcodeType.Code128)
+                throw new ArgumentOutOfRangeException(nameof(type));
+
+            var c = new Barcode128();
+            c.Code = text;
+            c.CodeType = Barcode128.CODE128;
+            c.Font = null;
+            return _TranslateRev(c.BarcodeSize.Width);
         }
     }
 }
