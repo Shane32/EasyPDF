@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-
     <IsPackable>false</IsPackable>
     <LangVersion>9.0</LangVersion>
     <Nullable>disable</Nullable>
