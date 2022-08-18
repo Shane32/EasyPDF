@@ -66,10 +66,10 @@ pdf.Close();
 | Font.ParagraphSpacing    | The amount of space between paragraphs measured in points |
 | ForeColor                | The color for printing text, lines and borders |
 | LineStyle                | The style used to draw lines and borders |
-| LineStyle.LineCap        | The style used to draw the end of a line |
-| LineStyle.LineDash       | The dash style used to draw lines and borders |
-| LineStyle.LineJoin       | The style used to draw joined line segments and borders |
-| LineStyle.LineWidth      | The pen width when drawing lines and borders |
+| LineStyle.CapStyle       | The style used to draw the end of a line |
+| LineStyle.DashStyle      | The dash style used to draw lines and borders |
+| LineStyle.JoinStyle      | The style used to draw joined line segments and borders |
+| LineStyle.Width          | The pen width when drawing lines and borders |
 | PageSize                 | Returns the size of the current page including margins |
 | PictureAlignment         | The alignment of pictures and barcodes in relation to the current position |
 | Position                 | The current position |
@@ -153,6 +153,8 @@ to the PDF file.  Pictures are positioned according to the `PictureAlignment` pr
 
 Note that once a line or polygon has begun, any call to a method other than `LineTo`, `CornerTo`,
 `BezierTo`, `FinishLine` or `FinishPolygon` will implicitly call `FinishLine` to draw the line on the page.
+
+Lines will be 0.1 points in width if not specified by the `LineStyle.Width` property.
 
 ## Barcode / QR code commands
 
