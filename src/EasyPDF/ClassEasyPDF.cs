@@ -25,6 +25,7 @@ namespace Shane32.EasyPDF
         private ScaleModes _scaleMode = ScaleModes.Hundredths;
         private SizeF _pageSize;
         private SizeF _marginSize;
+        private PointF _marginOffset;
 
         static PDFWriter()
         {
@@ -158,14 +159,13 @@ namespace Shane32.EasyPDF
 
             _writer!.PageEmpty = false;
             if (landscape) {
-                _content.ConcatCtm(1, 0, 0, -1, marginLeft, pageWidth - marginTop);
                 _pageSize = new SizeF(pageHeight, pageWidth);
-                _marginSize = new SizeF(pageHeight - marginTop - marginBottom.Value, pageWidth - marginLeft - marginRight.Value);
             } else {
-                _content.ConcatCtm(1, 0, 0, -1, marginLeft, pageHeight - marginTop);
                 _pageSize = new SizeF(pageWidth, pageHeight);
-                _marginSize = new SizeF(pageWidth - marginLeft - marginRight.Value, pageHeight - marginTop - marginBottom.Value);
             }
+            _content.ConcatCtm(1, 0, 0, -1, marginLeft, _pageSize.Height - marginTop);
+            _marginOffset = new PointF(marginLeft, marginTop);
+            _marginSize = new SizeF(_pageSize.Width - marginLeft - marginRight.Value, _pageSize.Height - marginTop - marginBottom.Value);
 
             _InitLineVars();
             _currentX = 0;
@@ -352,5 +352,10 @@ namespace Shane32.EasyPDF
         /// Return the size of the page excluding margins.
         /// </summary>
         public SizeF Size => _marginSize;
+
+        /// <summary>
+        /// Returns the top and left margin offsets on the page.
+        /// </summary>
+        public PointF MarginOffset => _marginOffset;
     }
 }

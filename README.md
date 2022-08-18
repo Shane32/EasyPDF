@@ -70,6 +70,7 @@ pdf.Close();
 | LineStyle.DashStyle      | The dash style used to draw lines and borders |
 | LineStyle.JoinStyle      | The style used to draw joined line segments and borders |
 | LineStyle.Width          | The pen width when drawing lines and borders |
+| MarginOffset             | Returns the offset of the left and top margins |
 | PageSize                 | Returns the size of the current page including margins |
 | PictureAlignment         | The alignment of pictures and barcodes in relation to the current position |
 | Position                 | The current position |
