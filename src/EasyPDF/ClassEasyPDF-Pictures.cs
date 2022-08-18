@@ -29,7 +29,7 @@ namespace Shane32.EasyPDF
 
         private PDFWriter PaintPictureAbs(iTextImage img, float widthPoints, float heightPoints)
         {
-            FinishLine();
+            FinishLineAndUpdateLineStyle();
             float offsetX = default, offsetY = default;
             switch (PictureAlignment) {
                 case PictureAlignment.LeftTop:

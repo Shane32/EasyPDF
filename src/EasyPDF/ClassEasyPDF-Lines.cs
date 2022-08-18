@@ -15,13 +15,6 @@ namespace Shane32.EasyPDF
         /// </summary>
         private float _currentY;
 
-        /// <summary>
-        /// The current line width setting in points.
-        /// </summary>
-        private float _lineWidth = 0.1f;
-        private LineCapStyle _lineCap = LineCapStyle.None;
-        private LineJoinStyle _lineJoin = LineJoinStyle.Miter;
-        private LineDashStyle _lineDash = LineDashStyle.Solid;
         private bool _inLine;
         private Color _foreColor = Color.Black;
         private Color _fillColor = Color.Black;
@@ -34,12 +27,7 @@ namespace Shane32.EasyPDF
         {
             ForeColor = _foreColor;
             FillColor = _fillColor;
-            LineCap = _lineCap;
-            LineJoin = _lineJoin;
-            LineDash = _lineDash;
-#pragma warning disable CA2245 // Do not assign a property to itself
-            LineWidth = LineWidth;
-#pragma warning restore CA2245 // Do not assign a property to itself
+            _lastLineStyle = null;
         }
 
         /// <summary>
@@ -59,6 +47,17 @@ namespace Shane32.EasyPDF
         }
 
         /// <summary>
+        /// Completes the current line being drawn and updates the line style.
+        /// </summary>
+        private PDFWriter FinishLineAndUpdateLineStyle()
+        {
+            FinishLine();
+            UpdateLineStyle();
+
+            return this;
+        }
+
+        /// <summary>
         /// Completes the current polygon being drawn.
         /// </summary>
         /// <param name="border">Draws a border around the polygon with the current <see cref="ForeColor"/>.</param>
@@ -66,6 +65,7 @@ namespace Shane32.EasyPDF
         /// <param name="eoFill">Uses the even-odd fill rule to fill polygons with overlapping boundaries.</param>
         public PDFWriter FinishPolygon(bool border, bool fill, bool eoFill = false)
         {
+            UpdateLineStyle();
             if (_inLine) {
                 try {
                     if (border) {
@@ -98,7 +98,7 @@ namespace Shane32.EasyPDF
             get => _foreColor;
 
             set {
-                FinishLine();
+                FinishLineAndUpdateLineStyle();
                 _foreColor = value;
                 _content2?.SetColorStroke(value.ToiTextSharpColor());
             }
@@ -111,66 +111,40 @@ namespace Shane32.EasyPDF
             get => _fillColor;
 
             set {
-                FinishLine();
+                FinishLineAndUpdateLineStyle();
                 _fillColor = value;
                 _content2?.SetColorFill(value.ToiTextSharpColor());
             }
         }
 
         /// <summary>
-        /// Gets or sets the current <see cref="LineCapStyle"/> used when drawing lines.
+        /// Gets or sets the current line style.
         /// </summary>
-        public LineCapStyle LineCap {
-            get => _lineCap;
+        public LineStyle LineStyle { get; set; } = new();
 
-            set {
+        private LineStyle? _lastLineStyle;
+        private ScaleModes _lastScaleMode = ScaleModes.Points;
+        private void UpdateLineStyle()
+        {
+            var force = _lastLineStyle == null || _lastScaleMode != _scaleMode;
+            if (force || _lastLineStyle != LineStyle) {
                 FinishLine();
-                switch (value) {
-                    case LineCapStyle.None:
-                    case LineCapStyle.Round:
-                    case LineCapStyle.Square:
-                        _lineCap = value;
-                        _content2?.SetLineCap((int)_lineCap);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(value));
+                if (force || _lastLineStyle!.CapStyle != LineStyle.CapStyle) {
+                    _content.SetLineCap((int)LineStyle.CapStyle);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the current <see cref="LineJoinStyle"/> used when drawing lines or borders.
-        /// </summary>
-        public LineJoinStyle LineJoin {
-            get => _lineJoin;
-
-            set {
-                FinishLine();
-                switch (value) {
-                    case LineJoinStyle.Bevel:
-                    case LineJoinStyle.Miter:
-                    case LineJoinStyle.Rounded:
-                        _lineJoin = value;
-                        _content2?.SetLineJoin((int)_lineJoin);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(value));
+                if (force || _lastLineStyle!.JoinStyle != LineStyle.JoinStyle) {
+                    _content.SetLineJoin((int)LineStyle.JoinStyle);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the current <see cref="LineDashStyle"/> used when drawing lines or borders.
-        /// </summary>
-        public LineDashStyle LineDash {
-            get => _lineDash;
-
-            set {
-                if (value is null)
-                    throw new ArgumentNullException(nameof(value));
-                FinishLine();
-                _lineDash = value;
-                _content2?.SetLineDash(_lineDash.MultipliedArray(_lineWidth), _lineDash.MultipliedPhase(_lineWidth));
+                if (force || _lastLineStyle!.Width != LineStyle.Width) {
+                    _content.SetLineWidth(_Translate(LineStyle.Width) ?? 0.1f);
+                    force = true;
+                }
+                if (force || _lastLineStyle!.DashStyle != LineStyle.DashStyle) {
+                    var lineWidth = _Translate(LineStyle.Width) ?? 0.1f;
+                    _content.SetLineDash(LineStyle.DashStyle.MultipliedArray(lineWidth), LineStyle.DashStyle.MultipliedPhase(lineWidth));
+                }
+                _lastLineStyle = LineStyle;
+                _lastScaleMode = _scaleMode;
             }
         }
 
@@ -195,20 +169,6 @@ namespace Shane32.EasyPDF
             set {
                 FinishLine();
                 _currentY = _Translate(value);
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the current line width used when drawing lines or borders.
-        /// </summary>
-        public float LineWidth {
-            get => _TranslateRev(_lineWidth);
-
-            set {
-                FinishLine();
-                _lineWidth = _Translate(value);
-                _content2?.SetLineWidth(_lineWidth);
-                _content2?.SetLineDash(_lineDash.MultipliedArray(_lineWidth), _lineDash.MultipliedPhase(_lineWidth));
             }
         }
 
@@ -252,6 +212,7 @@ namespace Shane32.EasyPDF
         /// </summary>
         public PDFWriter LineTo(float offsetX, float offsetY)
         {
+            UpdateLineStyle();
             var x2 = _currentX + _Translate(offsetX);
             var y2 = _currentY + _Translate(offsetY);
 
@@ -291,7 +252,7 @@ namespace Shane32.EasyPDF
         /// <param name="border">Draws a border on the rectangle with the current <see cref="ForeColor"/>.</param>
         public PDFWriter Rectangle(float width, float height, float borderRadius = 0f, bool fill = false, bool border = true)
         {
-            FinishLine();
+            FinishLineAndUpdateLineStyle();
 
             var widthPoints = _Translate(width);
             var heightPoints = _Translate(height);
@@ -339,6 +300,7 @@ namespace Shane32.EasyPDF
         /// <param name="bulgeVertical">Controls the amount of curvature.</param>
         public PDFWriter CornerTo(float offsetX, float offsetY, bool fromSide, float bulgeHorizontal, float bulgeVertical)
         {
+            UpdateLineStyle();
             var x2 = _currentX + _Translate(offsetX);
             var y2 = _currentY + _Translate(offsetY);
 
@@ -362,6 +324,7 @@ namespace Shane32.EasyPDF
         /// </summary>
         public PDFWriter BezierTo(float x2, float y2, float x3, float y3, float x4, float y4)
         {
+            UpdateLineStyle();
             if (!_inLine)
                 _content.MoveTo(_currentX, _currentY);
             _content.CurveTo(_Translate(x2), _Translate(y2), _Translate(x3), _Translate(y3), _Translate(x4), _Translate(y4));
@@ -377,6 +340,7 @@ namespace Shane32.EasyPDF
         /// </summary>
         public PDFWriter BezierTo(float x2, float y2, float x4, float y4)
         {
+            UpdateLineStyle();
             if (!_inLine)
                 _content.MoveTo(_currentX, _currentY);
             _content.CurveTo(_Translate(x2), _Translate(y2), _Translate(x4), _Translate(y4));
@@ -394,7 +358,7 @@ namespace Shane32.EasyPDF
         /// <param name="border">Draws a border on the circle with the current <see cref="ForeColor"/>.</param>
         public PDFWriter Circle(float radius, bool border = true, bool fill = false)
         {
-            FinishLine();
+            FinishLineAndUpdateLineStyle();
             if (!(border || fill))
                 return this;
 

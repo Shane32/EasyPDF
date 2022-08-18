@@ -1,11 +1,12 @@
 using System;
+using System.Linq;
 
 namespace Shane32.EasyPDF
 {
     /// <summary>
     /// Represents a line dash pattern, such as a solid line, dashed or dotted pattern.
     /// </summary>
-    public class LineDashStyle
+    public record LineDashStyle : IEquatable<LineDashStyle>
     {
         private readonly float[] _array;
         /// <summary>
@@ -68,6 +69,21 @@ namespace Shane32.EasyPDF
         /// </summary>
         public float MultipliedPhase(float multiplier)
             => Phase * multiplier;
+
+        /// <inheritdoc/>
+        public virtual bool Equals(LineDashStyle? other)
+            => other != null && other.Phase == Phase && Enumerable.SequenceEqual(_array, other._array);
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            int hash = 0;
+            for (int i = 0; i < _array.Length; i++) {
+                hash ^= _array[i].GetHashCode();
+            }
+            hash ^= Phase.GetHashCode();
+            return hash;
+        }
 
         /// <summary>
         /// Represents a solid line.

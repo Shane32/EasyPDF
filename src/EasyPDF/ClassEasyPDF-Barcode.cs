@@ -119,7 +119,7 @@ namespace Shane32.EasyPDF
             if (type != BarcodeType.Code128)
                 throw new ArgumentOutOfRangeException(nameof(type));
 
-            FinishLine();
+            FinishLineAndUpdateLineStyle();
             var x = CurrentX;
             var y = CurrentY;
             width ??= BarcodeSize(text, type);

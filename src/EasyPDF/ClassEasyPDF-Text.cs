@@ -24,7 +24,7 @@ namespace Shane32.EasyPDF
         /// <param name="maxWidth">The maximum width to print before word wrapping.</param>
         public PDFWriter Write(string? text, float? maxWidth = null)
         {
-            FinishLine();
+            FinishLineAndUpdateLineStyle();
 
             if (text == null)
                 return this;
@@ -103,7 +103,7 @@ namespace Shane32.EasyPDF
             bool isLeftAligned = TextAlignment == TextAlignment.LeftTop || TextAlignment == TextAlignment.LeftCenter || TextAlignment == TextAlignment.LeftBaseline || TextAlignment == TextAlignment.LeftBottom;
             var widthPoints = _Translate(width - (isLeftAligned && indent ? Font.HangingIndent : 0f));
             string? remainingText = default;
-            FinishLine();
+            FinishLineAndUpdateLineStyle();
             if (string.IsNullOrEmpty(text) && !newLine)
                 return null;
             var f = Font.ToiTextSharpFont(ForeColor);

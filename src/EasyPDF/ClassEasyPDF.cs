@@ -1,12 +1,8 @@
-using System;
 using System.Drawing;
 using System.Drawing.Printing;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextPdfWriter = iTextSharp.text.pdf.PdfWriter;
@@ -85,7 +81,7 @@ namespace Shane32.EasyPDF
         };
 
         /// <summary>
-        /// Returns the size of the page
+        /// Returns the size of the page including margins.
         /// </summary>
         public SizeF PageSize => new SizeF(_TranslateRev(_pageSize.Width), _TranslateRev(_pageSize.Height));
 
@@ -238,7 +234,7 @@ namespace Shane32.EasyPDF
         public void Close()
         {
             if (_content2 != null) {
-                FinishLine();
+                FinishLineAndUpdateLineStyle();
                 _content2 = null;
             }
             if (_document != null) {
@@ -306,6 +302,11 @@ namespace Shane32.EasyPDF
         private float _Translate(float num) => _Translate(num, _scaleMode);
 
         /// <summary>
+        /// Translates a value from the selected scale mode to points.
+        /// </summary>
+        private float? _Translate(float? num) => num.HasValue ? _Translate(num.Value, _scaleMode) : null;
+
+        /// <summary>
         /// Translates a value from a specified scale mode to points.
         /// </summary>
         private static float _Translate(float num, ScaleModes scaleMode)
@@ -346,5 +347,10 @@ namespace Shane32.EasyPDF
                 _ => throw new ArgumentOutOfRangeException(nameof(scaleMode)),
             };
         }
+
+        /// <summary>
+        /// Return the size of the page excluding margins.
+        /// </summary>
+        public SizeF Size => _marginSize;
     }
 }
