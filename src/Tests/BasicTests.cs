@@ -1,9 +1,6 @@
-using Shane32.EasyPDF;
-using Xunit;
-
-namespace EasyPDFTests
+namespace Tests
 {
-    public class DummyTests
+    public class BasicTests
     {
         [Fact]
         public void ItWorks()
@@ -11,10 +8,11 @@ namespace EasyPDFTests
             using var writer = new PDFWriter();
             writer.ScaleMode = ScaleModes.Inches;
             writer.NewPage(System.Drawing.Printing.PaperKind.Letter, false, 1, 1);
-            writer.Write("Hello");
+            writer.WriteLine("Hello");
             writer.QRCode("Test");
             writer.CurrentX = 0;
-            writer.WriteLinesAt(true, 0f, 0f, 2f, 0f, 0f, "Testing", false);
+            writer.WriteLine("Testing");
+            writer.MoveTo(1, 1).LineTo(1, 0).LineTo(0, 1).LineTo(-1, 0).FinishPolygon(false, true);
             _ = writer.ToArray();
         }
     }

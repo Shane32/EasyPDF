@@ -34,11 +34,15 @@ jobs:
       - name: Install dependencies
         run: dotnet restore
       - name: Build solution [Release]
-        run: dotnet build --no-restore -c Release -p:NoWarn=CS1591
+        run: dotnet build --no-restore -c Release
       - name: Build solution [Debug]
-        run: dotnet build --no-restore -p:NoWarn=CS1591
-      - name: Test solution [Debug]
+        run: dotnet build --no-restore
+      - name: Test solution [Debug] with coverage reports
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         run: dotnet test --no-restore --no-build -p:CollectCoverage=true -p:CoverletOutputFormat=lcov -p:CoverletOutput=../../${{ matrix.os }}.lcov.info
+      - name: Test solution [Debug] without coverage reports
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: dotnet test --no-restore --no-build
       # ==== code coverage reports (ubuntu-latest only) ====
       - name: Convert coverage report to clover & htmlsummary format
         if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -57,6 +61,7 @@ jobs:
           reporttypes: 'Html'
           tag: 'test_${{ github.run_number }}'
       - name: Upload artifacts
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: actions/upload-artifact@v2
         with:
           name: Code coverage artifacts

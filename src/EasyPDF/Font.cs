@@ -1,54 +1,117 @@
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Text;
+using System.Linq;
 
 namespace Shane32.EasyPDF
 {
     /// <summary>
     /// Represents a specific font family, size and style.
     /// </summary>
-    public class Font
+    public record Font
     {
+        private string _familyName;
+
+        private static readonly IEnumerable<string> _builtInFonts = new[] { nameof(StandardFonts.Times), nameof(StandardFonts.Helvetica), nameof(StandardFonts.Courier), nameof(StandardFonts.Symbol), nameof(StandardFonts.ZapfDingbats) };
+
         /// <summary>
         /// Gets the family name of this font.
         /// </summary>
-        public string FamilyName { get; }
-
-        /// <summary>
-        /// Gets the em-size of the font measured in points.
-        /// </summary>
-        public float Size { get; }
-
-        /// <summary>
-        /// Gets the font style for this font.
-        /// </summary>
-        public FontStyle FontStyle { get; }
+        public string FamilyName {
+            get => _familyName;
+            set {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+                var builtInFont = _builtInFonts.FirstOrDefault(x => string.Equals(x, value, StringComparison.OrdinalIgnoreCase));
+                if (builtInFont != null) {
+                    _familyName = builtInFont;
+                    Embedded = false;
+                } else {
+                    _familyName = value;
+                    Embedded = true;
+                }
+            }
+        }
 
         /// <summary>
         /// Indicates if this font is embedded or a built-in font.
         /// </summary>
-        public bool Embedded { get; }
+        public bool Embedded { get; private set; }
+
+        /// <summary>
+        /// Gets the em-size of the font measured in points.
+        /// </summary>
+        public float Size { get; set; }
+
+        /// <summary>
+        /// Gets the font style for this font.
+        /// </summary>
+        public FontStyle FontStyle {
+            get {
+                FontStyle f = 0;
+                if (Bold)
+                    f |= FontStyle.Bold;
+                if (Italic)
+                    f |= FontStyle.Italic;
+                if (Underline)
+                    f |= FontStyle.Underline;
+                if (Strikeout)
+                    f |= FontStyle.Strikeout;
+                return f;
+            }
+            set {
+                Bold = (value & FontStyle.Bold) == FontStyle.Bold;
+                Italic = (value & FontStyle.Italic) == FontStyle.Italic;
+                Underline = (value & FontStyle.Underline) == FontStyle.Underline;
+                Strikeout = (value & FontStyle.Strikeout) == FontStyle.Strikeout;
+            }
+        }
 
         /// <summary>
         /// Indicates if the font has a bold style.
         /// </summary>
-        public bool Bold => FontStyle.HasFlag(FontStyle.Bold);
+        public bool Bold { get; set; }
 
         /// <summary>
         /// Indicates if the font has a italic style.
         /// </summary>
-        public bool Italic => FontStyle.HasFlag(FontStyle.Italic);
+        public bool Italic { get; set; }
 
         /// <summary>
         /// Indicates if the font has a underline style.
         /// </summary>
-        public bool Underline => FontStyle.HasFlag(FontStyle.Underline);
+        public bool Underline { get; set; }
 
         /// <summary>
         /// Indicates if the font has a strikeout style.
         /// </summary>
-        public bool Strikeout => FontStyle.HasFlag(FontStyle.Strikeout);
+        public bool Strikeout { get; set; }
+
+        /// <summary>
+        /// Indicates if word-wrapped text is justified.
+        /// </summary>
+        public bool Justify { get; set; }
+
+        /// <summary>
+        /// The line spacing multiple to use.
+        /// Line height calculations including <see cref="PDFWriter.TextHeight"/> and
+        /// <see cref="PDFWriter.TextLeading"/> take this value into account.
+        /// </summary>
+        public float LineSpacing { get; set; } = 1f;
+
+        /// <summary>
+        /// The amount of indentation for word-wrapped lines measured in the document's
+        /// current <see cref="PDFWriter.ScaleMode">ScaleMode</see> setting.
+        /// </summary>
+        public float HangingIndent { get; set; }
+
+        /// <summary>
+        /// The additional amount of spacing after a carriage return (but not after
+        /// word-wrapped text) measured in points.
+        /// </summary>
+        public float ParagraphSpacing { get; set; }
 
         /// <summary>
         /// Initializes a new instance with the specified variables.
@@ -61,7 +124,6 @@ namespace Shane32.EasyPDF
             FamilyName = familyName;
             Size = size;
             FontStyle = fontStyle;
-            Embedded = true;
         }
 
         /// <summary>
@@ -71,33 +133,8 @@ namespace Shane32.EasyPDF
         /// <param name="size">The font em-size of the font.</param>
         /// <param name="fontStyle">The style of the font measured in points.</param>
         public Font(StandardFonts family, float size, FontStyle fontStyle = FontStyle.Regular)
+            : this(family.ToString(), size, fontStyle)
         {
-            switch (family) {
-                case StandardFonts.Times:
-                    FamilyName = "Times";
-                    break;
-                case StandardFonts.Helvetica:
-                    FamilyName = "Helvetica";
-                    break;
-                case StandardFonts.Courier:
-                    FamilyName = "Courier";
-                    break;
-                case StandardFonts.Symbol:
-                    if (fontStyle.HasFlag(FontStyle.Bold) || fontStyle.HasFlag(FontStyle.Italic))
-                        throw new ArgumentOutOfRangeException(nameof(fontStyle), "Cannot specify bold or italic for the built-in Symbol font.");
-                    FamilyName = "Symbol";
-                    break;
-                case StandardFonts.ZapfDingbats:
-                    if (fontStyle.HasFlag(FontStyle.Bold) || fontStyle.HasFlag(FontStyle.Italic))
-                        throw new ArgumentOutOfRangeException(nameof(fontStyle), "Cannot specify bold or italic for the built-in ZapfDingbats font.");
-                    FamilyName = "ZapfDingbats";
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(family));
-            }
-            Size = size;
-            FontStyle = fontStyle;
-            Embedded = false;
         }
     }
 

@@ -34,7 +34,7 @@ pdf.NewPage(PaperKind.Letter, false, 1, 1);  // create a Letter sized page with 
 4. Add drawing instructions
 
 ```cs
-pdf.Write("The quick brown fox jumps over the lazy dog", true);
+pdf.WriteLine("The quick brown fox jumps over the lazy dog");
 ```
 
 5. Save the result and/or close the document
@@ -46,26 +46,50 @@ pdf.Close();
 
 ## Properties
 
-| Property         | Description |
-|------------------|-------------|
-| CurrentX         | The current X position |
-| CurrentY         | The current Y position |
-| FillColor        | The color for filling polygons and drawing barcodes |
-| Font             | The font name, size, and style used when writing text |
-| FontAlignment    | The alignment of text in relation to the current position |
-| FontLineSpacing  | The line spacing multiple when printing multiple lines of text |
-| ForeColor        | The color for printing text, lines and borders |
-| LineCap          | The style used to draw the end of a line |
-| LineDash         | The dash style used to draw lines and borders |
-| LineJoin         | The style used to draw joined line segments and borders |
-| LineWidth        | The pen width when drawing lines and borders |
-| PageSize         | Returns the size of the current page ignoring margins |
-| PictureAlignment | The alignment of pictures and barcodes in relation to the current position |
-| Pos              | The current position |
-| ScaleMode        | The scaling mode for the coordinates used by all other commands |
+| Property                 | Description |
+|--------------------------|-------------|
+| CurrentX                 | The current X position |
+| CurrentY                 | The current Y position |
+| FillColor                | The color for filling polygons and drawing barcodes |
+| Font                     | The font name, size, and style used when writing text |
+| Font.FamilyName          | The font family name |
+| Font.Embedded            | Indicates if the font is embedded into the document; false if it is a built-in font |
+| Font.FontStyle           | A flag enumeration value representing the bold, italic, underline and strikeout properties |
+| Font.Size                | The size of the font measured in points |
+| Font.Bold                | Specifies if the font has the Bold style |
+| Font.Italic              | Specifies if the font has the Italic style |
+| Font.Underline           | Specifies if the font has the Underline style |
+| Font.Strikeout           | Specifies if the font has the Strikeout style |
+| Font.Justify             | Specifies if the text is justified when word wrapping |
+| Font.LineSpacing         | A multiplier to adjust line spacing; defaults to 1.0 |
+| Font.HangingIndent       | The amount of indent for word-wrapped lines |
+| Font.ParagraphSpacing    | The amount of space between paragraphs measured in points |
+| ForeColor                | The color for printing text, lines and borders |
+| LineStyle                | The style used to draw lines and borders |
+| LineStyle.LineCap        | The style used to draw the end of a line |
+| LineStyle.LineDash       | The dash style used to draw lines and borders |
+| LineStyle.LineJoin       | The style used to draw joined line segments and borders |
+| LineStyle.LineWidth      | The pen width when drawing lines and borders |
+| PageSize                 | Returns the size of the current page including margins |
+| PictureAlignment         | The alignment of pictures and barcodes in relation to the current position |
+| Position                 | The current position |
+| ScaleMode                | The scaling mode for the coordinates used by all other commands |
+| Size                     | Returns the size of the current page excluding margins |
+| TextAlignment            | The alignment of text in relation to the current position |
 
 Note that drawing coordinates are always specified or returned based on the current
 `ScaleMode` setting, and coordinate (0, 0) is the top-left corner of the page/margin.
+
+## Methods
+
+Note that most methods may be chained, allowing to adjust position and execute a command in one line of code.
+
+Example:
+
+```cs
+pdf.MoveTo(1, 1).WriteLine("Hello there!");
+pdf.OffsetTo(0, 0.5f).WriteLine("Added a half inch gap between the lines");
+```
 
 ## Text drawing commands
 
@@ -75,36 +99,34 @@ Note that drawing coordinates are always specified or returned based on the curr
 | TextAscent       | Returns the distance between the baseline and the top of the highest letters     |
 | TextCapHeight    | Returns the distance between the baseline and the top of capital letters         |
 | TextDescent      | Returns the distance between the baseline and the bottom of the lowest letters (j's, etc) |
-| TextHeight       | Returns the height of a single line of text, including space between rows (ascent + descent + leading) |
-| TextLeading      | Returns the amount of additional line spacing besides the ascent and descent     |
+| TextHeight       | Returns the height of a single line of text, including space between rows (ascent + descent + leading), adjusting for LineSpacing |
+| TextLeading      | Returns the amount of additional line spacing besides the ascent and descent, adjusting for LineSpacing |
 | TextWidth        | Returns the width of the specified text                                          |
-| Write            | Writes one or more lines of text at the current position with no word wrapping   |
-| WriteAt          | Writes one or more lines of text at the specified position with no word wrapping |
-| WriteLine        | Writes a single line of text, stopping where necessary due to word wrapping      |
-| WriteLines       | Writes one or more lines of text at the current position with word wrapping      |
-| WriteLinesAt     | Writes one or more lines of text at the specified position with word wrapping    |
+| Write            | Writes one or more lines of text, leaving the current position positioned after the last character printed |
+| WriteLine        | Writes one or more lines of text, leaving the current position below the last line of text |
 
 Examples below:
 
 ```cs
 // Write "Hello world!" and advance to the next line
-pdf.Write("Hello world!", true);
+pdf.WriteLine("Hello world!");
 
 // Write "Hello world!" except with "world" in red
 pdf.Write("Hello ");
 pdf.ForeColor = Color.Red;
 pdf.Write("world");
 pdf.ForeColor = Color.Black;
-pdf.Write("!", true);
-pdf.CurrentY = 0;  // reposition cursor; otherwise it would be underneath the exclamation mark
+pdf.WriteLine("!");
+pdf.CurrentX = 0;  // reposition cursor; otherwise it would be underneath the exclamation mark
 
 // Center a header on the page
 pdf.TextAlignment = TextAlignment.CenterTop;
 pdf.Font = new Font(StandardFonts.Times, 20);
-pdf.WriteAt(false, pdf.PageSize.Width / 2, 0.5f, "Hello there!");
+pdf.MoveTo(pdf.Size.Width / 2, 0.5f).WriteLine("Hello there!");
 
-// Write a paragraph of text over 4" of space with no indentation and with justification
-pdf.WriteLines(4, 0, 0, "Hello there!  The quick brown fox jumps over the lazy dog.  Did you know that?", true);
+// Write a paragraph of text over 4" of horizontal space with justification
+pdf.Font.Justify = true;
+pdf.WriteLine("Hello there!  The quick brown fox jumps over the lazy dog.  Did you know that?", 4);
 ```
 
 Note that by default, all system fonts are registered and can be used (embedded) into the PDF.
@@ -125,10 +147,9 @@ to the PDF file.  Pictures are positioned according to the `PictureAlignment` pr
 | CornerTo            | Starts or continues a line or polygon around a rounded corner to another coordinate (draws an arc) |
 | FinishLine          | Ends the line and draws it |
 | FinishPolygon       | Ends a polygon and draws it |
-| Line                | Starts a new line or polygon from a specified coordinate to another specified coordinate |
 | LineTo              | Starts or continues a line or polygon to another specified coordinate |
-| Rectangle           | Draws a rectangle at the specified coordinates, optionally filling it (with/without border) and/or rounding the corners |
-| RectangleDualOffset | Draws a rectangle at the specified coordinates, and then draws another rectangle inset by the specified amount |
+| Rectangle           | Draws a rectangle of the specified size, optionally filling it (with/without border) and/or rounding the corners |
+| RectangleDualOffset | Draws a rectangle of the specified size, and then draws another rectangle inset by a specified amount |
 
 Note that once a line or polygon has begun, any call to a method other than `LineTo`, `CornerTo`,
 `BezierTo`, `FinishLine` or `FinishPolygon` will implicitly call `FinishLine` to draw the line on the page.

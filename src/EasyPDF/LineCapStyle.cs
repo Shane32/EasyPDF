@@ -22,6 +22,6 @@ namespace Shane32.EasyPDF
         /// The line will extend past the start/end coordinate with a half circle the radius of the line width.
         /// A line that starts and ends at the same coordinate will appear to be a circle.
         /// </summary>
-        Round = iTextSharp.text.pdf.PdfContentByte.LINE_CAP_ROUND
+        Round = iTextSharp.text.pdf.PdfContentByte.LINE_CAP_ROUND,
     }
 }

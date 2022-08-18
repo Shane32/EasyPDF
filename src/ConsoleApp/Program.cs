@@ -10,42 +10,41 @@ page.NewPage(System.Drawing.Printing.PaperKind.Letter, false);
 page.ScaleMode = ScaleModes.Inches;
 page.CurrentX = 1;
 page.CurrentY = 1;
-page.Circle(true, 0, 0, 0.05f);
-page.Font = new Font(StandardFonts.Courier, 10);
-page.FontAlignment = TextAlignment.LeftTop;
-page.FontLineSpacing = 1.2f;
-page.Write("testing\r\nline2 this is a very long long line of text\nnew line\r  some more text", true);
-page.Write("", true);
+page.Circle(0.05f);
+page.Font = new Font(StandardFonts.Courier, 10) { LineSpacing = 1.2f };
+page.TextAlignment = TextAlignment.LeftTop;
+page.WriteLine("testing\r\nline2 this is a very long long line of text\nnew line\r  some more text");
+page.WriteLine();
 
 page.Font = new Font(StandardFonts.Times, 10);
-page.Write("Times Regular", true);
+page.WriteLine("Times Regular");
 page.Font = new Font(StandardFonts.Times, 10, System.Drawing.FontStyle.Bold);
-page.Write("Times Bold", true);
+page.WriteLine("Times Bold");
 page.Font = new Font(StandardFonts.Times, 10, System.Drawing.FontStyle.Italic);
-page.Write("Times Italic", true);
+page.WriteLine("Times Italic");
 page.Font = new Font(StandardFonts.Times, 10, System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic);
-page.Write("Times Bold Italic", true);
+page.WriteLine("Times Bold Italic");
 
 page.Font = new Font(StandardFonts.Helvetica, 10);
-page.Write("Helvetica Regular", true);
+page.WriteLine("Helvetica Regular");
 page.Font = new Font(StandardFonts.Helvetica, 10, System.Drawing.FontStyle.Bold);
-page.Write("Helvetica Bold", true);
+page.WriteLine("Helvetica Bold");
 page.Font = new Font(StandardFonts.Helvetica, 10, System.Drawing.FontStyle.Italic);
-page.Write("Helvetica Italic", true);
+page.WriteLine("Helvetica Italic");
 page.Font = new Font(StandardFonts.Helvetica, 10, System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic);
-page.Write("Helvetica Bold Italic", true);
+page.WriteLine("Helvetica Bold Italic");
 
 page.Font = new Font(StandardFonts.Courier, 10);
-page.Write("Courier Regular", true);
+page.WriteLine("Courier Regular");
 page.Font = new Font(StandardFonts.Courier, 10, System.Drawing.FontStyle.Bold);
-page.Write("Courier Bold", true);
+page.WriteLine("Courier Bold");
 page.Font = new Font(StandardFonts.Courier, 10, System.Drawing.FontStyle.Italic);
-page.Write("Courier Italic", true);
+page.WriteLine("Courier Italic");
 page.Font = new Font(StandardFonts.Courier, 10, System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic);
-page.Write("Courier Bold Italic", true);
+page.WriteLine("Courier Bold Italic");
 
 page.Font = new Font(StandardFonts.Symbol, 8);
-page.Write(
+page.WriteLine(
     @"!	∀	#	∃	%	&	∍	(	)	*	+	,	−	.	/
 3x	0	1	2	3	4	5	6	7	8	9	:	;	<	=	>	?
 4x	≅	Α	Β	Χ	Δ	Ε	Φ	Γ	Η	Ι	ϑ	Κ	Λ	Μ	Ν	Ο
@@ -59,13 +58,13 @@ Bx	°	±	″	≥	×	∝	∂	•	÷	≠	≡	≈	…	⏐	⎯	↵
 Cx	ℵ	ℑ	ℜ	℘	⊗	⊕	∅	∩	∪	⊃	⊇	⊄	⊂	⊆	∈	∉
 Dx	∠	∇	®	©	™	∏	√	⋅	¬	∧	∨	⇔	⇐	⇑	⇒	⇓
 Ex	◊	〈	®	©	™	∑	⎛	⎜	⎝	⎡	⎢	⎣	⎧	⎨	⎩	⎪
-Fx		〉	∫	⌠	⎮	⌡	⎞	⎟	⎠	⎤	⎥	⎦	⎫	⎬	⎭	".Replace("\t", "  "), true);
+Fx		〉	∫	⌠	⎮	⌡	⎞	⎟	⎠	⎤	⎥	⎦	⎫	⎬	⎭	".Replace("\t", "  "));
 
 page.Font = new Font(StandardFonts.Times, 10);
-page.Write("------------------------------------", true);
+page.WriteLine("------------------------------------");
 
 page.Font = new Font(StandardFonts.ZapfDingbats, 8);
-page.Write(@"
+page.WriteLine(@"
 2x	SP	✁	✂	✃	✄	☎	✆	✇	✈	✉	☛	☞	✌	✍	✎	✏
 3x	✐	✑	✒	✓	✔	✕	✖	✗	✘	✙	✚	✛	✜	✝	✞	✟
 4x	✠	✡	✢	✣	✤	✥	✦	✧	★	✩	✪	✫	✬	✭	✮	✯
@@ -86,11 +85,11 @@ page.FillColor = System.Drawing.Color.Red;
 var qrCodeGenerator = new QRCodeGenerator();
 var qrData = qrCodeGenerator.CreateQrCode("www.zbox.com", ECCLevel.L);
 
-page.MoveTo(false, 3, 3);
+page.MoveTo(3, 3);
 page.QRCode(qrData);
-page.MoveTo(false, 5, 3);
+page.MoveTo(5, 3);
 //page.QRCode(qrData, 2, true);
-page.MoveTo(false, 5, 3);
+page.MoveTo(5, 3);
 page.PictureAlignment = PictureAlignment.LeftCenter;
 page.QRCode(qrData, 2, true);
 

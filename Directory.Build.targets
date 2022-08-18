@@ -4,6 +4,10 @@
     <AnalysisMode>Recommended</AnalysisMode>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(IsPackable)' != 'true'">
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup Condition="'$(IsPackable)' == 'true'">
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
     <None Include="..\..\logo.64x64.png" Pack="true" PackagePath="\"/>
