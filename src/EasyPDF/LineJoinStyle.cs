@@ -18,6 +18,6 @@ namespace Shane32.EasyPDF
         /// <summary>
         /// Draws a beveled corner.
         /// </summary>
-        Bevel = iTextSharp.text.pdf.PdfContentByte.LINE_JOIN_BEVEL
+        Bevel = iTextSharp.text.pdf.PdfContentByte.LINE_JOIN_BEVEL,
     }
 }

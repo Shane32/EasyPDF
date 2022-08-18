@@ -42,7 +42,7 @@ namespace Shane32.EasyPDF
         public LineDashStyle(float[] array, float phase)
         {
             if (array is null)
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(array));
             _array = array;
             Phase = phase;
         }
@@ -72,21 +72,21 @@ namespace Shane32.EasyPDF
         /// <summary>
         /// Represents a solid line.
         /// </summary>
-        public static readonly LineDashStyle Solid = new LineDashStyle(new float[] { }, 0f);
+        public static readonly LineDashStyle Solid = new(System.Array.Empty<float>(), 0f);
 
         /// <summary>
         /// Represents a dashed line.
         /// </summary>
-        public static readonly LineDashStyle Dash = new LineDashStyle(6f, 6f, 3f);
+        public static readonly LineDashStyle Dash = new(6f, 6f, 3f);
 
         /// <summary>
         /// Represents a dotted line.
         /// </summary>
-        public static readonly LineDashStyle Dot = new LineDashStyle(2f, 3f, 0f);
+        public static readonly LineDashStyle Dot = new(2f, 3f, 0f);
 
         /// <summary>
         /// Represents a dash-dot-dot line pattern.
         /// </summary>
-        public static readonly LineDashStyle DashDotDot = new LineDashStyle(new float[] { 6f, 3f, 2f, 3f, 2f, 3f }, 0f);
+        public static readonly LineDashStyle DashDotDot = new(new float[] { 6f, 3f, 2f, 3f, 2f, 3f }, 0f);
     }
 }

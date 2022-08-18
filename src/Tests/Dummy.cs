@@ -11,10 +11,10 @@ namespace EasyPDFTests
             using var writer = new PDFWriter();
             writer.ScaleMode = ScaleModes.Inches;
             writer.NewPage(System.Drawing.Printing.PaperKind.Letter, false, 1, 1);
-            writer.Write("Hello");
+            writer.WriteLine("Hello");
             writer.QRCode("Test");
             writer.CurrentX = 0;
-            writer.WriteLinesAt(true, 0f, 0f, 2f, 0f, 0f, "Testing", false);
+            writer.WriteLine("Testing");
             _ = writer.ToArray();
         }
     }

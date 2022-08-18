@@ -11,60 +11,23 @@ namespace Shane32.EasyPDF
         public PictureAlignment PictureAlignment { get; set; }
 
         /// <summary>
-        /// Prints the specified image at the current position.
-        /// </summary>
-        public void PaintPicture(iTextImage img)
-        {
-            if (img.DpiX == 0 | img.DpiY == 0) {
-                PaintPictureAbs(img, _Translate(img.Width / 96, ScaleModes.Inches), _Translate(img.Height / 96, ScaleModes.Inches));
-            } else {
-                PaintPictureAbs(img, _Translate(img.Width / img.DpiX, ScaleModes.Inches), _Translate(img.Height / img.DpiY, ScaleModes.Inches));
-            }
-        }
-
-        /// <summary>
         /// Prints the specified image at the current position with the specified size.
         /// </summary>
-        public void PaintPicture(iTextImage img, float width, float height)
+        public PDFWriter PaintPicture(iTextImage img, float? width = null, float? height = null)
         {
-            PaintPictureAbs(img, _Translate(width), _Translate(height));
-        }
-
-        /// <summary>
-        /// Prints the specified image at the specified position.
-        /// <paramref name="step"/> can be used to indicate the coordinates are offsets to the current position.
-        /// </summary>
-        public void PaintPicture(iTextImage img, bool step, float x, float y)
-        {
-            if (step) {
-                _currentX += _Translate(x);
-                _currentY += _Translate(y);
-            } else {
-                _currentX = _Translate(x);
-                _currentY = _Translate(y);
+            if (width == null && height == null) {
+                if (img.DpiX == 0 || img.DpiY == 0) {
+                    return PaintPictureAbs(img, _Translate(img.Width / 96, ScaleModes.Inches), _Translate(img.Height / 96, ScaleModes.Inches));
+                } else {
+                    return PaintPictureAbs(img, _Translate(img.Width / img.DpiX, ScaleModes.Inches), _Translate(img.Height / img.DpiY, ScaleModes.Inches));
+                }
             }
-
-            PaintPicture(img);
+            width ??= height / img.Height * img.Width;
+            height ??= width / img.Width * img.Height;
+            return PaintPictureAbs(img, _Translate(width!.Value), _Translate(height!.Value));
         }
 
-        /// <summary>
-        /// Prints the specified image at the specified position with the specified size.
-        /// <paramref name="step"/> can be used to indicate the coordinates are offsets to the current position.
-        /// </summary>
-        public void PaintPicture(iTextImage img, bool step, float X, float Y, float width, float height)
-        {
-            if (step) {
-                _currentX += _Translate(X);
-                _currentY += _Translate(Y);
-            } else {
-                _currentX = _Translate(X);
-                _currentY = _Translate(Y);
-            }
-
-            PaintPicture(img, width, height);
-        }
-
-        private void PaintPictureAbs(iTextImage img, float width, float height)
+        private PDFWriter PaintPictureAbs(iTextImage img, float widthPoints, float heightPoints)
         {
             FinishLine();
             float offsetX = default, offsetY = default;
@@ -78,14 +41,14 @@ namespace Shane32.EasyPDF
                 case PictureAlignment.CenterTop:
                 case PictureAlignment.CenterCenter:
                 case PictureAlignment.CenterBottom: {
-                    offsetX -= width / 2f;
+                    offsetX -= widthPoints / 2f;
                     break;
                 }
 
                 case PictureAlignment.RightTop:
                 case PictureAlignment.RightCenter:
                 case PictureAlignment.RightBottom: {
-                    offsetX -= width;
+                    offsetX -= widthPoints;
                     break;
                 }
             }
@@ -94,14 +57,14 @@ namespace Shane32.EasyPDF
                 case PictureAlignment.LeftTop:
                 case PictureAlignment.CenterTop:
                 case PictureAlignment.RightTop: {
-                    offsetY += height;
+                    offsetY += heightPoints;
                     break;
                 }
 
                 case PictureAlignment.LeftCenter:
                 case PictureAlignment.CenterCenter:
                 case PictureAlignment.RightCenter: {
-                    offsetY += height / 2f;
+                    offsetY += heightPoints / 2f;
                     break;
                 }
 
@@ -112,7 +75,9 @@ namespace Shane32.EasyPDF
                 }
             }
 
-            _content.AddImage(img, width, 0, 0, -height, _currentX + offsetX, _currentY + offsetY);
+            _content.AddImage(img, widthPoints, 0, 0, -heightPoints, _currentX + offsetX, _currentY + offsetY);
+
+            return this;
         }
     }
 }

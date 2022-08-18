@@ -1,7 +1,5 @@
 using System;
-using iTextSharp.text;
 using iTextSharp.text.pdf;
-using iTextFont = iTextSharp.text.Font;
 
 namespace Shane32.EasyPDF
 {
@@ -16,189 +14,101 @@ namespace Shane32.EasyPDF
         /// Gets or sets the alignment of printed text.
         /// This alignment is relative to the current position when printing.
         /// </summary>
-        public TextAlignment FontAlignment { get; set; } = TextAlignment.LeftBaseline;
+        public TextAlignment TextAlignment { get; set; } = TextAlignment.LeftBaseline;
 
         /// <summary>
-        /// Gets or sets the line spacing multiple; defaults to 1.0.
+        /// Writes one or more lines of text, with word wrapping if specified.
+        /// The current position is set to the position immediately after the last character written.
         /// </summary>
-        public float FontLineSpacing { get; set; } = 1f;
-
-        /// <summary>
-        /// Writes multiple lines of text with word wrapping at a specified position and returns the text remaining
-        /// to be written (subsequent lines). Indentation for subsequent lines can be specified.
-        /// <para>
-        /// The current position is set to the line below the written block of text.
-        /// If no text was written, the Y offset is still incremented.
-        /// </para>
-        /// </summary>
-        /// <param name="step">Indicates that the <paramref name="x"/> and <paramref name="y"/> coordinates are offsets to the current position.</param>
-        /// <param name="x">The X coordinate or offset.</param>
-        /// <param name="y">The Y coordinate or offset.</param>
-        /// <param name="width">The maximum width of a single line of text.</param>
-        /// <param name="nextLineLeftIndent">The amount of left indent to apply to subsequent lines of text.</param>
-        /// <param name="nextLineRightIndent">The amount of right indent to apply to subsequent lines of text.</param>
         /// <param name="text">The text to print.</param>
-        /// <param name="justify">Adds word spacing to have each line besides the last fill the width.</param>
-        public void WriteLinesAt(bool step, float x, float y, float width, float nextLineLeftIndent, float nextLineRightIndent, string? text, bool justify)
-        {
-            MoveTo(step, x, y);
-            WriteLines(width, nextLineLeftIndent, nextLineRightIndent, text, justify);
-        }
-
-        /// <summary>
-        /// Writes multiple lines of text with word wrapping at the current position and returns the text remaining
-        /// to be written (subsequent lines). Indentation for subsequent lines can be specified.
-        /// <para>
-        /// The current position is set to the line below the written block of text.
-        /// If no text was written, the Y offset is still incremented.
-        /// </para>
-        /// </summary>
-        /// <param name="width">The maximum width of a single line of text.</param>
-        /// <param name="nextLineLeftIndent">The amount of left indent to apply to subsequent lines of text.</param>
-        /// <param name="nextLineRightIndent">The amount of right indent to apply to subsequent lines of text.</param>
-       /// <param name="text">The text to print.</param>
-        /// <param name="justify">Adds word spacing to have each line besides the last fill the width.</param>
-        public void WriteLines(float width, float nextLineLeftIndent, float nextLineRightIndent, string? text, bool justify)
+        /// <param name="maxWidth">The maximum width to print before word wrapping.</param>
+        public PDFWriter Write(string? text, float? maxWidth = null)
         {
             FinishLine();
-            switch (FontAlignment) {
-                case TextAlignment.CenterBaseline:
-                case TextAlignment.CenterBottom:
-                case TextAlignment.CenterCenter:
-                case TextAlignment.CenterTop:
-                case TextAlignment.RightBaseline:
-                case TextAlignment.RightBottom:
-                case TextAlignment.RightCenter:
-                case TextAlignment.RightTop:
-                    throw new InvalidOperationException("Invalid FontAlignment; use a left-aligned alignment");
+
+            if (text == null)
+                return this;
+
+            bool lastIndent = false;
+            var ret = WriteInternalAndReturnRemaining(text, maxWidth ?? 0f, maxWidth.HasValue, lastIndent);
+            while (ret.NextLine != null) {
+                ret = WriteInternalAndReturnRemaining(ret.NextLine, maxWidth ?? 0f, maxWidth.HasValue, ret.IndentNextLine);
             }
 
-            if (string.IsNullOrEmpty(text)) {
-                Write(null, true);
-                return;
-            }
-
-            width = _Translate(width);
-            text = WriteLine(width, text, justify);
-            if (text is null)
-                return;
-            var oldX = _currentX;
-            width = width - _Translate(nextLineLeftIndent) - _Translate(nextLineRightIndent);
-            _currentX += _Translate(nextLineLeftIndent);
-            do
-                text = WriteLine(width, text, justify);
-            while (text != null);
-            _currentX = oldX;
+            return this;
         }
 
         /// <summary>
-        /// Writes a single line of text with word wrapping at the current position and returns the text remaining
-        /// to be written (subsequent lines); returns <see langword="null"/> if there are no more lines remaining
-        /// to be printed.
-        /// <para>
-        /// The current position's Y offset is incremented by the line height.
-        /// </para>
+        /// Writes one or more lines of text, with word wrapping if specified.
+        /// The current position is positioned below the last line of text.
         /// </summary>
-        /// <param name="width">The maximum width of a single line of text.</param>
         /// <param name="text">The text to print.</param>
-        /// <param name="justify">Adds word spacing to have each line besides the last fill the width.</param>
-        public string? WriteLine(float width, string? text, bool justify)
+        /// <param name="maxWidth">The maximum width to print before word wrapping.</param>
+        public PDFWriter WriteLine(string? text = null, float? maxWidth = null)
         {
-            // Always goes to new line if there is more text to be written
-            switch (FontAlignment) {
-                case TextAlignment.CenterBaseline:
-                case TextAlignment.CenterBottom:
-                case TextAlignment.CenterCenter:
-                case TextAlignment.CenterTop:
-                case TextAlignment.RightBaseline:
-                case TextAlignment.RightBottom:
-                case TextAlignment.RightCenter:
-                case TextAlignment.RightTop:
-                    throw new InvalidOperationException("Invalid FontAlignment; use a left-aligned alignment");
+            if (text == null) {
+                _currentY += TextHeightPoints() + Font.ParagraphSpacing;
+                return this;
             }
-
-            return Write2(text ?? "", true, width, true, justify);
-        }
-
-        /// <summary>
-        /// Prints specified text in the specified font at a specified position.
-        /// No word wrapping is applied.
-        /// <para>
-        /// When <paramref name="newLine"/> is <see langword="false"/>, the current position is set to the end of the line of text.
-        /// Otherwise, the current position is set to the specified positon with the Y offset incremented by the line height.
-        /// </para>
-        /// <para>
-        /// When <paramref name="step"/> is <see langword="true"/>, the <paramref name="x"/> and <paramref name="y"/> coordinates
-        /// are interpreted as an offset to the current position.
-        /// </para>
-        /// </summary>
-        public void WriteAt(bool step, float x, float y, string? text, bool newLine = false)
-        {
-            FinishLine();
-            if (step) {
-                _currentX += _Translate(x);
-                _currentY += _Translate(y);
-            } else {
-                _currentX = _Translate(x);
-                _currentY = _Translate(y);
-            }
-
-            Write(text, newLine);
-        }
-
-        /// <summary>
-        /// Prints specified text in the specified font at the current position.
-        /// No word wrapping or justification is applied.
-        /// <para>
-        /// When <paramref name="newLine"/> is <see langword="false"/>, the current position is set to the end of the line of text.
-        /// Otherwise, the current position's Y offset is incremented by the line height.
-        /// </para>
-        /// </summary>
-        public void Write(string? text, bool newLine = false)
-        {
-            text ??= "";
-            while (text != null) {
-                text = Write2(text, newLine, 0, false, false);
-            }
+            Write(text + "\r\n", maxWidth);
+            return this;
         }
 
         /// <summary>
         /// Prints a line of text, returning the next line of text or <see langword="null"/> if there are no more lines to be printed.
         /// Supports CR, LF, or CRLF within the text for line breaks.
+        /// If a CR/LF/CRLF is detected, additional spacing according to <see cref="Font.ParagraphSpacing"/> is added.
         /// </summary>
         /// <param name="text">The text to print.</param>
-        /// <param name="newLine">If, for the last line, the position should be positioned below the starting position; otherwise it will be at the end of the line of text.</param>
         /// <param name="width">Maximum width of text when <paramref name="wordWrap"/> is <see langword="true"/>.</param>
         /// <param name="wordWrap">Enables word-wrapping if the text extends past the specified width; wraps at spaces.</param>
-        /// <param name="justify">Justifies text if word wrapping was necessary (but not when due to CR/LF).</param>
+        /// <param name="indent">Indent this line according to <see cref="Font.HangingIndent"/>.</param>
         /// <returns></returns>
-        private string? Write2(string text, bool newLine, float width, bool wordWrap, bool justify)
+        private (string? NextLine, bool IndentNextLine) WriteInternalAndReturnRemaining(string text, float width, bool wordWrap, bool indent)
         {
+            if (text == "")
+                return (null, false);
             var i = text.IndexOf('\r');
             var j = text.IndexOf('\n');
-            var k = text.IndexOf("\r\n");
+            var k = text.IndexOf("\r\n", StringComparison.Ordinal);
             if (k >= 0 && k <= i && k <= j) {
-                var ret = Write3(text.Substring(0, k), true, width, wordWrap, justify);
-                return ret == null ? text.Substring(k + 2) : ret + text.Substring(k);
+                var ret = WriteInternalAndReturnRemaining2(text.Substring(0, k), true, width, wordWrap, indent);
+                if (ret == null)
+                    CurrentY += _TranslateRev(Font.ParagraphSpacing);
+                return (ret == null ? text.Substring(k + 2) : ret + text.Substring(k), ret != null);
             } else if (i >= 0 && (j == -1 || i < j)) {
-                var ret = Write3(text.Substring(0, i), true, width, wordWrap, justify);
-                return ret == null ? text.Substring(i + 1) : ret + text.Substring(i);
+                var ret = WriteInternalAndReturnRemaining2(text.Substring(0, i), true, width, wordWrap, indent);
+                if (ret == null)
+                    CurrentY += _TranslateRev(Font.ParagraphSpacing);
+                return (ret == null ? text.Substring(i + 1) : ret + text.Substring(i), ret != null);
             } else if (j >= 0) {
-                var ret = Write3(text.Substring(0, j), true, width, wordWrap, justify);
-                return ret == null ? text.Substring(j + 1) : ret + text.Substring(j);
+                var ret = WriteInternalAndReturnRemaining2(text.Substring(0, j), true, width, wordWrap, indent);
+                if (ret == null)
+                    CurrentY += _TranslateRev(Font.ParagraphSpacing);
+                return (ret == null ? text.Substring(j + 1) : ret + text.Substring(j), ret != null);
             }
-            return Write3(text, newLine, width, wordWrap, justify);
+            var ret2 = WriteInternalAndReturnRemaining2(text, false, width, wordWrap, indent);
+            return (ret2, ret2 != null);
         }
 
-        private string? Write3(string text, bool newLine, float width, bool wordWrap, bool justify)
+        private string? WriteInternalAndReturnRemaining2(string text, bool newLine, float width, bool wordWrap, bool indent)
         {
+            if (text == "") {
+                if (newLine)
+                    _currentY += TextHeightPoints();
+                return null;
+            }
+
+            bool justify = Font.Justify;
+            bool isLeftAligned = TextAlignment == TextAlignment.LeftTop || TextAlignment == TextAlignment.LeftCenter || TextAlignment == TextAlignment.LeftBaseline || TextAlignment == TextAlignment.LeftBottom;
+            var widthPoints = _Translate(width - (isLeftAligned && indent ? Font.HangingIndent : 0f));
             string? remainingText = default;
             FinishLine();
             if (string.IsNullOrEmpty(text) && !newLine)
                 return null;
             var f = Font.ToiTextSharpFont(ForeColor);
             var bf = f.GetCalculatedBaseFont(true);
-            var TextWidth = default(float);
+            var textWidthPoints = 0f;
             if (!string.IsNullOrEmpty(text)) {
                 _content.SaveState();
                 try {
@@ -228,7 +138,7 @@ namespace Shane32.EasyPDF
                                 }
 
                                 K = _content.GetEffectiveStringWidth(str2.TrimEnd(), false);
-                                if (K <= width) {
+                                if (K <= widthPoints) {
                                     // enough room; continue with loop
                                     if (J == -1) {
                                         // enough room for entire string
@@ -246,7 +156,7 @@ namespace Shane32.EasyPDF
                                     text = text.Substring(0, I).TrimEnd(); // everything before the space, trimmed in case of extra spaces
                                                                          // wordWrap = True 'write a new line and kern text
                                     if (justify)
-                                        _content.SetWordSpacing((width - strlen) / spaces);
+                                        _content.SetWordSpacing((widthPoints - strlen) / spaces);
                                     break;
                                 }
                             }
@@ -256,11 +166,12 @@ namespace Shane32.EasyPDF
                         remainingText = null;
                     }
 
-                    switch (FontAlignment) {
+                    switch (TextAlignment) {
                         case TextAlignment.LeftTop:
                         case TextAlignment.LeftCenter:
                         case TextAlignment.LeftBaseline:
                         case TextAlignment.LeftBottom: {
+                            XOffset += indent ? _Translate(Font.HangingIndent) : 0f;
                             break;
                         }
 
@@ -281,7 +192,7 @@ namespace Shane32.EasyPDF
                         }
                     }
 
-                    switch (FontAlignment) {
+                    switch (TextAlignment) {
                         case TextAlignment.LeftTop:
                         case TextAlignment.CenterTop:
                         case TextAlignment.RightTop: {
@@ -334,15 +245,15 @@ namespace Shane32.EasyPDF
                         _content.SetTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
                     }
 
-                    TextWidth = _content.GetEffectiveStringWidth(text, false);
+                    textWidthPoints = _content.GetEffectiveStringWidth(text, false);
                     _content.EndText();
                     if ((f.CalculatedStyle & iTextSharp.text.Font.UNDERLINE) == iTextSharp.text.Font.UNDERLINE) {
-                        _content.Rectangle(_currentX + XOffset, _currentY + YOffset + f.CalculatedSize / 4, TextWidth, -f.CalculatedSize / 15);
+                        _content.Rectangle(_currentX + XOffset, _currentY + YOffset + f.CalculatedSize / 4, textWidthPoints, -f.CalculatedSize / 15);
                         _content.Fill();
                     }
 
                     if ((f.CalculatedStyle & iTextSharp.text.Font.STRIKETHRU) == iTextSharp.text.Font.STRIKETHRU) {
-                        _content.Rectangle(_currentX + XOffset, _currentY + YOffset - f.CalculatedSize / 3, TextWidth, -f.CalculatedSize / 15);
+                        _content.Rectangle(_currentX + XOffset, _currentY + YOffset - f.CalculatedSize / 3, textWidthPoints, -f.CalculatedSize / 15);
                         _content.Fill();
                     }
                 } finally {
@@ -354,31 +265,31 @@ namespace Shane32.EasyPDF
 
             if (newLine || wordWrap) // justify, at this point, is equilavent to (Write2 != null) -- indicating whether there is text to kern or not
             {
-                float TextHeight = bf.GetFontDescriptor(BaseFont.AWT_ASCENT, f.CalculatedSize);
-                TextHeight -= bf.GetFontDescriptor(BaseFont.AWT_DESCENT, f.CalculatedSize);
-                TextHeight += bf.GetFontDescriptor(BaseFont.AWT_LEADING, f.CalculatedSize);
-                _currentY += TextHeight * FontLineSpacing;
+                float textHeight = bf.GetFontDescriptor(BaseFont.AWT_ASCENT, f.CalculatedSize);
+                textHeight -= bf.GetFontDescriptor(BaseFont.AWT_DESCENT, f.CalculatedSize);
+                textHeight += bf.GetFontDescriptor(BaseFont.AWT_LEADING, f.CalculatedSize);
+                _currentY += textHeight * Font.LineSpacing;
             } else {
-                switch (FontAlignment) {
+                switch (TextAlignment) {
                     case TextAlignment.LeftTop:
                     case TextAlignment.LeftCenter:
                     case TextAlignment.LeftBaseline:
                     case TextAlignment.LeftBottom:
-                        _currentX += TextWidth;
+                        _currentX += textWidthPoints;
                         break;
 
                     case TextAlignment.CenterTop:
                     case TextAlignment.CenterCenter:
                     case TextAlignment.CenterBaseline:
                     case TextAlignment.CenterBottom:
-                        _currentX += TextWidth / 2f;
+                        _currentX += textWidthPoints / 2f;
                         break;
 
                     case TextAlignment.RightTop:
                     case TextAlignment.RightCenter:
                     case TextAlignment.RightBaseline:
                     case TextAlignment.RightBottom:
-                        _currentX -= TextWidth;
+                        _currentX -= textWidthPoints;
                         break;
                 }
             }
@@ -397,15 +308,19 @@ namespace Shane32.EasyPDF
 
         /// <summary>
         /// Returns the height of a single line of text, including space between rows (ascent + descent + leading).
+        /// Also accounts for the current <see cref="Font.LineSpacing">LineSpacing</see> setting.
         /// </summary>
-        public float TextHeight()
+        public float TextHeight() => _TranslateRev(TextHeightPoints());
+
+        private float TextHeightPoints()
         {
             var f = Font.ToiTextSharpFont(ForeColor);
             var bf = f.GetCalculatedBaseFont(false);
             float s = bf.GetFontDescriptor(BaseFont.AWT_ASCENT, f.CalculatedSize);
             s -= bf.GetFontDescriptor(BaseFont.AWT_DESCENT, f.CalculatedSize);
             s += bf.GetFontDescriptor(BaseFont.AWT_LEADING, f.CalculatedSize);
-            return _TranslateRev(s);
+            s *= Font.LineSpacing;
+            return s;
         }
 
         /// <summary>
@@ -440,14 +355,25 @@ namespace Shane32.EasyPDF
         }
 
         /// <summary>
-        /// Returns the amount of additional line spacing besides the ascent and descent.
+        /// Returns the amount of additional line spacing besides the ascent and descent,
+        /// adjusted for the current <see cref="Font.LineSpacing">LineSpacing</see> setting.
         /// </summary>
-        /// <returns></returns>
         public float TextLeading()
         {
             var f = Font.ToiTextSharpFont(ForeColor);
             var bf = f.GetCalculatedBaseFont(false);
-            return _TranslateRev(bf.GetFontDescriptor(BaseFont.AWT_LEADING, f.CalculatedSize));
+            float leading = bf.GetFontDescriptor(BaseFont.AWT_LEADING, f.CalculatedSize);
+            float fullHeight = bf.GetFontDescriptor(BaseFont.AWT_ASCENT, f.CalculatedSize);
+            fullHeight -= bf.GetFontDescriptor(BaseFont.AWT_DESCENT, f.CalculatedSize);
+            fullHeight += leading;
+            float heightAdjustment = fullHeight * (Font.LineSpacing - 1f);
+            leading += heightAdjustment;
+            return _TranslateRev(leading);
         }
+
+        /// <summary>
+        /// Returns the amount of additional line spacing between paragraphs.
+        /// </summary>
+        public float TextParagraphLeading() => _TranslateRev(Font.ParagraphSpacing);
     }
 }

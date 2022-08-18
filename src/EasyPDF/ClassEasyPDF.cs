@@ -9,8 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
-using iTextColor = iTextSharp.text.BaseColor;
-using iTextFont = iTextSharp.text.Font;
 using iTextPdfWriter = iTextSharp.text.pdf.PdfWriter;
 
 namespace Shane32.EasyPDF
@@ -30,12 +28,11 @@ namespace Shane32.EasyPDF
         private PdfContentByte _content => _content2 ?? throw new InvalidOperationException("Create a page first!");
         private ScaleModes _scaleMode = ScaleModes.Hundredths;
         private SizeF _pageSize;
+        private SizeF _marginSize;
 
         static PDFWriter()
         {
-#if NETSTANDARD1_3_OR_GREATER
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-#endif
             _ = FontFactory.RegisterDirectories();
         }
 
@@ -68,7 +65,6 @@ namespace Shane32.EasyPDF
         /// <summary>
         /// Returns the underlying <see cref="PdfContentByte"/>.
         /// </summary>
-        /// <returns></returns>
         public PdfContentByte GetDirectContent() => _content;
 
         /// <summary>
@@ -81,7 +77,7 @@ namespace Shane32.EasyPDF
         /// </summary>
         public Document GetDocument() => _document ?? throw new InvalidOperationException("Create a page first!");
 
-        private PaperSize _GetPaperSize(PaperKind paperKind) => paperKind switch {
+        private static PaperSize _GetPaperSize(PaperKind paperKind) => paperKind switch {
             PaperKind.Letter => new PaperSize(paperKind.ToString(), 850, 1100),
             PaperKind.Legal => new PaperSize(paperKind.ToString(), 850, 1400),
             PaperKind.Ledger => new PaperSize(paperKind.ToString(), 1100, 1700),
@@ -96,36 +92,24 @@ namespace Shane32.EasyPDF
         /// <summary>
         /// Creates a document or adds a new page to an existing document as the specified size.
         /// </summary>
-        public void NewPage(PaperKind paperKind, bool landscape)
-            => NewPage(_GetPaperSize(paperKind), landscape);
+        public PDFWriter NewPage(PaperKind paperKind, bool landscape, float marginLeft = 0f, float marginTop = 0f, float? marginRight = null, float? marginBottom = null)
+            => NewPage(_GetPaperSize(paperKind), landscape, marginLeft, marginTop, marginRight, marginBottom);
 
-        /// <inheritdoc cref="NewPage(PaperKind, bool)"/>
-        public void NewPage(PaperKind paperKind, bool landscape, float marginLeft, float marginTop)
-            => NewPage(_GetPaperSize(paperKind), landscape, marginLeft, marginTop);
-
-        /// <inheritdoc cref="NewPage(PaperKind, bool)"/>
-        public void NewPage(PaperKind paperKind, bool landscape, Margins margins)
+        /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
+        public PDFWriter NewPage(PaperKind paperKind, bool landscape, Margins margins)
             => NewPage(_GetPaperSize(paperKind), landscape, margins);
 
-        /// <inheritdoc cref="NewPage(PaperKind, bool)"/>
-        public void NewPage(float width, float height, bool landscape)
-            => NewPageAbs(_Translate(width), _Translate(height), 0f, 0f, landscape);
+        /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
+        public PDFWriter NewPage(float width, float height, bool landscape, float marginLeft = 0f, float marginTop = 0f, float? marginRight = null, float? marginBottom = null)
+            => NewPageAbs(_Translate(width), _Translate(height), landscape, _Translate(marginLeft), _Translate(marginTop), _Translate(marginRight ?? marginLeft), _Translate(marginBottom ?? marginTop));
 
-        /// <inheritdoc cref="NewPage(PaperKind, bool)"/>
-        public void NewPage(float width, float height, bool landscape, float marginLeft, float marginTop)
-            => NewPageAbs(_Translate(width), _Translate(height), _Translate(marginLeft), _Translate(marginTop), landscape);
+        /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
+        public PDFWriter NewPage(PaperSize paperSize, bool landscape, float marginLeft = 0f, float marginTop = 0f, float? marginRight = null, float? marginBottom = null)
+            => NewPageAbs(_Translate(paperSize.Width, ScaleModes.Hundredths), _Translate(paperSize.Height, ScaleModes.Hundredths), landscape, _Translate(marginLeft), _Translate(marginTop), _Translate(marginRight ?? marginLeft), _Translate(marginBottom ?? marginTop));
 
-        /// <inheritdoc cref="NewPage(PaperKind, bool)"/>
-        public void NewPage(PaperSize paperSize, bool landscape)
-            => NewPageAbs(_Translate(paperSize.Width, ScaleModes.Hundredths), _Translate(paperSize.Height, ScaleModes.Hundredths), 0, 0, landscape);
-
-        /// <inheritdoc cref="NewPage(PaperKind, bool)"/>
-        public void NewPage(PaperSize paperSize, bool landscape, float marginLeft, float marginTop)
-            => NewPageAbs(_Translate(paperSize.Width, ScaleModes.Hundredths), _Translate(paperSize.Height, ScaleModes.Hundredths), _Translate(marginLeft), _Translate(marginTop), landscape);
-
-        /// <inheritdoc cref="NewPage(PaperKind, bool)"/>
-        public void NewPage(PaperSize paperSize, bool landscape, Margins margins)
-            => NewPageAbs(_Translate(paperSize.Width, ScaleModes.Hundredths), _Translate(paperSize.Height, ScaleModes.Hundredths), _Translate(margins.Left, ScaleModes.Hundredths), _Translate(margins.Top, ScaleModes.Hundredths), landscape);
+        /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
+        public PDFWriter NewPage(PaperSize paperSize, bool landscape, Margins margins)
+            => NewPageAbs(_Translate(paperSize.Width, ScaleModes.Hundredths), _Translate(paperSize.Height, ScaleModes.Hundredths), landscape, _Translate(margins.Left, ScaleModes.Hundredths), _Translate(margins.Top, ScaleModes.Hundredths), _Translate(margins.Right, ScaleModes.Hundredths), _Translate(margins.Bottom, ScaleModes.Hundredths));
 
         /// <summary>
         /// Allows for editing a existing pdf; will have to save under a different file name
@@ -151,8 +135,10 @@ namespace Shane32.EasyPDF
             _stamper = stamper;
         }
 
-        private void NewPageAbs(float pageWidth, float pageHeight, float marginLeft, float marginTop, bool landscape)
+        private PDFWriter NewPageAbs(float pageWidth, float pageHeight, bool landscape, float marginLeft = 0f, float marginTop = 0f, float? marginRight = null, float? marginBottom = null)
         {
+            marginRight ??= marginLeft;
+            marginBottom ??= marginTop;
             FinishLine();
             if (_document is null) {
                 if (landscape) {
@@ -178,14 +164,18 @@ namespace Shane32.EasyPDF
             if (landscape) {
                 _content.ConcatCtm(1, 0, 0, -1, marginLeft, pageWidth - marginTop);
                 _pageSize = new SizeF(pageHeight, pageWidth);
+                _marginSize = new SizeF(pageHeight - marginTop - marginBottom.Value, pageWidth - marginLeft - marginRight.Value);
             } else {
                 _content.ConcatCtm(1, 0, 0, -1, marginLeft, pageHeight - marginTop);
                 _pageSize = new SizeF(pageWidth, pageHeight);
+                _marginSize = new SizeF(pageWidth - marginLeft - marginRight.Value, pageHeight - marginTop - marginBottom.Value);
             }
 
             _InitLineVars();
             _currentX = 0;
             _currentY = 0;
+
+            return this;
         }
 
         /// <summary>
@@ -278,6 +268,7 @@ namespace Shane32.EasyPDF
         void IDisposable.Dispose() {
             if (_disposeStream)
                 _stream.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -294,7 +285,7 @@ namespace Shane32.EasyPDF
                         _scaleMode = value;
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new ArgumentOutOfRangeException(nameof(value));
                 }
             }
         }
@@ -355,11 +346,5 @@ namespace Shane32.EasyPDF
                 _ => throw new ArgumentOutOfRangeException(nameof(scaleMode)),
             };
         }
-
-        /// <summary>
-        /// Converts a <see cref="Color"/> to <see cref="iTextColor"/>.
-        /// </summary>
-        private static iTextColor _GetColor(Color color)
-            => new iTextColor(color.R, color.G, color.B, color.A);
     }
 }

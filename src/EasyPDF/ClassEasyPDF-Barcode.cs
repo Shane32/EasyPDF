@@ -1,5 +1,4 @@
 using System;
-using System.Drawing;
 using iTextSharp.text.pdf;
 
 namespace Shane32.EasyPDF
@@ -24,7 +23,7 @@ namespace Shane32.EasyPDF
         /// The border, if enabled, prints with the color specified by <see cref="ForeColor"/>
         /// and current line style selections.
         /// </summary>
-        public void QRCode(QRCoder.QRCodeData data, float? size = null, bool border = false)
+        public PDFWriter QRCode(QRCoder.QRCodeData data, float? size = null, bool border = false)
         {
             var x = CurrentX;
             var y = CurrentY;
@@ -69,24 +68,28 @@ namespace Shane32.EasyPDF
                 var rowData = data.ModuleMatrix[row];
                 for (int col = 0; col < rowData.Length; col++) {
                     if (rowData[col]) {
-                        Rectangle(false, x + col * boxSize, y + row * boxSize, true, boxSize, boxSize, 0, true, false);
+                        MoveTo(x + col * boxSize, y + row * boxSize);
+                        Rectangle(boxSize, boxSize, 0, true, false);
                     }
                 }
             }
 
             if (border) {
-                Rectangle(false, x, y, true, size.Value, size.Value);
+                MoveTo(x, y);
+                Rectangle(size.Value, size.Value);
+            } else {
+                MoveTo(x + size.Value, y + size.Value);
             }
 
-            MoveTo(false, x + size.Value, y + size.Value);
+            return this;
         }
 
         /// <inheritdoc cref="QRCode(QRCoder.QRCodeData, float?, bool)"/>
-        public void QRCode(string code, QRCoder.QRCodeGenerator.ECCLevel eccLevel = QRCoder.QRCodeGenerator.ECCLevel.L, float? size = null, bool border = false)
+        public PDFWriter QRCode(string code, QRCoder.QRCodeGenerator.ECCLevel eccLevel = QRCoder.QRCodeGenerator.ECCLevel.L, float? size = null, bool border = false)
         {
             var generator = new QRCoder.QRCodeGenerator();
             var qrCode = generator.CreateQrCode(code, eccLevel);
-            QRCode(qrCode, size, border);
+            return QRCode(qrCode, size, border);
         }
 
         /// <summary>
@@ -111,7 +114,7 @@ namespace Shane32.EasyPDF
         /// Prints a CODE-128 barcode in the selected <see cref="FillColor"/> at the current position, adjusted
         /// depending on the <see cref="PictureAlignment"/> value.
         /// </summary>
-        public void Barcode(string text, BarcodeType type = BarcodeType.Code128, float? width = null, float? height = null)
+        public PDFWriter Barcode(string text, BarcodeType type = BarcodeType.Code128, float? width = null, float? height = null)
         {
             if (type != BarcodeType.Code128)
                 throw new ArgumentOutOfRangeException(nameof(type));
@@ -168,13 +171,15 @@ namespace Shane32.EasyPDF
                 if (width.HasValue)
                     matrix.Scale(width.Value / BarcodeSize(text), 1f);
                 _content.Transform(matrix);
-                c.PlaceBarcode(_content, null, _GetColor(_foreColor));
+                c.PlaceBarcode(_content, null, null);
                 _currentX = x + width.Value;
                 _currentY = y + height.Value;
             }
             finally {
                 _content.RestoreState();
             }
+
+            return this;
         }
 
         /// <summary>
