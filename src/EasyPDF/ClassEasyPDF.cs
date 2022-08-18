@@ -351,11 +351,11 @@ namespace Shane32.EasyPDF
         /// <summary>
         /// Return the size of the page excluding margins.
         /// </summary>
-        public SizeF Size => _marginSize;
+        public SizeF Size => new SizeF(_TranslateRev(_marginSize.Width), _TranslateRev(_marginSize.Height));
 
         /// <summary>
         /// Returns the top and left margin offsets on the page.
         /// </summary>
-        public PointF MarginOffset => _marginOffset;
+        public PointF MarginOffset => new PointF(_TranslateRev(_marginOffset.X), _TranslateRev(_marginOffset.Y));
     }
 }
