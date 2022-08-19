@@ -102,11 +102,13 @@ pdf.OffsetTo(0, 0.5f).WriteLine("Added a half inch gap between the lines");
 | TextAscent       | Returns the distance between the baseline and the top of the highest letters     |
 | TextCapHeight    | Returns the distance between the baseline and the top of capital letters         |
 | TextDescent      | Returns the distance between the baseline and the bottom of the lowest letters (j's, etc) |
-| TextHeight       | Returns the height of a single line of text, including space between rows (ascent + descent + leading), adjusting for LineSpacing and StretchY |
-| TextLeading      | Returns the amount of additional line spacing besides the ascent and descent, adjusting for LineSpacing |
-| TextWidth        | Returns the width of the specified text, adjusted for StretchX                                          |
+| TextHeight       | Returns the height of a single line of text, including space between rows (ascent + descent + leading) |
+| TextLeading      | Returns the amount of additional line spacing besides the ascent and descent |
+| TextWidth        | Returns the width of the specified text |
 | Write            | Writes one or more lines of text, leaving the current position positioned after the last character printed |
 | WriteLine        | Writes one or more lines of text, leaving the current position below the last line of text |
+
+Note that all text dimension methods account for StretchX, StretchY and LineSpacing appropriately.
 
 Examples below:
 
