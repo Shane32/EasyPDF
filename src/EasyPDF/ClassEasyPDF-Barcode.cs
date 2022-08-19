@@ -23,12 +23,24 @@ namespace Shane32.EasyPDF
         /// The border, if enabled, prints with the color specified by <see cref="ForeColor"/>
         /// and current line style selections.
         /// </summary>
-        public PDFWriter QRCode(QRCoder.QRCodeData data, float? size = null, bool border = false)
+        public PDFWriter QRCode(QRCoder.QRCodeData data, float? size = null, bool quietZone = true)
         {
+            int quietBorder = 0;
+            if (!quietZone) {
+                quietBorder = data.ModuleMatrix.Count(row => {
+                    for (int col = 0; col < row.Length; col++) {
+                        if (row[col])
+                            return false;
+                    }
+                    return true;
+                }) / 2;
+            }
+
+            var count = data.ModuleMatrix.Count - quietBorder - quietBorder;
             var x = CurrentX;
             var y = CurrentY;
-            var boxSize = size.HasValue ? size.Value / data.ModuleMatrix.Count : _TranslateRev(DEFAULT_BOX_SIZE);
-            size ??= boxSize * data.ModuleMatrix.Count;
+            var boxSize = size.HasValue ? size.Value / count : _TranslateRev(DEFAULT_BOX_SIZE);
+            size ??= boxSize * count;
 
             switch (PictureAlignment) {
                 case PictureAlignment.LeftTop:
@@ -64,50 +76,60 @@ namespace Shane32.EasyPDF
                     break;
             }
 
-            for (int row = 0; row < data.ModuleMatrix.Count; row++) {
+            for (int row = quietBorder; row < (count + quietBorder); row++) {
                 var rowData = data.ModuleMatrix[row];
-                for (int col = 0; col < rowData.Length; col++) {
+                for (int col = quietBorder; col < (count + quietBorder); col++) {
                     if (rowData[col]) {
-                        MoveTo(x + col * boxSize, y + row * boxSize);
+                        MoveTo(x + (col - quietBorder) * boxSize, y + (row - quietBorder) * boxSize);
                         Rectangle(boxSize, boxSize, 0, true, false);
                     }
                 }
             }
 
-            if (border) {
-                MoveTo(x, y);
-                Rectangle(size.Value, size.Value);
-            } else {
-                MoveTo(x + size.Value, y + size.Value);
-            }
+            MoveTo(x + size.Value, y + size.Value);
+            //if (border) {
+            //    MoveTo(x, y);
+            //    Rectangle(size.Value, size.Value);
+            //} else {
+            //    MoveTo(x + size.Value, y + size.Value);
+            //}
 
             return this;
         }
 
         /// <inheritdoc cref="QRCode(QRCoder.QRCodeData, float?, bool)"/>
-        public PDFWriter QRCode(string code, QRCoder.QRCodeGenerator.ECCLevel eccLevel = QRCoder.QRCodeGenerator.ECCLevel.L, float? size = null, bool border = false)
+        public PDFWriter QRCode(string code, QRCoder.QRCodeGenerator.ECCLevel eccLevel = QRCoder.QRCodeGenerator.ECCLevel.L, float? size = null, bool quietZone = true)
         {
             var generator = new QRCoder.QRCodeGenerator();
             var qrCode = generator.CreateQrCode(code, eccLevel);
-            return QRCode(qrCode, size, border);
+            return QRCode(qrCode, size, quietZone);
         }
 
         /// <summary>
         /// Returns the default size of the specified QR code (uses 0.03" dot pitch).
         /// </summary>
-        public float QRCodeSize(QRCoder.QRCodeData code)
+        public float QRCodeSize(QRCoder.QRCodeData code, bool quietZone = true)
         {
-            return _TranslateRev(DEFAULT_BOX_SIZE * code.ModuleMatrix.Count);
+            int quietBorder = 0;
+            if (!quietZone) {
+                quietBorder = code.ModuleMatrix.Count(row => {
+                    for (int col = 0; col < row.Length; col++) {
+                        if (row[col])
+                            return false;
+                    }
+                    return true;
+                }) / 2;
+            }
+
+            return _TranslateRev(DEFAULT_BOX_SIZE * (code.ModuleMatrix.Count - quietBorder - quietBorder));
         }
 
-        /// <summary>
-        /// Returns the default size of the specified QR code (uses 0.03" dot pitch).
-        /// </summary>
-        public float QRCodeSize(string code, QRCoder.QRCodeGenerator.ECCLevel eccLevel = QRCoder.QRCodeGenerator.ECCLevel.L)
+        /// <inheritdoc cref="QRCodeSize(QRCoder.QRCodeData, bool)"/>
+        public float QRCodeSize(string code, QRCoder.QRCodeGenerator.ECCLevel eccLevel = QRCoder.QRCodeGenerator.ECCLevel.L, bool quietZone = true)
         {
             var generator = new QRCoder.QRCodeGenerator();
             var qrCode = generator.CreateQrCode(code, eccLevel);
-            return QRCodeSize(qrCode);
+            return QRCodeSize(qrCode, quietZone);
         }
 
         /// <summary>
