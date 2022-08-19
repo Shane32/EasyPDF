@@ -1,4 +1,3 @@
-using System;
 using iTextSharp.text.pdf;
 
 namespace Shane32.EasyPDF
@@ -101,7 +100,7 @@ namespace Shane32.EasyPDF
 
             bool justify = Font.Justify;
             bool isLeftAligned = TextAlignment == TextAlignment.LeftTop || TextAlignment == TextAlignment.LeftCenter || TextAlignment == TextAlignment.LeftBaseline || TextAlignment == TextAlignment.LeftBottom;
-            var widthPoints = _Translate(width - (isLeftAligned && indent ? Font.HangingIndent : 0f));
+            var widthPoints = _Translate(width - (isLeftAligned && indent ? Font.HangingIndent : 0f)) / Font.StretchX;
             string? remainingText = default;
             FinishLineAndUpdateLineStyle();
             if (string.IsNullOrEmpty(text) && !newLine)
@@ -179,7 +178,7 @@ namespace Shane32.EasyPDF
                         case TextAlignment.CenterCenter:
                         case TextAlignment.CenterBaseline:
                         case TextAlignment.CenterBottom: {
-                            XOffset = -_content.GetEffectiveStringWidth(text, false) / 2;
+                            XOffset = -_content.GetEffectiveStringWidth(text, false) / 2 * Font.StretchX;
                             break;
                         }
 
@@ -187,7 +186,7 @@ namespace Shane32.EasyPDF
                         case TextAlignment.RightCenter:
                         case TextAlignment.RightBaseline:
                         case TextAlignment.RightBottom: {
-                            XOffset = -_content.GetEffectiveStringWidth(text, false);
+                            XOffset = -_content.GetEffectiveStringWidth(text, false) * Font.StretchX;
                             break;
                         }
                     }
@@ -196,14 +195,14 @@ namespace Shane32.EasyPDF
                         case TextAlignment.LeftTop:
                         case TextAlignment.CenterTop:
                         case TextAlignment.RightTop: {
-                            YOffset += bf.GetFontDescriptor(BaseFont.AWT_ASCENT, f.CalculatedSize);
+                            YOffset += bf.GetFontDescriptor(BaseFont.AWT_ASCENT, f.CalculatedSize) * Font.StretchY;
                             break;
                         }
 
                         case TextAlignment.LeftCenter:
                         case TextAlignment.CenterCenter:
                         case TextAlignment.RightCenter: {
-                            YOffset += bf.GetFontDescriptor(BaseFont.CAPHEIGHT, f.CalculatedSize) / 2;
+                            YOffset += bf.GetFontDescriptor(BaseFont.CAPHEIGHT, f.CalculatedSize) / 2 * Font.StretchY;
                             break;
                         }
 
@@ -216,16 +215,17 @@ namespace Shane32.EasyPDF
                         case TextAlignment.LeftBottom:
                         case TextAlignment.CenterBottom:
                         case TextAlignment.RightBottom: {
-                            YOffset += bf.GetFontDescriptor(BaseFont.AWT_DESCENT, f.CalculatedSize); // negative value
-                            YOffset -= bf.GetFontDescriptor(BaseFont.AWT_LEADING, f.CalculatedSize);
+                            YOffset += TextHeightPoints() - bf.GetFontDescriptor(BaseFont.AWT_ASCENT, f.CalculatedSize) * Font.StretchY;
+                            //YOffset += bf.GetFontDescriptor(BaseFont.AWT_DESCENT, f.CalculatedSize) * Font.StretchY; // negative value
+                            //YOffset -= bf.GetFontDescriptor(BaseFont.AWT_LEADING, f.CalculatedSize) * Font.StretchY;
                             break;
                         }
                     }
 
                     if ((f.CalculatedStyle & iTextSharp.text.Font.ITALIC) == iTextSharp.text.Font.ITALIC) {
-                        _content.SetTextMatrix(1, 0, 0.21256f, -1, _currentX + XOffset, _currentY + YOffset);
+                        _content.SetTextMatrix(Font.StretchX, 0, 0.21256f * Font.StretchX, -Font.StretchY, _currentX + XOffset, _currentY + YOffset);
                     } else {
-                        _content.SetTextMatrix(1, 0, 0, -1, _currentX + XOffset, _currentY + YOffset);
+                        _content.SetTextMatrix(Font.StretchX, 0, 0, -Font.StretchY, _currentX + XOffset, _currentY + YOffset);
                     }
 
                     if ((f.CalculatedStyle & iTextSharp.text.Font.BOLD) == iTextSharp.text.Font.BOLD) {
@@ -245,7 +245,7 @@ namespace Shane32.EasyPDF
                         _content.SetTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
                     }
 
-                    textWidthPoints = _content.GetEffectiveStringWidth(text, false);
+                    textWidthPoints = _content.GetEffectiveStringWidth(text, false) * Font.StretchX;
                     _content.EndText();
                     if ((f.CalculatedStyle & iTextSharp.text.Font.UNDERLINE) == iTextSharp.text.Font.UNDERLINE) {
                         _content.Rectangle(_currentX + XOffset, _currentY + YOffset + f.CalculatedSize / 4, textWidthPoints, -f.CalculatedSize / 15);
@@ -265,10 +265,10 @@ namespace Shane32.EasyPDF
 
             if (newLine || wordWrap) // justify, at this point, is equilavent to (Write2 != null) -- indicating whether there is text to kern or not
             {
-                float textHeight = bf.GetFontDescriptor(BaseFont.AWT_ASCENT, f.CalculatedSize);
-                textHeight -= bf.GetFontDescriptor(BaseFont.AWT_DESCENT, f.CalculatedSize);
-                textHeight += bf.GetFontDescriptor(BaseFont.AWT_LEADING, f.CalculatedSize);
-                _currentY += textHeight * Font.LineSpacing;
+                //float textHeight = bf.GetFontDescriptor(BaseFont.AWT_ASCENT, f.CalculatedSize);
+                //textHeight -= bf.GetFontDescriptor(BaseFont.AWT_DESCENT, f.CalculatedSize);
+                //textHeight += bf.GetFontDescriptor(BaseFont.AWT_LEADING, f.CalculatedSize);
+                _currentY += TextHeightPoints(); //textHeight * Font.LineSpacing * Font.StretchY;
             } else {
                 switch (TextAlignment) {
                     case TextAlignment.LeftTop:
@@ -303,12 +303,12 @@ namespace Shane32.EasyPDF
         public float TextWidth(string text)
         {
             var f = Font.ToiTextSharpFont(ForeColor);
-            return _TranslateRev(f.GetCalculatedBaseFont(false).GetWidthPoint(text, f.CalculatedSize));
+            return _TranslateRev(f.GetCalculatedBaseFont(false).GetWidthPoint(text, f.CalculatedSize)) * Font.StretchX;
         }
 
         /// <summary>
         /// Returns the height of a single line of text, including space between rows (ascent + descent + leading).
-        /// Also accounts for the current <see cref="Font.LineSpacing">LineSpacing</see> setting.
+        /// Also accounts for the current <see cref="Font.LineSpacing">LineSpacing</see> and <see cref="Font.StretchY"/> settings.
         /// </summary>
         public float TextHeight() => _TranslateRev(TextHeightPoints());
 
@@ -320,7 +320,7 @@ namespace Shane32.EasyPDF
             s -= bf.GetFontDescriptor(BaseFont.AWT_DESCENT, f.CalculatedSize);
             s += bf.GetFontDescriptor(BaseFont.AWT_LEADING, f.CalculatedSize);
             s *= Font.LineSpacing;
-            return s;
+            return s * Font.StretchY;
         }
 
         /// <summary>
@@ -330,7 +330,7 @@ namespace Shane32.EasyPDF
         {
             var f = Font.ToiTextSharpFont(ForeColor);
             var bf = f.GetCalculatedBaseFont(false);
-            return _TranslateRev(bf.GetFontDescriptor(BaseFont.CAPHEIGHT, f.CalculatedSize));
+            return _TranslateRev(bf.GetFontDescriptor(BaseFont.CAPHEIGHT, f.CalculatedSize)) * Font.StretchY;
         }
 
         /// <summary>
@@ -340,7 +340,7 @@ namespace Shane32.EasyPDF
         {
             var f = Font.ToiTextSharpFont(ForeColor);
             var bf = f.GetCalculatedBaseFont(false);
-            return _TranslateRev(bf.GetFontDescriptor(BaseFont.AWT_ASCENT, f.CalculatedSize));
+            return _TranslateRev(bf.GetFontDescriptor(BaseFont.AWT_ASCENT, f.CalculatedSize)) * Font.StretchY;
         }
 
         /// <summary>
@@ -351,7 +351,7 @@ namespace Shane32.EasyPDF
         {
             var f = Font.ToiTextSharpFont(ForeColor);
             var bf = f.GetCalculatedBaseFont(false);
-            return _TranslateRev(-bf.GetFontDescriptor(BaseFont.AWT_DESCENT, f.CalculatedSize));
+            return _TranslateRev(-bf.GetFontDescriptor(BaseFont.AWT_DESCENT, f.CalculatedSize)) * Font.StretchY;
         }
 
         /// <summary>
@@ -368,7 +368,7 @@ namespace Shane32.EasyPDF
             fullHeight += leading;
             float heightAdjustment = fullHeight * (Font.LineSpacing - 1f);
             leading += heightAdjustment;
-            return _TranslateRev(leading);
+            return _TranslateRev(leading) * Font.StretchY;
         }
 
         /// <summary>

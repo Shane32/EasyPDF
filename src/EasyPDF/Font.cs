@@ -114,6 +114,16 @@ namespace Shane32.EasyPDF
         public float ParagraphSpacing { get; set; }
 
         /// <summary>
+        /// A multiplier that stretches the text along the X axis.
+        /// </summary>
+        public float StretchX { get; set; } = 1f;
+
+        /// <summary>
+        /// A multipler that stretches the height of the text.
+        /// </summary>
+        public float StretchY { get; set; } = 1f;
+
+        /// <summary>
         /// Initializes a new instance with the specified variables.
         /// </summary>
         /// <param name="familyName">The family name of this font.</param>

@@ -2,19 +2,30 @@ using System.Net.Sockets;
 using QRCoder;
 using Shane32.EasyPDF;
 using static QRCoder.QRCodeGenerator;
+using Font = Shane32.EasyPDF.Font;
 
 Console.WriteLine("Creating PDF");
 
 var page = new PDFWriter();
 page.NewPage(System.Drawing.Printing.PaperKind.Letter, false);
 page.ScaleMode = ScaleModes.Inches;
+page.TextAlignment = TextAlignment.LeftTop;
+
 page.CurrentX = 1;
 page.CurrentY = 1;
 page.Circle(0.05f);
 page.Font = new Font(StandardFonts.Courier, 10) { LineSpacing = 1.2f };
-page.TextAlignment = TextAlignment.LeftTop;
 page.WriteLine("testing\r\nline2 this is a very long long line of text\nnew line\r  some more text");
 page.WriteLine();
+
+page.Font = new Font(StandardFonts.Helvetica, 12) { LineSpacing = 1.2f, StretchX = 2f, Justify = true };
+page.WriteLine("This is a very long line of text; the quick brown fox jumps over the lazy dog and hello world a few times over", 3);
+
+page.Font = new Font("Algerian", 20, System.Drawing.FontStyle.Italic);
+page.WriteLine("This is a test");
+
+page.Font = page.Font with { StretchX = 3f, StretchY = 3f };
+page.WriteLine("This is a test");
 
 page.Font = new Font(StandardFonts.Times, 10);
 page.WriteLine("Times Regular");
