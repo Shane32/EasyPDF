@@ -102,7 +102,7 @@ page.MoveTo(5, 3);
 //page.QRCode(qrData, 2, true);
 page.MoveTo(5, 3);
 page.PictureAlignment = PictureAlignment.LeftCenter;
-page.QRCode(qrData, 2, true);
+page.QRCode(qrData, 2, false);
 
 page.Barcode("Hello this is a test", BarcodeType.Code128, 1, .5f);
 
