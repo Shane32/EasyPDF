@@ -226,7 +226,7 @@ namespace Shane32.EasyPDF
         }
 
         /// <summary>
-        /// Draws a rectangle at the specified coordinates, and then draws another rectangle inset by the specified amount.
+        /// Draws a rectangle of the specified size, and then draws another rectangle inset by the specified amount.
         /// </summary>
         public PDFWriter RectangleDualOffset(float width, float height, float inset, float borderRadius = 0f)
         {
@@ -243,7 +243,7 @@ namespace Shane32.EasyPDF
         }
 
         /// <summary>
-        /// Draws a rectangle at the specified coordinates, optionally with rounded corners.
+        /// Draws a rectangle of the specified size, optionally with rounded corners.
         /// </summary>
         /// <param name="width">The width of the rectangle.</param>
         /// <param name="height">The height of the rectangle.</param>
@@ -281,20 +281,20 @@ namespace Shane32.EasyPDF
         }
 
         /// <summary>
-        /// Draws or continues a line as a curve from the current position to the specified coordinates.
+        /// Draws or continues a line as a curve from the current position to the specified offset coordinates.
         /// </summary>
-        /// <param name="offsetX">The X coordinate or offset.</param>
-        /// <param name="offsetY">The Y coordinate or offset.</param>
+        /// <param name="offsetX">The X offset coordinate.</param>
+        /// <param name="offsetY">The Y offset coordinate.</param>
         /// <param name="fromSide">Controls if this is a inner or outer curve.</param>
         /// <param name="bulge">Controls the amount of curvature. The default value is for a 90 degree curve and equals <c>(float)(4d * (Math.Pow(2d, 0.5d) - 1d) / 3d)</c>.</param>
         public PDFWriter CornerTo(float offsetX, float offsetY, bool fromSide, float bulge = 0.5522847498307936f) // 0.5522847498307936f = (float)(4d * (Math.Pow(2d, 0.5d) - 1d) / 3d);
             => CornerTo(offsetX, offsetY, fromSide, bulge, bulge);
 
         /// <summary>
-        /// Draws or continues a line as a curve from the current position to the specified coordinates.
+        /// Draws or continues a line as a curve from the current position to the specified offset coordinates.
         /// </summary>
-        /// <param name="offsetX">The X coordinate or offset.</param>
-        /// <param name="offsetY">The Y coordinate or offset.</param>
+        /// <param name="offsetX">The X offset coordinate.</param>
+        /// <param name="offsetY">The Y offset coordinate.</param>
         /// <param name="fromSide">Controls if this is a inner or outer curve.</param>
         /// <param name="bulgeHorizontal">Controls the amount of curvature.</param>
         /// <param name="bulgeVertical">Controls the amount of curvature.</param>
@@ -321,32 +321,44 @@ namespace Shane32.EasyPDF
         /// <summary>
         /// Draws a bezier curve starting at the current position to (<paramref name="x4"/>, <paramref name="y4"/>) with
         /// (<paramref name="x2"/>, <paramref name="y2"/>) and (<paramref name="x3"/>, <paramref name="y3"/>) as control points.
+        /// All coordinates are offsets from the current position.
         /// </summary>
         public PDFWriter BezierTo(float x2, float y2, float x3, float y3, float x4, float y4)
         {
             UpdateLineStyle();
             if (!_inLine)
                 _content.MoveTo(_currentX, _currentY);
-            _content.CurveTo(_Translate(x2), _Translate(y2), _Translate(x3), _Translate(y3), _Translate(x4), _Translate(y4));
+            x2 = _currentX + _Translate(x2);
+            y2 = _currentY + _Translate(y2);
+            x3 = _currentX + _Translate(x3);
+            y3 = _currentY + _Translate(y3);
+            x4 = _currentX + _Translate(x4);
+            y4 = _currentY + _Translate(y4);
+            _content.CurveTo(x2, y2, x3, y3, x4, y4);
             _inLine = true;
-            _currentX = _Translate(x4);
-            _currentY = _Translate(y4);
+            _currentX = x4;
+            _currentY = y4;
             return this;
         }
 
         /// <summary>
         /// Draws a bezier curve starting at the current position to (<paramref name="x4"/>, <paramref name="y4"/>) with
         /// (<paramref name="x2"/>, <paramref name="y2"/>) as a control point.
+        /// All coordinates are offsets from the current position.
         /// </summary>
         public PDFWriter BezierTo(float x2, float y2, float x4, float y4)
         {
             UpdateLineStyle();
             if (!_inLine)
                 _content.MoveTo(_currentX, _currentY);
-            _content.CurveTo(_Translate(x2), _Translate(y2), _Translate(x4), _Translate(y4));
+            x2 = _currentX + _Translate(x2);
+            y2 = _currentY + _Translate(y2);
+            x4 = _currentX + _Translate(x4);
+            y4 = _currentY + _Translate(y4);
+            _content.CurveTo(x2, y2, x4, y4);
             _inLine = true;
-            _currentX = _Translate(x4);
-            _currentY = _Translate(y4);
+            _currentX = x4;
+            _currentY = y4;
             return this;
         }
 
