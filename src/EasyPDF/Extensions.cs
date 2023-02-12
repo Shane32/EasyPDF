@@ -10,12 +10,7 @@ namespace Shane32.EasyPDF
         /// <summary>
         /// Returns a shallow copy of an array.
         /// </summary>
-        public static T[] Duplicate<T>(this T[] array)
-        {
-            var newArray = new T[array.Length];
-            array.CopyTo(newArray, 0);
-            return newArray;
-        }
+        public static T[] Duplicate<T>(this T[] array) => (T[])array.Clone();
 
         /// <summary>
         /// Converts a <see cref="System.Drawing.Color"/> to <see cref="iTextSharp.text.BaseColor"/>.

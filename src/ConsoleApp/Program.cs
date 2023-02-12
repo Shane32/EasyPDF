@@ -98,13 +98,22 @@ var qrData = qrCodeGenerator.CreateQrCode("www.zbox.com", ECCLevel.L);
 
 page.MoveTo(3, 3);
 page.QRCode(qrData);
-page.MoveTo(5, 3);
+page.MoveTo(3, 3);
+page.ForeColor = System.Drawing.Color.Blue;
+page.Rectangle(qrData.ModuleMatrix.Count * 0.03f, qrData.ModuleMatrix.Count * 0.03f);
+page.ForeColor = System.Drawing.Color.Red;
+//page.MoveTo(5, 3);
 //page.QRCode(qrData, 2, true);
 page.MoveTo(5, 3);
 page.PictureAlignment = PictureAlignment.LeftCenter;
 page.QRCode(qrData, 2, false);
+page.ForeColor = System.Drawing.Color.Blue;
+page.MoveTo(5, 2).Rectangle(2, 2);
+page.ForeColor = System.Drawing.Color.Red;
 
 page.Barcode("Hello this is a test", BarcodeType.Code128, 1, .5f);
+page.ForeColor = System.Drawing.Color.Blue;
+page.MoveTo(7, 3.75f).Rectangle(1, 0.5f);
 
 var data = page.ToArray();
 
