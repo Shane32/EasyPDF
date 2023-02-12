@@ -187,6 +187,19 @@ namespace Shane32.EasyPDF
         }
 
         /// <summary>
+        /// When using the default constructor, this closes the document and returns the PDF data as a <see cref="Stream"/>.
+        /// Cannot be used with other constructors.
+        /// </summary>
+        public Stream ToStream()
+        {
+            if (!_privateStream)
+                throw new InvalidOperationException("This method is only available when using the default constructor.");
+            Close();
+            _stream.Position = 0;
+            return _stream;
+        }
+
+        /// <summary>
         /// Prints to the specified network-attached printer; only supported when the printer supports PDF printing.
         /// </summary>
         public async Task PrintAsync(string host, int port = 9100, CancellationToken token = default)

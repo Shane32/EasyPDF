@@ -20,8 +20,6 @@ namespace Shane32.EasyPDF
         /// position, adjusted based on the <see cref="PictureAlignment"/> setting.
         /// If <paramref name="size"/> is not specified, QR code prints with 0.03" dot pitch;
         /// otherwise the overall size of the QR code is the specified size.
-        /// The border, if enabled, prints with the color specified by <see cref="ForeColor"/>
-        /// and current line style selections.
         /// </summary>
         public PDFWriter QRCode(QRCoder.QRCodeData data, float? size = null, bool quietZone = true)
         {
@@ -87,6 +85,8 @@ namespace Shane32.EasyPDF
             }
 
             MoveTo(x + size.Value, y + size.Value);
+            // The border, if enabled, prints with the color specified by <see cref="ForeColor"/>
+            // and current line style selections.
             //if (border) {
             //    MoveTo(x, y);
             //    Rectangle(size.Value, size.Value);
@@ -214,10 +214,11 @@ namespace Shane32.EasyPDF
             if (type != BarcodeType.Code128)
                 throw new ArgumentOutOfRangeException(nameof(type));
 
-            var c = new Barcode128();
-            c.Code = text;
-            c.CodeType = Barcode128.CODE128;
-            c.Font = null;
+            var c = new Barcode128 {
+                Code = text,
+                CodeType = Barcode128.CODE128,
+                Font = null
+            };
             return _TranslateRev(c.BarcodeSize.Width);
         }
     }
