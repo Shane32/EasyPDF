@@ -188,11 +188,13 @@ namespace Shane32.EasyPDF
             c.BarHeight = _Translate(height.Value);
             _content.SaveState();
             try {
-                var matrix = new System.Drawing.Drawing2D.Matrix();
-                matrix.Translate(_Translate(x), _Translate(y));
-                if (width.HasValue)
-                    matrix.Scale(width.Value / BarcodeSize(text), 1f);
-                _content.Transform(matrix);
+                var m11 = width.HasValue ? (width.Value / _TranslateRev(c.BarcodeSize.Width)) : 1f;
+                _content.ConcatCtm(m11, 0, 0, 1f, _Translate(x), _Translate(y));
+                //var matrix = new System.Drawing.Drawing2D.Matrix();
+                //matrix.Translate(_Translate(x), _Translate(y));
+                //if (width.HasValue)
+                //    matrix.Scale(width.Value / BarcodeSize(text), 1f);
+                //_content.Transform(matrix);
                 c.PlaceBarcode(_content, null, null);
                 _currentX = x + width.Value;
                 _currentY = y + height.Value;
