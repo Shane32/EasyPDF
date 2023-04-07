@@ -2,55 +2,67 @@ namespace Shane32.EasyPDF
 {
     /// <summary>
     /// Specifies a text alignment when printing text.
+    /// Alignment is applied on a per-line basis; blocks of text cannot be aligned as a group.
     /// </summary>
     public enum TextAlignment
     {
         /// <summary>
-        /// Left-top alignment.
+        /// Text is aligned to the left and the top of the bounding box.
         /// </summary>
         LeftTop,
+
         /// <summary>
-        /// Left-center alignment.
+        /// Text is aligned to the left and centered vertically along the height of the capital letters.
         /// </summary>
         LeftCenter,
+
         /// <summary>
-        /// Left-baseline alignment.
+        /// Text is aligned to the left and aligned to the baseline of the text.
         /// </summary>
         LeftBaseline,
+        
         /// <summary>
-        /// Left-bottom alignment.
+        /// Text is aligned to the left and aligned to the bottom of the bounding box, including any line spacing.
         /// </summary>
         LeftBottom,
+
         /// <summary>
-        /// Center-top alignment.
+        /// Text is horizontally centered and aligned to the top of the bounding box.
         /// </summary>
         CenterTop,
+
         /// <summary>
-        /// Center-center alignment.
+        /// Text is horizontally centered and centered vertically along the height of the capital letters.
         /// </summary>
         CenterCenter,
+
         /// <summary>
-        /// Center-baseline alignment.
+        /// Text is horizontally centered and aligned to the baseline of the text.
         /// </summary>
         CenterBaseline,
+
         /// <summary>
-        /// Center-bottom alignment.
+        /// Text is horizontally centered and aligned to the bottom of the bounding box, including any line spacing.
         /// </summary>
         CenterBottom,
+
         /// <summary>
-        /// Right-top alignment.
+        /// Text is aligned to the right and aligned to the top of the bounding box.
         /// </summary>
         RightTop,
+
         /// <summary>
-        /// Right-center alignment.
+        /// Text is aligned to the right and centered vertically along the height of the capital letters.
         /// </summary>
         RightCenter,
+
         /// <summary>
-        /// Right-baseline alignment.
+        /// Text is aligned to the right and aligned to the baseline of the text.
         /// </summary>
         RightBaseline,
+
         /// <summary>
-        /// Right-bottom alignment.
+        /// Text is aligned to the right and aligned to the bottom of the bounding box, including any line spacing.
         /// </summary>
         RightBottom,
     }

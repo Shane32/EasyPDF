@@ -200,10 +200,12 @@ namespace Shane32.EasyPDF
         /// Moves the current position to the specified coordinates.
         /// </summary>
         public PDFWriter MoveTo(float x, float y)
+            => MoveTo(new PointF(x, y));
+
+        /// <inheritdoc cref="MoveTo(float, float)"/>
+        public PDFWriter MoveTo(PointF position)
         {
-            FinishLine();
-            _currentX = _Translate(x);
-            _currentY = _Translate(y);
+            Position = position;
             return this;
         }
 

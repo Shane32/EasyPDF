@@ -86,9 +86,7 @@ namespace Shane32.EasyPDF
         /// </summary>
         public SizeF PageSize => new SizeF(_TranslateRev(_pageSize.Width), _TranslateRev(_pageSize.Height));
 
-        /// <summary>
-        /// Creates a document or adds a new page to an existing document as the specified size.
-        /// </summary>
+        /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
         public PDFWriter NewPage(PaperKind paperKind, bool landscape, float marginLeft = 0f, float marginTop = 0f, float? marginRight = null, float? marginBottom = null)
             => NewPage(_GetPaperSize(paperKind), landscape, marginLeft, marginTop, marginRight, marginBottom);
 
@@ -96,7 +94,9 @@ namespace Shane32.EasyPDF
         public PDFWriter NewPage(PaperKind paperKind, bool landscape, Margins margins)
             => NewPage(_GetPaperSize(paperKind), landscape, margins);
 
-        /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
+        /// <summary>
+        /// Creates a document or adds a new page to an existing document as the specified size.
+        /// </summary>
         public PDFWriter NewPage(float width, float height, bool landscape, float marginLeft = 0f, float marginTop = 0f, float? marginRight = null, float? marginBottom = null)
             => NewPageAbs(_Translate(width), _Translate(height), landscape, _Translate(marginLeft), _Translate(marginTop), _Translate(marginRight ?? marginLeft), _Translate(marginBottom ?? marginTop));
 
@@ -178,13 +178,7 @@ namespace Shane32.EasyPDF
         /// When using the default constructor, this closes the document and returns the PDF data as a byte array.
         /// Cannot be used with other constructors.
         /// </summary>
-        public byte[] ToArray()
-        {
-            if (!_privateStream)
-                throw new InvalidOperationException("This method is only available when using the default constructor.");
-            Close();
-            return ((MemoryStream)_stream).ToArray();
-        }
+        public byte[] ToArray() => ((MemoryStream)ToStream()).ToArray();
 
         /// <summary>
         /// When using the default constructor, this closes the document and returns the PDF data as a <see cref="Stream"/>.

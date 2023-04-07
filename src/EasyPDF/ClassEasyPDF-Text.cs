@@ -215,9 +215,7 @@ namespace Shane32.EasyPDF
                         case TextAlignment.LeftBottom:
                         case TextAlignment.CenterBottom:
                         case TextAlignment.RightBottom: {
-                            YOffset += TextHeightPoints() - bf.GetFontDescriptor(BaseFont.AWT_ASCENT, f.CalculatedSize) * Font.StretchY;
-                            //YOffset += bf.GetFontDescriptor(BaseFont.AWT_DESCENT, f.CalculatedSize) * Font.StretchY; // negative value
-                            //YOffset -= bf.GetFontDescriptor(BaseFont.AWT_LEADING, f.CalculatedSize) * Font.StretchY;
+                            YOffset -= TextHeightPoints() - bf.GetFontDescriptor(BaseFont.AWT_ASCENT, f.CalculatedSize) * Font.StretchY;
                             break;
                         }
                     }

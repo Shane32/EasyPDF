@@ -98,7 +98,8 @@ pdf.OffsetTo(0, 0.5f).WriteLine("Added a half inch gap between the lines");
 
 | Method           | Description |
 |------------------|-------------|
-| MoveTo           | Moves the current X and Y coordinate to the specified offset                     |
+| MoveTo           | Sets the current X and Y coordinates to the specified position                   |
+| OffsetTo         | Moves the current X and Y coordinates by the specified offset                    |
 | RegisterFont     | Registers a font contained within a file to be able to be used                   |
 | TextAscent       | Returns the distance between the baseline and the top of the highest letters     |
 | TextCapHeight    | Returns the distance between the baseline and the top of capital letters         |
@@ -154,7 +155,8 @@ to the PDF file.  Pictures are positioned according to the `PictureAlignment` pr
 | FinishLine          | Ends the line and draws it |
 | FinishPolygon       | Ends a polygon and draws it |
 | LineTo              | Starts or continues a line or polygon to another specified coordinate |
-| MoveTo              | Moves the current X and Y coordinate to the specified offset |
+| MoveTo              | Sets the current X and Y coordinates to the specified position |
+| OffsetTo            | Moves the current X and Y coordinates by the specified offset |
 | Rectangle           | Draws a rectangle of the specified size, optionally filling it (with/without border) and/or rounding the corners |
 | RectangleDualOffset | Draws a rectangle of the specified size, and then draws another rectangle inset by a specified amount |
 
