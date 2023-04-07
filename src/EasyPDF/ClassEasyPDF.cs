@@ -7,362 +7,361 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using iTextPdfWriter = iTextSharp.text.pdf.PdfWriter;
 
-namespace Shane32.EasyPDF
+namespace Shane32.EasyPDF;
+
+/// <summary>
+/// Creates a PDF page and writes it to a stream or byte array.
+/// </summary>
+public partial class PDFWriter : IDisposable
 {
-    /// <summary>
-    /// Creates a PDF page and writes it to a stream or byte array.
-    /// </summary>
-    public partial class PDFWriter : IDisposable
+    private readonly Stream _stream;
+    private readonly bool _privateStream;
+    private readonly bool _disposeStream;
+    private Document? _document;
+    private iTextPdfWriter? _writer;
+    private PdfContentByte? _content2;
+    private PdfStamper? _stamper;
+    private PdfContentByte _content => _content2 ?? throw new InvalidOperationException("Create a page first!");
+    private ScaleModes _scaleMode = ScaleModes.Hundredths;
+    private SizeF _pageSize;
+    private SizeF _marginSize;
+    private PointF _marginOffset;
+
+    static PDFWriter()
     {
-        private readonly Stream _stream;
-        private readonly bool _privateStream;
-        private readonly bool _disposeStream;
-        private Document? _document;
-        private iTextPdfWriter? _writer;
-        private PdfContentByte? _content2;
-        private PdfStamper? _stamper;
-        private PdfContentByte _content => _content2 ?? throw new InvalidOperationException("Create a page first!");
-        private ScaleModes _scaleMode = ScaleModes.Hundredths;
-        private SizeF _pageSize;
-        private SizeF _marginSize;
-        private PointF _marginOffset;
-
-        static PDFWriter()
-        {
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            _ = FontFactory.RegisterDirectories();
-        }
-
-        /// <summary>
-        /// Creates a new document; use <see cref="ToArray"/> to retrieve the PDF data.
-        /// </summary>
-        public PDFWriter()
-        {
-            _stream = new MemoryStream();
-            _privateStream = true;
-        }
-
-        /// <summary>
-        /// Creates a new document with the specified filename.
-        /// </summary>
-        public PDFWriter(string path)
-        {
-            _stream = System.IO.File.Create(path);
-            _disposeStream = true;
-        }
-
-        /// <summary>
-        /// Creates a new document which will save to the specified stream.
-        /// </summary>
-        public PDFWriter(Stream stream)
-        {
-            _stream = stream;
-        }
-
-        /// <summary>
-        /// Returns the underlying <see cref="PdfContentByte"/>.
-        /// </summary>
-        public PdfContentByte GetDirectContent() => _content;
-
-        /// <summary>
-        /// returns the underlying <see cref="iTextPdfWriter"/>.
-        /// </summary>
-        public iTextPdfWriter GetWriter() => _writer ?? throw new InvalidOperationException("Create a page first!");
-
-        /// <summary>
-        /// Returns the underlying <see cref="Document"/>.
-        /// </summary>
-        public Document GetDocument() => _document ?? throw new InvalidOperationException("Create a page first!");
-
-        private static PaperSize _GetPaperSize(PaperKind paperKind) => paperKind switch {
-            PaperKind.Letter => new PaperSize(paperKind.ToString(), 850, 1100),
-            PaperKind.Legal => new PaperSize(paperKind.ToString(), 850, 1400),
-            PaperKind.Ledger => new PaperSize(paperKind.ToString(), 1100, 1700),
-            _ => throw new NotImplementedException(),
-        };
-
-        /// <summary>
-        /// Returns the size of the page including margins.
-        /// </summary>
-        public SizeF PageSize => new SizeF(_TranslateRev(_pageSize.Width), _TranslateRev(_pageSize.Height));
-
-        /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
-        public PDFWriter NewPage(PaperKind paperKind, bool landscape, float marginLeft = 0f, float marginTop = 0f, float? marginRight = null, float? marginBottom = null)
-            => NewPage(_GetPaperSize(paperKind), landscape, marginLeft, marginTop, marginRight, marginBottom);
-
-        /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
-        public PDFWriter NewPage(PaperKind paperKind, bool landscape, Margins margins)
-            => NewPage(_GetPaperSize(paperKind), landscape, margins);
-
-        /// <summary>
-        /// Creates a document or adds a new page to an existing document as the specified size.
-        /// </summary>
-        public PDFWriter NewPage(float width, float height, bool landscape, float marginLeft = 0f, float marginTop = 0f, float? marginRight = null, float? marginBottom = null)
-            => NewPageAbs(_Translate(width), _Translate(height), landscape, _Translate(marginLeft), _Translate(marginTop), _Translate(marginRight ?? marginLeft), _Translate(marginBottom ?? marginTop));
-
-        /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
-        public PDFWriter NewPage(PaperSize paperSize, bool landscape, float marginLeft = 0f, float marginTop = 0f, float? marginRight = null, float? marginBottom = null)
-            => NewPageAbs(_Translate(paperSize.Width, ScaleModes.Hundredths), _Translate(paperSize.Height, ScaleModes.Hundredths), landscape, _Translate(marginLeft), _Translate(marginTop), _Translate(marginRight ?? marginLeft), _Translate(marginBottom ?? marginTop));
-
-        /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
-        public PDFWriter NewPage(PaperSize paperSize, bool landscape, Margins margins)
-            => NewPageAbs(_Translate(paperSize.Width, ScaleModes.Hundredths), _Translate(paperSize.Height, ScaleModes.Hundredths), landscape, _Translate(margins.Left, ScaleModes.Hundredths), _Translate(margins.Top, ScaleModes.Hundredths), _Translate(margins.Right, ScaleModes.Hundredths), _Translate(margins.Bottom, ScaleModes.Hundredths));
-
-        /// <summary>
-        /// Allows for editing a existing pdf; will have to save under a different file name
-        /// </summary>
-        public void AnnotatePage(string originalFile)
-        {
-            var reader = new PdfReader(originalFile);
-            //todo: is the file stream held open by the PdfReader?
-            //  if so, it should be disposed by Close/Dispose
-            //  if not, we're good
-            AnnotatePage(reader);
-        }
-
-        /// <inheritdoc cref="AnnotatePage(string)"/>
-        public void AnnotatePage(PdfReader reader)
-        {
-            var stamper = new PdfStamper(reader, _stream);
-            _content2 = stamper.GetOverContent(1);
-
-            var rect = reader.GetPageSizeWithRotation(1);
-            _content.ConcatCtm(1, 0, 0, -1, 0, rect.Height);
-
-            _stamper = stamper;
-        }
-
-        private PDFWriter NewPageAbs(float pageWidth, float pageHeight, bool landscape, float marginLeft = 0f, float marginTop = 0f, float? marginRight = null, float? marginBottom = null)
-        {
-            marginRight ??= marginLeft;
-            marginBottom ??= marginTop;
-            FinishLine();
-            if (_document is null) {
-                if (landscape) {
-                    var rotated = new iTextSharp.text.Rectangle(pageWidth, pageHeight).Rotate();
-                    _document = new Document(rotated);
-                } else {
-                    _document = new Document(new iTextSharp.text.Rectangle(pageWidth, pageHeight));
-                }
-
-                _writer = iTextPdfWriter.GetInstance(_document, _stream);
-                _document.Open();
-                _content2 = _writer.DirectContent;
-            } else {
-                if (landscape) {
-                    _ = _document.SetPageSize(new iTextSharp.text.Rectangle(pageWidth, pageHeight).Rotate());
-                } else {
-                    _ = _document.SetPageSize(new iTextSharp.text.Rectangle(pageWidth, pageHeight));
-                }
-                _ = _document.NewPage();
-            }
-
-            _writer!.PageEmpty = false;
-            if (landscape) {
-                _pageSize = new SizeF(pageHeight, pageWidth);
-            } else {
-                _pageSize = new SizeF(pageWidth, pageHeight);
-            }
-            _content.ConcatCtm(1, 0, 0, -1, marginLeft, _pageSize.Height - marginTop);
-            _marginOffset = new PointF(marginLeft, marginTop);
-            _marginSize = new SizeF(_pageSize.Width - marginLeft - marginRight.Value, _pageSize.Height - marginTop - marginBottom.Value);
-
-            _InitLineVars();
-            _currentX = 0;
-            _currentY = 0;
-
-            return this;
-        }
-
-        /// <summary>
-        /// When using the default constructor, this closes the document and returns the PDF data as a byte array.
-        /// Cannot be used with other constructors.
-        /// </summary>
-        public byte[] ToArray() => ((MemoryStream)ToStream()).ToArray();
-
-        /// <summary>
-        /// When using the default constructor, this closes the document and returns the PDF data as a <see cref="Stream"/>.
-        /// Cannot be used with other constructors.
-        /// </summary>
-        public Stream ToStream()
-        {
-            if (!_privateStream)
-                throw new InvalidOperationException("This method is only available when using the default constructor.");
-            Close();
-            _stream.Position = 0;
-            return _stream;
-        }
-
-        /// <summary>
-        /// Prints to the specified network-attached printer; only supported when the printer supports PDF printing.
-        /// </summary>
-        public async Task PrintAsync(string host, int port = 9100, CancellationToken token = default)
-        {
-            if (!_privateStream)
-                throw new InvalidOperationException("This method is only available when using the default constructor.");
-            Close();
-
-            using var tcpClient = new TcpClient();
-#if NET5_0_OR_GREATER
-            await tcpClient.ConnectAsync(host, port, token);
-#else
-            await tcpClient.ConnectAsync(host, port);
-#endif
-            using var stream = tcpClient.GetStream();
-            _stream.Position = 0;
-            await _stream.CopyToAsync(stream, 81920, token);
-            await stream.FlushAsync(token);
-        }
-
-        /// <summary>
-        /// Prints to the specified network-attached printer; only supported when the printer supports PDF printing.
-        /// </summary>
-        public async Task PrintAsync(IPAddress address, int port = 9100, CancellationToken token = default)
-        {
-            if (!_privateStream)
-                throw new InvalidOperationException("This method is only available when using the default constructor.");
-            Close();
-
-            using var tcpClient = new TcpClient();
-#if NET5_0_OR_GREATER
-            await tcpClient.ConnectAsync(address, port, token);
-#else
-            await tcpClient.ConnectAsync(address, port);
-#endif
-            using var stream = tcpClient.GetStream();
-            _stream.Position = 0;
-            await _stream.CopyToAsync(stream, 81920, token);
-            await stream.FlushAsync(token);
-        }
-
-        /// <summary>
-        /// Closes the document and finishes writing it to the underlying stream.
-        /// </summary>
-        public void Close()
-        {
-            if (_content2 != null) {
-                FinishLineAndUpdateLineStyle();
-                _content2 = null;
-            }
-            if (_document != null) {
-                _document.Close();
-                _document = null;
-            }
-
-            if (_writer != null) {
-                _writer.Close();
-                _writer = null;
-            }
-
-            if (_stamper != null) {
-                _stamper.Close();
-                _stamper = null;
-            }
-            
-            if (_disposeStream && _stream != null) {
-                _stream.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Disposes of the underlying stream if necessary.
-        /// Use <see cref="Close"/> to save the file data prior to closing.
-        /// </summary>
-        void IDisposable.Dispose() {
-            if (_disposeStream)
-                _stream.Dispose();
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Gets or sets the scale of coordinate system.
-        /// </summary>
-        public ScaleModes ScaleMode {
-            get => _scaleMode;
-
-            set {
-                switch (value) {
-                    case ScaleModes.Hundredths:
-                    case ScaleModes.Inches:
-                    case ScaleModes.Points:
-                        _scaleMode = value;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(value));
-                }
-            }
-        }
-
-        /// <summary>
-        /// Registers a specific font file to be able to be used while creating PDFs.
-        /// </summary>
-        public static void RegisterFont(string name, string path)
-        {
-            if (!FontFactory.IsRegistered(name)) {
-                FontFactory.Register(path, name);
-            }
-        }
-
-        /// <summary>
-        /// Translates a value from the selected scale mode to points.
-        /// </summary>
-        private float _Translate(float num) => _Translate(num, _scaleMode);
-
-        /// <summary>
-        /// Translates a value from the selected scale mode to points.
-        /// </summary>
-        private float? _Translate(float? num) => num.HasValue ? _Translate(num.Value, _scaleMode) : null;
-
-        /// <summary>
-        /// Translates a value from a specified scale mode to points.
-        /// </summary>
-        private static float _Translate(float num, ScaleModes scaleMode)
-        {
-            switch (scaleMode) {
-                case ScaleModes.Points: {
-                    return num;
-                }
-
-                case ScaleModes.Hundredths: {
-                    return num * 72f / 100f;
-                }
-
-                case ScaleModes.Inches: {
-                    return num * 72f;
-                }
-
-                default: {
-                    throw new ArgumentOutOfRangeException(nameof(scaleMode));
-                }
-            }
-        }
-
-        /// <summary>
-        /// Translates a value from points to the selected scale mode.
-        /// </summary>
-        private float _TranslateRev(float num) => _TranslateRev(num, ScaleMode);
-
-        /// <summary>
-        /// Translates a value from points to a specified scale mode.
-        /// </summary>
-        private static float _TranslateRev(float num, ScaleModes scaleMode)
-        {
-            return scaleMode switch {
-                ScaleModes.Points => num,
-                ScaleModes.Hundredths => num * 100f / 72f,
-                ScaleModes.Inches => num / 72f,
-                _ => throw new ArgumentOutOfRangeException(nameof(scaleMode)),
-            };
-        }
-
-        /// <summary>
-        /// Return the size of the page excluding margins.
-        /// </summary>
-        public SizeF Size => new SizeF(_TranslateRev(_marginSize.Width), _TranslateRev(_marginSize.Height));
-
-        /// <summary>
-        /// Returns the top and left margin offsets on the page.
-        /// </summary>
-        public PointF MarginOffset => new PointF(_TranslateRev(_marginOffset.X), _TranslateRev(_marginOffset.Y));
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        _ = FontFactory.RegisterDirectories();
     }
+
+    /// <summary>
+    /// Creates a new document; use <see cref="ToArray"/> to retrieve the PDF data.
+    /// </summary>
+    public PDFWriter()
+    {
+        _stream = new MemoryStream();
+        _privateStream = true;
+    }
+
+    /// <summary>
+    /// Creates a new document with the specified filename.
+    /// </summary>
+    public PDFWriter(string path)
+    {
+        _stream = System.IO.File.Create(path);
+        _disposeStream = true;
+    }
+
+    /// <summary>
+    /// Creates a new document which will save to the specified stream.
+    /// </summary>
+    public PDFWriter(Stream stream)
+    {
+        _stream = stream;
+    }
+
+    /// <summary>
+    /// Returns the underlying <see cref="PdfContentByte"/>.
+    /// </summary>
+    public PdfContentByte GetDirectContent() => _content;
+
+    /// <summary>
+    /// returns the underlying <see cref="iTextPdfWriter"/>.
+    /// </summary>
+    public iTextPdfWriter GetWriter() => _writer ?? throw new InvalidOperationException("Create a page first!");
+
+    /// <summary>
+    /// Returns the underlying <see cref="Document"/>.
+    /// </summary>
+    public Document GetDocument() => _document ?? throw new InvalidOperationException("Create a page first!");
+
+    private static PaperSize _GetPaperSize(PaperKind paperKind) => paperKind switch {
+        PaperKind.Letter => new PaperSize(paperKind.ToString(), 850, 1100),
+        PaperKind.Legal => new PaperSize(paperKind.ToString(), 850, 1400),
+        PaperKind.Ledger => new PaperSize(paperKind.ToString(), 1100, 1700),
+        _ => throw new NotImplementedException(),
+    };
+
+    /// <summary>
+    /// Returns the size of the page including margins.
+    /// </summary>
+    public SizeF PageSize => new SizeF(_TranslateRev(_pageSize.Width), _TranslateRev(_pageSize.Height));
+
+    /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
+    public PDFWriter NewPage(PaperKind paperKind, bool landscape, float marginLeft = 0f, float marginTop = 0f, float? marginRight = null, float? marginBottom = null)
+        => NewPage(_GetPaperSize(paperKind), landscape, marginLeft, marginTop, marginRight, marginBottom);
+
+    /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
+    public PDFWriter NewPage(PaperKind paperKind, bool landscape, Margins margins)
+        => NewPage(_GetPaperSize(paperKind), landscape, margins);
+
+    /// <summary>
+    /// Creates a document or adds a new page to an existing document as the specified size.
+    /// </summary>
+    public PDFWriter NewPage(float width, float height, bool landscape, float marginLeft = 0f, float marginTop = 0f, float? marginRight = null, float? marginBottom = null)
+        => NewPageAbs(_Translate(width), _Translate(height), landscape, _Translate(marginLeft), _Translate(marginTop), _Translate(marginRight ?? marginLeft), _Translate(marginBottom ?? marginTop));
+
+    /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
+    public PDFWriter NewPage(PaperSize paperSize, bool landscape, float marginLeft = 0f, float marginTop = 0f, float? marginRight = null, float? marginBottom = null)
+        => NewPageAbs(_Translate(paperSize.Width, ScaleModes.Hundredths), _Translate(paperSize.Height, ScaleModes.Hundredths), landscape, _Translate(marginLeft), _Translate(marginTop), _Translate(marginRight ?? marginLeft), _Translate(marginBottom ?? marginTop));
+
+    /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
+    public PDFWriter NewPage(PaperSize paperSize, bool landscape, Margins margins)
+        => NewPageAbs(_Translate(paperSize.Width, ScaleModes.Hundredths), _Translate(paperSize.Height, ScaleModes.Hundredths), landscape, _Translate(margins.Left, ScaleModes.Hundredths), _Translate(margins.Top, ScaleModes.Hundredths), _Translate(margins.Right, ScaleModes.Hundredths), _Translate(margins.Bottom, ScaleModes.Hundredths));
+
+    /// <summary>
+    /// Allows for editing a existing pdf; will have to save under a different file name
+    /// </summary>
+    public void AnnotatePage(string originalFile)
+    {
+        var reader = new PdfReader(originalFile);
+        //todo: is the file stream held open by the PdfReader?
+        //  if so, it should be disposed by Close/Dispose
+        //  if not, we're good
+        AnnotatePage(reader);
+    }
+
+    /// <inheritdoc cref="AnnotatePage(string)"/>
+    public void AnnotatePage(PdfReader reader)
+    {
+        var stamper = new PdfStamper(reader, _stream);
+        _content2 = stamper.GetOverContent(1);
+
+        var rect = reader.GetPageSizeWithRotation(1);
+        _content.ConcatCtm(1, 0, 0, -1, 0, rect.Height);
+
+        _stamper = stamper;
+    }
+
+    private PDFWriter NewPageAbs(float pageWidth, float pageHeight, bool landscape, float marginLeft = 0f, float marginTop = 0f, float? marginRight = null, float? marginBottom = null)
+    {
+        marginRight ??= marginLeft;
+        marginBottom ??= marginTop;
+        FinishLine();
+        if (_document is null) {
+            if (landscape) {
+                var rotated = new iTextSharp.text.Rectangle(pageWidth, pageHeight).Rotate();
+                _document = new Document(rotated);
+            } else {
+                _document = new Document(new iTextSharp.text.Rectangle(pageWidth, pageHeight));
+            }
+
+            _writer = iTextPdfWriter.GetInstance(_document, _stream);
+            _document.Open();
+            _content2 = _writer.DirectContent;
+        } else {
+            if (landscape) {
+                _ = _document.SetPageSize(new iTextSharp.text.Rectangle(pageWidth, pageHeight).Rotate());
+            } else {
+                _ = _document.SetPageSize(new iTextSharp.text.Rectangle(pageWidth, pageHeight));
+            }
+            _ = _document.NewPage();
+        }
+
+        _writer!.PageEmpty = false;
+        if (landscape) {
+            _pageSize = new SizeF(pageHeight, pageWidth);
+        } else {
+            _pageSize = new SizeF(pageWidth, pageHeight);
+        }
+        _content.ConcatCtm(1, 0, 0, -1, marginLeft, _pageSize.Height - marginTop);
+        _marginOffset = new PointF(marginLeft, marginTop);
+        _marginSize = new SizeF(_pageSize.Width - marginLeft - marginRight.Value, _pageSize.Height - marginTop - marginBottom.Value);
+
+        _InitLineVars();
+        _currentX = 0;
+        _currentY = 0;
+
+        return this;
+    }
+
+    /// <summary>
+    /// When using the default constructor, this closes the document and returns the PDF data as a byte array.
+    /// Cannot be used with other constructors.
+    /// </summary>
+    public byte[] ToArray() => ((MemoryStream)ToStream()).ToArray();
+
+    /// <summary>
+    /// When using the default constructor, this closes the document and returns the PDF data as a <see cref="Stream"/>.
+    /// Cannot be used with other constructors.
+    /// </summary>
+    public Stream ToStream()
+    {
+        if (!_privateStream)
+            throw new InvalidOperationException("This method is only available when using the default constructor.");
+        Close();
+        _stream.Position = 0;
+        return _stream;
+    }
+
+    /// <summary>
+    /// Prints to the specified network-attached printer; only supported when the printer supports PDF printing.
+    /// </summary>
+    public async Task PrintAsync(string host, int port = 9100, CancellationToken token = default)
+    {
+        if (!_privateStream)
+            throw new InvalidOperationException("This method is only available when using the default constructor.");
+        Close();
+
+        using var tcpClient = new TcpClient();
+#if NET5_0_OR_GREATER
+        await tcpClient.ConnectAsync(host, port, token);
+#else
+        await tcpClient.ConnectAsync(host, port);
+#endif
+        using var stream = tcpClient.GetStream();
+        _stream.Position = 0;
+        await _stream.CopyToAsync(stream, 81920, token);
+        await stream.FlushAsync(token);
+    }
+
+    /// <summary>
+    /// Prints to the specified network-attached printer; only supported when the printer supports PDF printing.
+    /// </summary>
+    public async Task PrintAsync(IPAddress address, int port = 9100, CancellationToken token = default)
+    {
+        if (!_privateStream)
+            throw new InvalidOperationException("This method is only available when using the default constructor.");
+        Close();
+
+        using var tcpClient = new TcpClient();
+#if NET5_0_OR_GREATER
+        await tcpClient.ConnectAsync(address, port, token);
+#else
+        await tcpClient.ConnectAsync(address, port);
+#endif
+        using var stream = tcpClient.GetStream();
+        _stream.Position = 0;
+        await _stream.CopyToAsync(stream, 81920, token);
+        await stream.FlushAsync(token);
+    }
+
+    /// <summary>
+    /// Closes the document and finishes writing it to the underlying stream.
+    /// </summary>
+    public void Close()
+    {
+        if (_content2 != null) {
+            FinishLineAndUpdateLineStyle();
+            _content2 = null;
+        }
+        if (_document != null) {
+            _document.Close();
+            _document = null;
+        }
+
+        if (_writer != null) {
+            _writer.Close();
+            _writer = null;
+        }
+
+        if (_stamper != null) {
+            _stamper.Close();
+            _stamper = null;
+        }
+        
+        if (_disposeStream && _stream != null) {
+            _stream.Dispose();
+        }
+    }
+
+    /// <summary>
+    /// Disposes of the underlying stream if necessary.
+    /// Use <see cref="Close"/> to save the file data prior to closing.
+    /// </summary>
+    void IDisposable.Dispose() {
+        if (_disposeStream)
+            _stream.Dispose();
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    /// Gets or sets the scale of coordinate system.
+    /// </summary>
+    public ScaleModes ScaleMode {
+        get => _scaleMode;
+
+        set {
+            switch (value) {
+                case ScaleModes.Hundredths:
+                case ScaleModes.Inches:
+                case ScaleModes.Points:
+                    _scaleMode = value;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(value));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Registers a specific font file to be able to be used while creating PDFs.
+    /// </summary>
+    public static void RegisterFont(string name, string path)
+    {
+        if (!FontFactory.IsRegistered(name)) {
+            FontFactory.Register(path, name);
+        }
+    }
+
+    /// <summary>
+    /// Translates a value from the selected scale mode to points.
+    /// </summary>
+    private float _Translate(float num) => _Translate(num, _scaleMode);
+
+    /// <summary>
+    /// Translates a value from the selected scale mode to points.
+    /// </summary>
+    private float? _Translate(float? num) => num.HasValue ? _Translate(num.Value, _scaleMode) : null;
+
+    /// <summary>
+    /// Translates a value from a specified scale mode to points.
+    /// </summary>
+    private static float _Translate(float num, ScaleModes scaleMode)
+    {
+        switch (scaleMode) {
+            case ScaleModes.Points: {
+                return num;
+            }
+
+            case ScaleModes.Hundredths: {
+                return num * 72f / 100f;
+            }
+
+            case ScaleModes.Inches: {
+                return num * 72f;
+            }
+
+            default: {
+                throw new ArgumentOutOfRangeException(nameof(scaleMode));
+            }
+        }
+    }
+
+    /// <summary>
+    /// Translates a value from points to the selected scale mode.
+    /// </summary>
+    private float _TranslateRev(float num) => _TranslateRev(num, ScaleMode);
+
+    /// <summary>
+    /// Translates a value from points to a specified scale mode.
+    /// </summary>
+    private static float _TranslateRev(float num, ScaleModes scaleMode)
+    {
+        return scaleMode switch {
+            ScaleModes.Points => num,
+            ScaleModes.Hundredths => num * 100f / 72f,
+            ScaleModes.Inches => num / 72f,
+            _ => throw new ArgumentOutOfRangeException(nameof(scaleMode)),
+        };
+    }
+
+    /// <summary>
+    /// Return the size of the page excluding margins.
+    /// </summary>
+    public SizeF Size => new SizeF(_TranslateRev(_marginSize.Width), _TranslateRev(_marginSize.Height));
+
+    /// <summary>
+    /// Returns the top and left margin offsets on the page.
+    /// </summary>
+    public PointF MarginOffset => new PointF(_TranslateRev(_marginOffset.X), _TranslateRev(_marginOffset.Y));
 }

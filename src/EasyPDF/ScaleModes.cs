@@ -1,23 +1,22 @@
-namespace Shane32.EasyPDF
+namespace Shane32.EasyPDF;
+
+/// <summary>
+/// Specifies a value representation for coordinates passed to/from <see cref="PDFWriter"/>.
+/// </summary>
+public enum ScaleModes
 {
     /// <summary>
-    /// Specifies a value representation for coordinates passed to/from <see cref="PDFWriter"/>.
+    /// Inches.
     /// </summary>
-    public enum ScaleModes
-    {
-        /// <summary>
-        /// Inches.
-        /// </summary>
-        Inches,
+    Inches,
 
-        /// <summary>
-        /// Hundredths of an inch.
-        /// </summary>
-        Hundredths,
+    /// <summary>
+    /// Hundredths of an inch.
+    /// </summary>
+    Hundredths,
 
-        /// <summary>
-        /// 72/100 of an inch.
-        /// </summary>
-        Points,
-    }
+    /// <summary>
+    /// 72/100 of an inch.
+    /// </summary>
+    Points,
 }
