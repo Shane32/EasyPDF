@@ -117,11 +117,6 @@ public record Font
     /// A multipler that stretches the height of the text.
     /// </summary>
     public float StretchY { get; set; } = 1f;
-
-    /// <summary>
-    /// The amount of space between characters measured in points.
-    /// </summary>
-    public float Kerning { get; set; }
     
     /// <summary>
     /// Initializes a new instance with the specified variables.
