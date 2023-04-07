@@ -397,4 +397,10 @@ public partial class PDFWriter : IDisposable
     /// Returns the top and left margin offsets on the page.
     /// </summary>
     public PointF MarginOffset => new PointF(_TranslateRev(_marginOffset.X), _TranslateRev(_marginOffset.Y));
+
+    /// <summary>
+    /// Saves the current state of the graphics context (fonts, colors, position, scale mode, etc).
+    /// Dispose the returned instance to restore the graphics context.
+    /// </summary>
+    public IDisposable SaveState() => new SaveState(this);
 }
