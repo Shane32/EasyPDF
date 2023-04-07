@@ -124,7 +124,7 @@ public partial class PDFWriter
                         float K, strlen, spacelen;
                         string str2;
                         J = 0;
-                        strlen = _content.GetEffectiveStringWidth(text.Substring(0, I), false);
+                        strlen = _content.GetEffectiveStringWidth(text.Substring(0, I).TrimEnd(), false);
                         spacelen = _content.GetEffectiveStringWidth(" ", false);
                         spaces = 0;
                         do {
@@ -139,12 +139,14 @@ public partial class PDFWriter
                             K = _content.GetEffectiveStringWidth(str2.TrimEnd(), false);
                             if (K <= widthPoints) {
                                 // enough room; continue with loop
+                                // is any more words to consider?
                                 if (J == -1) {
                                     // enough room for entire string
                                     wordWrap = false; // use newLine variable and don't kern text
                                     remainingText = null;
                                     break;
                                 } else {
+                                    // run the loop again considering n+1 words this time
                                     I = J;
                                     strlen = K;
                                     spaces += 1;
@@ -154,8 +156,10 @@ public partial class PDFWriter
                                 remainingText = text.Substring(I + 1); // everything after the space
                                 text = text.Substring(0, I).TrimEnd(); // everything before the space, trimmed in case of extra spaces
                                                                      // wordWrap = True 'write a new line and kern text
-                                if (justify)
+                                if (justify) {
+                                    spaces -= (I - (text.Length - 1)) - 1;
                                     _content.SetWordSpacing((widthPoints - strlen) / spaces);
+                                }
                                 break;
                             }
                         }
@@ -307,6 +311,7 @@ public partial class PDFWriter
     /// <summary>
     /// Returns the height of a single line of text, including space between rows (ascent + descent + leading).
     /// Also accounts for the current <see cref="Font.LineSpacing">LineSpacing</see> and <see cref="Font.StretchY"/> settings.
+    /// Does not account for the current <see cref="Font.ParagraphSpacing"/> setting.
     /// </summary>
     public float TextHeight() => _TranslateRev(TextHeightPoints());
 

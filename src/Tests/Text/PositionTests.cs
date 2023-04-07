@@ -1,13 +1,13 @@
 using System.Drawing;
 using Font = Shane32.EasyPDF.Font;
 
-namespace Tests;
+namespace Tests.Text;
 
-public class TextTests
+public class PositionTests
 {
     private readonly PDFWriter _writer = new PDFWriter();
 
-    public TextTests()
+    public PositionTests()
     {
         _writer.ScaleMode = ScaleModes.Inches;
         _writer.NewPage(System.Drawing.Printing.PaperKind.Letter, false, 1f, 1f);
@@ -15,7 +15,7 @@ public class TextTests
     }
 
     [Fact]
-    public void PositioningTests()
+    public void Standard()
     {
         _writer.Font = new Font(StandardFonts.Helvetica, 10f);
         for (int i = 0; i < 12; i++) {
@@ -32,7 +32,7 @@ public class TextTests
     }
 
     [Fact]
-    public void PositioningTests_StretchedY()
+    public void StretchedY()
     {
         _writer.Font = new Font(StandardFonts.Helvetica, 5f) { StretchY = 2f };
         for (int i = 0; i < 12; i++) {
@@ -49,7 +49,7 @@ public class TextTests
     }
 
     [Fact]
-    public void PositioningTests_Spacing()
+    public void Spacing()
     {
         _writer.Font = new Font(StandardFonts.Helvetica, 10f) { LineSpacing = 1.2f };
         for (int i = 0; i < 12; i++) {
@@ -66,7 +66,7 @@ public class TextTests
     }
 
     [Fact]
-    public void PositioningTests_StretchedY_Spacing()
+    public void StretchedY_Spacing()
     {
         _writer.Font = new Font(StandardFonts.Helvetica, 5f) { StretchY = 2f, LineSpacing = 1.2f };
         for (int i = 0; i < 12; i++) {
@@ -83,7 +83,7 @@ public class TextTests
     }
 
     [Fact]
-    public void PositioningTests_StretchedX()
+    public void StretchedX()
     {
         _writer.Font = new Font(StandardFonts.Helvetica, 10f) { StretchX = 2f };
         for (int i = 0; i < 12; i++) {
@@ -100,7 +100,7 @@ public class TextTests
     }
 
     [Fact]
-    public void PositioningTests_MultiLine()
+    public void MultiLine()
     {
         _writer.Font = new Font(StandardFonts.Helvetica, 10f);
         for (int i = 0; i < 12; i++) {
