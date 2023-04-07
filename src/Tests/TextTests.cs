@@ -1,5 +1,4 @@
 using System.Drawing;
-using System.Text;
 using Font = Shane32.EasyPDF.Font;
 
 namespace Tests;
