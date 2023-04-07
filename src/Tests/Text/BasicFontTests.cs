@@ -24,6 +24,7 @@ public class BasicFontTestsTests
         void Show(StandardFonts standardFont)
         {
             _writer.Font = new Font(standardFont, 12f);
+            _writer.Font.Size.ShouldBe(12f, 0.001f);
             _writer.Font.FamilyName.ShouldBe(standardFont.ToString());
             _writer.Font.Embedded.ShouldBeFalse();
             _writer.Font.FontStyle.ShouldBe(FontStyle.Regular);
@@ -56,6 +57,27 @@ public class BasicFontTestsTests
     }
 
     [Fact]
+    public void KerningTests()
+    {
+        _writer.Font = new Font(StandardFonts.Helvetica, 12f);
+        _writer.WriteLine("This is a test with no kerning");
+        _writer.Font.CharacterSpacing = 2f;
+        _writer.WriteLine("This is a test with 2pt kerning");
+        _writer.Font.CharacterSpacing = 4f;
+        _writer.Write("ABCD");
+        _writer.WriteLine("EFGH");
+        _writer.WriteLine();
+        _writer.CurrentX = 0;
+        _writer.WriteLine("THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG", 2.5f);
+        _writer.WriteLine();
+        _writer.Font.Justify = true;
+        _writer.WriteLine("THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG", 2.5f);
+        _writer.WriteLine();
+
+        _writer.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
+    }
+
+    [Fact]
     public void SpacingTests()
     {
         _writer.Font = new Font(StandardFonts.Helvetica, 12f);
@@ -67,12 +89,14 @@ public class BasicFontTestsTests
             _writer.WriteLine("This is line 2.", width);
             _writer.WriteLine();
             _writer.Write("This is a jolly test with standard spacing.\nThis is line 2\n\n", width);
+            _writer.CurrentY.ShouldBe(1.233333f, 0.001f);
 
             _writer.Font.LineSpacing = 1.5f;
             _writer.WriteLine("This is a jolly test with 1.5x line spacing.", width);
             _writer.WriteLine("This is line 2.", width);
             _writer.WriteLine();
             _writer.Write("This is a jolly test with 1.5x line spacing.\nThis is line 2\n\n", width);
+            _writer.CurrentY.ShouldBe(3.08333f, 0.001f);
 
             _writer.Font.LineSpacing = 1f;
             _writer.Font.ParagraphSpacing = 6f;
@@ -80,6 +104,7 @@ public class BasicFontTestsTests
             _writer.WriteLine("This is line 2.", width);
             _writer.WriteLine();
             _writer.Write("This is a jolly test with 6pt paragraph spacing.\nThis is line 2\n\n", width);
+            _writer.CurrentY.ShouldBe(4.816667f, 0.001f);
 
             _writer.Font.LineSpacing = 1.5f;
             _writer.Font.ParagraphSpacing = 6f;
@@ -87,6 +112,7 @@ public class BasicFontTestsTests
             _writer.WriteLine("This is line 2.", width);
             _writer.WriteLine();
             _writer.Write("This is a jolly test with 6pt paragraph and 1.5x line spacing.\nThis is line 2\n\n", width);
+            _writer.CurrentY.ShouldBe(7.62916667f, 0.001f);
         }
 
         _writer.MoveTo(_writer.Size.Width / 2, 0f);
@@ -99,7 +125,16 @@ public class BasicFontTestsTests
     [Fact]
     public void ParagraphTests()
     {
-        _writer.Font = new Font(StandardFonts.Times, 12f) { LineSpacing = 1.2f, ParagraphSpacing = 12f};
+        _writer.Font = new Font(StandardFonts.Times, 12f);
+        _writer.Font.HangingIndent.ShouldBe(0f, 0.001f);
+        _writer.Font.CharacterSpacing.ShouldBe(0f, 0.001f);
+        _writer.Font.LineSpacing.ShouldBe(1f, 0.001f);
+        _writer.Font.LineSpacing = 1.2f;
+        _writer.Font.ParagraphSpacing.ShouldBe(0f, 0.001f);
+        _writer.Font.ParagraphSpacing = 12f;
+        _writer.Font.StretchX.ShouldBe(1f, 0.001f);
+        _writer.Font.StretchY.ShouldBe(1f, 0.001f);
+        _writer.Font.Justify.ShouldBeFalse();
         _writer.WriteLine("This is a jolly test with standard spacing.  The quick brown fox jumps over the lazy dog.", 2f);
         _writer.Font.Justify = true;
         _writer.WriteLine("This is a jolly test with standard spacing.  The quick brown fox jumps over the lazy dog.", 2f);
@@ -137,6 +172,8 @@ public class BasicFontTestsTests
         TestMe("StretchX 2x");
         _writer.Font.StretchX = 1f;
         TestMe("Ends with 2 spaces  ");
+        _writer.Font.CharacterSpacing = 1f;
+        TestMe("With 1pt kerning");
 
         void TestMe(string str)
         {
@@ -148,7 +185,9 @@ public class BasicFontTestsTests
             _writer.MoveTo(pos).Write(str);
             _writer.CurrentX.ShouldBe(pos.X + w, 0.001f);
             _writer.CurrentY.ShouldBe(pos.Y, 0.001f);
-            _writer.MoveTo(pos).WriteLine().OffsetTo(0, 0.125f);
+            _writer.MoveTo(pos).WriteLine();
+            _writer.CurrentY.ShouldBe(pos.Y + h + _writer.Font.ParagraphSpacing / 72, 0.001f);
+            _writer.OffsetTo(0, 0.125f);
         }
 
         _writer.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
