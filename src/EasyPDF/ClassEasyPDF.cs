@@ -132,23 +132,43 @@ public partial class PDFWriter : IDisposable
         _stamper = stamper;
     }
 
+    /// <summary>
+    /// Creates a new PDF page with the specified dimensions and margins and returns a PDFWriter object
+    /// </summary>
+    /// <param name="pageWidth">Width of the page in points</param>
+    /// <param name="pageHeight">Height of the page in points</param>
+    /// <param name="landscape">Whether the page is in landscape orientation</param>
+    /// <param name="marginLeft">Left margin of the page in points</param>
+    /// <param name="marginTop">Top margin of the page in points</param>
+    /// <param name="marginRight">Right margin of the page in points, or null to mirror left margin</param>
+    /// <param name="marginBottom">Bottom margin of the page in points, or null to mirror top margin</param>
     private PDFWriter NewPageAbs(float pageWidth, float pageHeight, bool landscape, float marginLeft = 0f, float marginTop = 0f, float? marginRight = null, float? marginBottom = null)
     {
+        // Set the right and bottom margins to be the same as the left and top margins, respectively,
+        // if they were not explicitly specified
         marginRight ??= marginLeft;
         marginBottom ??= marginTop;
+
+        // Finish any pending line operations
         FinishLine();
+
+        // If the document has not been initialized yet,
+        // create a new Document object and set up a PDFWriter and DirectContent objects
         if (_document is null) {
+            // If the page is in landscape orientation, create a rotated Rectangle object
             if (landscape) {
                 var rotated = new iTextSharp.text.Rectangle(pageWidth, pageHeight).Rotate();
                 _document = new Document(rotated);
             } else {
                 _document = new Document(new iTextSharp.text.Rectangle(pageWidth, pageHeight));
             }
-
             _writer = iTextPdfWriter.GetInstance(_document, _stream);
             _document.Open();
             _content2 = _writer.DirectContent;
-        } else {
+        }
+        // If the document has already been initialized,
+        // set the page size to the specified dimensions and create a new page
+        else {
             if (landscape) {
                 _ = _document.SetPageSize(new iTextSharp.text.Rectangle(pageWidth, pageHeight).Rotate());
             } else {
@@ -157,20 +177,33 @@ public partial class PDFWriter : IDisposable
             _ = _document.NewPage();
         }
 
+        // Ensure that the page is added to the document
         _writer!.PageEmpty = false;
+
+        // Set the pageSize field to the specified dimensions, taking into account the landscape orientation
         if (landscape) {
             _pageSize = new SizeF(pageHeight, pageWidth);
         } else {
             _pageSize = new SizeF(pageWidth, pageHeight);
         }
+
+        // Concatenate the current transformation matrix (CTM) with a new matrix that translates the origin to the
+        // specified margin location and flips the y-axis orientation.  This is necessary so that (0, 0) represents
+        // the top-left corner of the page rather than the bottom-left corner.
         _content.ConcatCtm(1, 0, 0, -1, marginLeft, _pageSize.Height - marginTop);
+
+        // Set the marginOffset and marginSize fields based on the specified margins
         _marginOffset = new PointF(marginLeft, marginTop);
         _marginSize = new SizeF(_pageSize.Width - marginLeft - marginRight.Value, _pageSize.Height - marginTop - marginBottom.Value);
 
+        // Reset line-related variables within the PDF
         _InitLineVars();
+
+        // Set the current (x, y) coordinates to (0, 0)
         _currentX = 0;
         _currentY = 0;
 
+        // Return the current PDFWriter object
         return this;
     }
 
