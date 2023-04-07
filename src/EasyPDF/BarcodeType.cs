@@ -1,13 +1,12 @@
-namespace Shane32.EasyPDF
+namespace Shane32.EasyPDF;
+
+/// <summary>
+/// Different types of barcodes capable of being printed
+/// </summary>
+public enum BarcodeType
 {
     /// <summary>
-    /// Different types of barcodes capable of being printed
+    /// CODE-128 barcode style.
     /// </summary>
-    public enum BarcodeType
-    {
-        /// <summary>
-        /// CODE-128 barcode style.
-        /// </summary>
-        Code128 = 0,
-    }
+    Code128 = 0,
 }
