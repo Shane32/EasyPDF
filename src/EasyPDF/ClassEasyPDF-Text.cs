@@ -311,6 +311,7 @@ public partial class PDFWriter
     /// <summary>
     /// Returns the height of a single line of text, including space between rows (ascent + descent + leading).
     /// Also accounts for the current <see cref="Font.LineSpacing">LineSpacing</see> and <see cref="Font.StretchY"/> settings.
+    /// Does not account for the current <see cref="Font.ParagraphSpacing"/> setting.
     /// </summary>
     public float TextHeight() => _TranslateRev(TextHeightPoints());
 

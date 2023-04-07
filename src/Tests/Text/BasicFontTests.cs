@@ -116,4 +116,41 @@ public class BasicFontTestsTests
 
         _writer.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
     }
+
+    [Fact]
+    public void BoundingBoxTests()
+    {
+        _writer.CurrentX = -0.5f;
+        _writer.Font = new Font(StandardFonts.Times, 12f);
+        _writer.TextAlignment = TextAlignment.LeftTop;
+        TestMe("Standard");
+        _writer.Font.LineSpacing = 1.5f;
+        TestMe("LineSpacing 1.5x");
+        _writer.Font.LineSpacing = 1f;
+        _writer.Font.ParagraphSpacing = 6f;
+        TestMe("ParagraphSpacing 6pt");
+        _writer.Font.ParagraphSpacing = 0f;
+        _writer.Font.StretchY = 2f;
+        TestMe("StretchY 2x");
+        _writer.Font.StretchX = 2f;
+        _writer.Font.StretchY = 1f;
+        TestMe("StretchX 2x");
+        _writer.Font.StretchX = 1f;
+        TestMe("Ends with 2 spaces  ");
+
+        void TestMe(string str)
+        {
+            var pos = _writer.Position;
+            str = "The quick brown fox jumps over the lazy dog. " + str;
+            var w = _writer.TextWidth(str);
+            var h = _writer.TextHeight();
+            _writer.Rectangle(w, h);
+            _writer.MoveTo(pos).Write(str);
+            _writer.CurrentX.ShouldBe(pos.X + w, 0.001f);
+            _writer.CurrentY.ShouldBe(pos.Y, 0.001f);
+            _writer.MoveTo(pos).WriteLine().OffsetTo(0, 0.125f);
+        }
+
+        _writer.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
+    }
 }
