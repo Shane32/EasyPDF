@@ -110,6 +110,7 @@ public partial class PDFWriter
         var textWidthPoints = 0f;
         if (!string.IsNullOrEmpty(text)) {
             _content.SaveState();
+            _content.SetCharacterSpacing(Font.CharacterSpacing);
             try {
                 _content.BeginText();
                 _content.SetFontAndSize(bf, f.CalculatedSize);
@@ -124,7 +125,7 @@ public partial class PDFWriter
                         float K, strlen, spacelen;
                         string str2;
                         J = 0;
-                        strlen = _content.GetEffectiveStringWidth(text.Substring(0, I).TrimEnd(), false);
+                        strlen = _content.GetEffectiveStringWidth(text.Substring(0, I).TrimEnd(), true);
                         spacelen = _content.GetEffectiveStringWidth(" ", false);
                         spaces = 0;
                         do {
@@ -136,7 +137,7 @@ public partial class PDFWriter
 
                             }
 
-                            K = _content.GetEffectiveStringWidth(str2.TrimEnd(), false);
+                            K = _content.GetEffectiveStringWidth(str2.TrimEnd(), true);
                             if (K <= widthPoints) {
                                 // enough room; continue with loop
                                 // is any more words to consider?
@@ -182,7 +183,7 @@ public partial class PDFWriter
                     case TextAlignment.CenterCenter:
                     case TextAlignment.CenterBaseline:
                     case TextAlignment.CenterBottom: {
-                        XOffset = -_content.GetEffectiveStringWidth(text, false) / 2 * Font.StretchX;
+                        XOffset = -_content.GetEffectiveStringWidth(text, true) / 2 * Font.StretchX;
                         break;
                     }
 
@@ -190,7 +191,7 @@ public partial class PDFWriter
                     case TextAlignment.RightCenter:
                     case TextAlignment.RightBaseline:
                     case TextAlignment.RightBottom: {
-                        XOffset = -_content.GetEffectiveStringWidth(text, false) * Font.StretchX;
+                        XOffset = -_content.GetEffectiveStringWidth(text, true) * Font.StretchX;
                         break;
                     }
                 }
@@ -241,13 +242,13 @@ public partial class PDFWriter
 
                 _content.SetColorFill(f.Color);
                 _content.MoveText(0, 0);
-                _content.ShowText(text);
+                _content.ShowTextKerned(text);
                 // If NewLine Then _Content.NewlineText() 'unused; newline code is below.  (doesn't update CurrentY)
                 if ((f.CalculatedStyle & iTextSharp.text.Font.BOLD) == iTextSharp.text.Font.BOLD) {
                     _content.SetTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
                 }
 
-                textWidthPoints = _content.GetEffectiveStringWidth(text, false) * Font.StretchX;
+                textWidthPoints = _content.GetEffectiveStringWidth(text, true) * Font.StretchX;
                 _content.EndText();
                 if ((f.CalculatedStyle & iTextSharp.text.Font.UNDERLINE) == iTextSharp.text.Font.UNDERLINE) {
                     _content.Rectangle(_currentX + XOffset, _currentY + YOffset + f.CalculatedSize / 4, textWidthPoints, -f.CalculatedSize / 15);
@@ -304,8 +305,11 @@ public partial class PDFWriter
     /// </summary>
     public float TextWidth(string text)
     {
+        if (text.Length == 0)
+            return 0f;
         var f = Font.ToiTextSharpFont(ForeColor);
-        return _TranslateRev(f.GetCalculatedBaseFont(false).GetWidthPoint(text, f.CalculatedSize)) * Font.StretchX;
+        var widthInPoints = f.GetCalculatedBaseFont(false).GetWidthPointKerned(text, f.CalculatedSize) + (text.Length - 1) * Font.CharacterSpacing;
+        return _TranslateRev(widthInPoints) * Font.StretchX;
     }
 
     /// <summary>
