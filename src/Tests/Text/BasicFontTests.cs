@@ -7,6 +7,11 @@ public class BasicFontTestsTests
 {
     private readonly PDFWriter _writer = new PDFWriter();
 
+    static BasicFontTestsTests()
+    {
+        TestExtensions.RegisterFont("Righteous-Regular.ttf", "Righteous");
+    }
+    
     public BasicFontTestsTests()
     {
         _writer.ScaleMode = ScaleModes.Inches;
@@ -191,5 +196,19 @@ public class BasicFontTestsTests
         }
 
         _writer.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
+    }
+
+    [Fact]
+    public void FontCanBeCloned()
+    {
+        var font = new Font("Righteous", 12f, FontStyle.Bold);
+        var font2 = font with { };
+        font.ShouldNotBeSameAs(font2);
+        font.ShouldBe(font2);
+
+        font = new Font(StandardFonts.Helvetica, 12, FontStyle.Italic);
+        font2 = font with { };
+        font.ShouldNotBeSameAs(font2);
+        font.ShouldBe(font2);
     }
 }
