@@ -15,6 +15,14 @@ public partial class PDFWriter
     /// </summary>
     private const float DEFAULT_BARCODE_HEIGHT = 72f * 0.5f;
 
+    /// <inheritdoc cref="QRCode(QRCoder.QRCodeData, float?, bool)"/>
+    public PDFWriter QRCode(string code, QRCoder.QRCodeGenerator.ECCLevel eccLevel = QRCoder.QRCodeGenerator.ECCLevel.L, float? size = null, bool quietZone = true)
+    {
+        var generator = new QRCoder.QRCodeGenerator();
+        var qrCode = generator.CreateQrCode(code, eccLevel);
+        return QRCode(qrCode, size, quietZone);
+    }
+
     /// <summary>
     /// Prints a QR code in the color specified by <see cref="FillColor"/> in the current
     /// position, adjusted based on the <see cref="PictureAlignment"/> setting.
@@ -103,12 +111,12 @@ public partial class PDFWriter
         return this;
     }
 
-    /// <inheritdoc cref="QRCode(QRCoder.QRCodeData, float?, bool)"/>
-    public PDFWriter QRCode(string code, QRCoder.QRCodeGenerator.ECCLevel eccLevel = QRCoder.QRCodeGenerator.ECCLevel.L, float? size = null, bool quietZone = true)
+    /// <inheritdoc cref="QRCodeSize(QRCoder.QRCodeData, bool)"/>
+    public float QRCodeSize(string code, QRCoder.QRCodeGenerator.ECCLevel eccLevel = QRCoder.QRCodeGenerator.ECCLevel.L, bool quietZone = true)
     {
         var generator = new QRCoder.QRCodeGenerator();
         var qrCode = generator.CreateQrCode(code, eccLevel);
-        return QRCode(qrCode, size, quietZone);
+        return QRCodeSize(qrCode, quietZone);
     }
 
     /// <summary>
@@ -128,14 +136,6 @@ public partial class PDFWriter
         }
 
         return _TranslateRev(DEFAULT_BOX_SIZE * (code.ModuleMatrix.Count - quietBorder - quietBorder));
-    }
-
-    /// <inheritdoc cref="QRCodeSize(QRCoder.QRCodeData, bool)"/>
-    public float QRCodeSize(string code, QRCoder.QRCodeGenerator.ECCLevel eccLevel = QRCoder.QRCodeGenerator.ECCLevel.L, bool quietZone = true)
-    {
-        var generator = new QRCoder.QRCodeGenerator();
-        var qrCode = generator.CreateQrCode(code, eccLevel);
-        return QRCodeSize(qrCode, quietZone);
     }
 
     /// <summary>

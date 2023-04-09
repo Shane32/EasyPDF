@@ -21,17 +21,23 @@ public class BasicLineTests
 
         DrawGeometricFigure(0.5f, false, false, false, false, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
-        _writer.MoveTo(0, 2f);
+        _writer.MoveTo(3.75f, 0);
         DrawGeometricFigure(0.5f, true, true, false, false, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
-        _writer.MoveTo(0, 4f);
+        _writer.MoveTo(0, 2);
         DrawGeometricFigure(0.5f, true, false, true, false, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
-        _writer.MoveTo(0, 6f);
+        _writer.MoveTo(3.75f, 2);
         DrawGeometricFigure(0.5f, true, false, true, true, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
-        _writer.MoveTo(0, 8f);
+        _writer.MoveTo(0, 4);
         DrawGeometricFigure(0.5f, true, true, true, true, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
+
+        _writer.MoveTo(3.75f, 4);
+        DrawGeometricFigure(0.5f, true, true, true, false, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
+
+        _writer.MoveTo(0, 6);
+        DrawGeometricFigure(0.5f, true, false, false, false, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
         _writer.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
     }
@@ -52,19 +58,19 @@ public class BasicLineTests
         DrawGeometricFigure(0.5f, true, true, false, false, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
         _writer.MoveTo(0, 2f);
-        DrawGeometricFigure(0.5f, false, true, false, false, 0.125f, LineJoinStyle.Miter, 0, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.0625f, LineJoinStyle.Miter, 0, LineCapStyle.None);
         _writer.MoveTo(3.75f, 2f);
-        DrawGeometricFigure(0.5f, true, true, false, false, 0.125f, LineJoinStyle.Miter, 0, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, true, true, false, false, 0.0625f, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
         _writer.MoveTo(0, 4f);
-        DrawGeometricFigure(0.5f, false, true, false, false, 0.125f, LineJoinStyle.Rounded, 0, LineCapStyle.Round);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.0625f, LineJoinStyle.Rounded, 0, LineCapStyle.Round);
         _writer.MoveTo(3.75f, 4f);
-        DrawGeometricFigure(0.5f, true, true, false, false, 0.125f, LineJoinStyle.Rounded, 0, LineCapStyle.Round);
+        DrawGeometricFigure(0.5f, true, true, false, false, 0.0625f, LineJoinStyle.Rounded, 0, LineCapStyle.Round);
 
         _writer.MoveTo(0, 6f);
-        DrawGeometricFigure(0.5f, false, true, false, false, 0.125f, LineJoinStyle.Bevel, 0, LineCapStyle.Square);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.0625f, LineJoinStyle.Bevel, 0, LineCapStyle.Square);
         _writer.MoveTo(3.75f, 6f);
-        DrawGeometricFigure(0.5f, true, true, false, false, 0.125f, LineJoinStyle.Bevel, 0, LineCapStyle.Square);
+        DrawGeometricFigure(0.5f, true, true, false, false, 0.0625f, LineJoinStyle.Bevel, 0, LineCapStyle.Square);
 
         _writer.LineStyle.Width = null;
         _writer.MoveTo(0, 0f);
@@ -91,6 +97,7 @@ public class BasicLineTests
 
     private void DrawGeometricFigure(float scale, bool close, bool border, bool fill, bool eofill, float? lineWidth, LineJoinStyle joinStyle, int dashStyle, LineCapStyle capStyle)
     {
+        var pos = _writer.Position;
         var len = 0.25f * scale;
         var leg = (float)Math.Sqrt(Math.Pow(len, 2) / 2);
 
@@ -126,13 +133,20 @@ public class BasicLineTests
             .LineTo(0f, -1f * scale)
             .LineTo(0.5f * scale, 0f)
             .LineTo(0f, 1.5f * scale)
-            .LineTo(-1f, 0f);
+            .LineTo(-1f * scale, 0f)
+            .CornerTo(-0.25f * scale, -0.25f * scale, true);
 
         if (close) {
             _writer.FinishPolygon(border, fill, eofill);
         } else {
             _writer.FinishLine();
         }
+
+        _writer.MoveTo(pos);
+        _writer.OffsetTo(4.5f * scale, 0).Rectangle(1f * scale, 0.4f * scale, 0, fill, border);
+        _writer.OffsetTo(-1f * scale, 0.3f * scale).Rectangle(1f * scale, 0.5f * scale, 0.2f * scale, fill, border);
+        _writer.OffsetTo(-1f * scale, 0.3f * scale).RectangleDualOffset(1f * scale, 0.7f * scale, 0.15f * scale, 0);
+        _writer.OffsetTo(-1f * scale, 0.3f * scale).RectangleDualOffset(1f * scale, 0.7f * scale, 0.15f * scale, 0.05f);
     }
 
     [Fact]
