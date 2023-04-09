@@ -12,6 +12,7 @@ public partial class PDFWriter
 
     /// <summary>
     /// Prints the specified image at the current position with the specified size.
+    /// The current position on the page is not changed by this method.
     /// </summary>
     public PDFWriter PaintPicture(iTextImage img, float? width = null, float? height = null)
     {

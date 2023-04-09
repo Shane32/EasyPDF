@@ -20,9 +20,12 @@ public partial class PDFWriter
     /// position, adjusted based on the <see cref="PictureAlignment"/> setting.
     /// If <paramref name="size"/> is not specified, QR code prints with 0.03" dot pitch;
     /// otherwise the overall size of the QR code is the specified size.
+    /// The current position on the page is not changed by this method.
     /// </summary>
     public PDFWriter QRCode(QRCoder.QRCodeData data, float? size = null, bool quietZone = true)
     {
+        var originalPosition = (_currentX, _currentY);
+
         int quietBorder = 0;
         if (!quietZone) {
             quietBorder = data.ModuleMatrix.Count(row => {
@@ -84,7 +87,7 @@ public partial class PDFWriter
             }
         }
 
-        MoveTo(x + size.Value, y + size.Value);
+        //MoveTo(x + size.Value, y + size.Value);
         // The border, if enabled, prints with the color specified by <see cref="ForeColor"/>
         // and current line style selections.
         //if (border) {
@@ -93,6 +96,9 @@ public partial class PDFWriter
         //} else {
         //    MoveTo(x + size.Value, y + size.Value);
         //}
+
+        _currentX = originalPosition._currentX;
+        _currentY = originalPosition._currentY;
 
         return this;
     }
@@ -135,6 +141,7 @@ public partial class PDFWriter
     /// <summary>
     /// Prints a CODE-128 barcode in the selected <see cref="FillColor"/> at the current position, adjusted
     /// depending on the <see cref="PictureAlignment"/> value.
+    /// The current position on the page is not changed by this method.
     /// </summary>
     public PDFWriter Barcode(string text, BarcodeType type = BarcodeType.Code128, float? width = null, float? height = null)
     {
@@ -181,11 +188,12 @@ public partial class PDFWriter
                 break;
         }
 
-        var c = new Barcode128();
-        c.Code = text;
-        c.CodeType = Barcode128.CODE128;
-        c.Font = null;
-        c.BarHeight = _Translate(height.Value);
+        var c = new Barcode128 {
+            Code = text,
+            CodeType = Barcode128.CODE128,
+            Font = null,
+            BarHeight = _Translate(height.Value),
+        };
         _content.SaveState();
         try {
             var m11 = width.HasValue ? (width.Value / _TranslateRev(c.BarcodeSize.Width)) : 1f;
@@ -196,8 +204,6 @@ public partial class PDFWriter
             //    matrix.Scale(width.Value / BarcodeSize(text), 1f);
             //_content.Transform(matrix);
             c.PlaceBarcode(_content, null, null);
-            _currentX = x + width.Value;
-            _currentY = y + height.Value;
         }
         finally {
             _content.RestoreState();
