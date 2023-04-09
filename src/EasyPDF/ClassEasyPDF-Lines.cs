@@ -141,7 +141,7 @@ public partial class PDFWriter
                 var lineWidth = _Translate(LineStyle.Width) ?? 0.1f;
                 _content.SetLineDash(LineStyle.DashStyle.MultipliedArray(lineWidth), LineStyle.DashStyle.MultipliedPhase(lineWidth));
             }
-            _lastLineStyle = LineStyle;
+            _lastLineStyle = LineStyle with { };
             _lastScaleMode = _scaleMode;
         }
     }
