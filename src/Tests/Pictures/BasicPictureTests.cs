@@ -1,6 +1,5 @@
 using System.Drawing;
 using System.Reflection;
-using Font = Shane32.EasyPDF.Font;
 
 namespace Tests.Pictures;
 
@@ -46,6 +45,8 @@ public class BasicPictureTests
         {
             _writer.PictureAlignment = alignment;
             _writer.MoveTo(x, y).PaintPicture(image, width: 1.5f);
+            _writer.CurrentX.ShouldBe(x);
+            _writer.CurrentY.ShouldBe(y);
             CrossHair(1.75f);
         }
 
@@ -69,6 +70,27 @@ public class BasicPictureTests
 
         _writer.PictureAlignment = PictureAlignment.CenterTop;
         _writer.MoveTo(7.5f / 2, 0).PaintPicture(image, height: 10f);
+        
+        _writer.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
+    }
+
+    [Fact]
+    public void ActualSize()
+    {
+        // get the embedded resource
+        var assembly = Assembly.GetExecutingAssembly();
+        var resourceName = "Tests.logo.64x64.png";
+        using var stream = assembly.GetManifestResourceStream(resourceName)
+            ?? throw new InvalidOperationException("Could not find resource");
+        // read all bytes from stream into byte array
+        var bytes = new byte[stream.Length];
+        if (stream.Read(bytes, 0, bytes.Length) != bytes.Length)
+            throw new InvalidOperationException("Could not read resource");
+        // create image from byte array - supports JPEG, PNG, GIF, BMP, TIFF
+        var image = iTextSharp.text.Image.GetInstance(bytes);
+
+        _writer.PaintPicture(image);
+        
         _writer.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
     }
 
