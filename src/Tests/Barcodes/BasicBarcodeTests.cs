@@ -1,5 +1,4 @@
 using System.Drawing;
-using System.Reflection;
 
 namespace Tests.Barcodes;
 
@@ -135,20 +134,23 @@ public class BasicBarcodeTests
     [Fact]
     public void ColorsSizes()
     {
-        using var generator = new QRCoder.QRCodeGenerator();
-        using var qr = generator.CreateQrCode("https://github.com/Shane32/EasyPDF", QRCoder.QRCodeGenerator.ECCLevel.L);
-
         _writer.FillColor = Color.Red;
-        _writer.QRCode(qr, quietZone: false);
+        _writer.QRCode("https://github.com/Shane32/EasyPDF", quietZone: false);
+        _writer.QRCodeSize("https://github.com/Shane32/EasyPDF", quietZone: false).ShouldBe(0.8788f, 0.001f);
 
         _writer.MoveTo(2, 0);
         _writer.LineStyle.JoinStyle = LineJoinStyle.Rounded;
-        _writer.QRCode(qr, quietZone: false);
+        _writer.LineStyle.Width = 0.0625f;
+        _writer.QRCode("https://github.com/Shane32/EasyPDF", quietZone: false);
         _writer.Position.ShouldBe(new PointF(2, 0));
 
         _writer.MoveTo(0, 2);
-        _writer.QRCode(qr, size: 2f, quietZone: false);
+        _writer.QRCode("https://github.com/Shane32/EasyPDF", size: 2f, quietZone: false);
         _writer.Position.ShouldBe(new PointF(0, 2));
+
+        _writer.MoveTo(3, 2);
+        _writer.QRCode("https://github.com/Shane32/EasyPDF", eccLevel: QRCoder.QRCodeGenerator.ECCLevel.H, size: 2f, quietZone: false);
+        _writer.Position.ShouldBe(new PointF(3, 2));
 
         _writer.MoveTo(0, 4.5f);
         _writer.Barcode("https://github.com");
@@ -185,5 +187,12 @@ public class BasicBarcodeTests
         _writer.LineStyle = new LineStyle(0.03f, dashStyle: LineDashStyle.Dash);
         _writer.OffsetTo(-w / 2, 0f).LineTo(w, 0);
         _writer.OffsetTo(-w / 2, -w / 2).LineTo(0, w);
+    }
+
+    [Fact]
+    public void InvalidBarcodeType()
+    {
+        Should.Throw<ArgumentOutOfRangeException>(() => _writer.Barcode("test", (BarcodeType)1));
+        Should.Throw<ArgumentOutOfRangeException>(() => _writer.BarcodeSize("test", (BarcodeType)1));
     }
 }

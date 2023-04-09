@@ -244,6 +244,7 @@ public partial class PDFWriter
 
     /// <summary>
     /// Draws a rectangle of the specified size, optionally with rounded corners.
+    /// Current position is moved to the lower-right corner of the rectangle.
     /// </summary>
     /// <param name="width">The width of the rectangle.</param>
     /// <param name="height">The height of the rectangle.</param>
@@ -257,8 +258,10 @@ public partial class PDFWriter
         var widthPoints = _Translate(width);
         var heightPoints = _Translate(height);
 
-        if (!(fill || border))
-            return this;
+        if (!(fill || border)) {
+            goto RectangleDone;
+        }
+        
         if (borderRadius == 0f) {
             _content.Rectangle(_currentX, _currentY, widthPoints, heightPoints);
         } else {
@@ -274,6 +277,7 @@ public partial class PDFWriter
             _content.Fill();
         }
 
+    RectangleDone:
         _currentX += widthPoints;
         _currentY += heightPoints;
 
