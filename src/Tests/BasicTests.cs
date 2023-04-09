@@ -187,4 +187,46 @@ Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "
 
         page.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
     }
+
+    [Fact]
+    public void SaveState()
+    {
+        var page = new PDFWriter();
+        page.ScaleMode = ScaleModes.Inches;
+        page.NewPage(PaperKind.Letter, false, 1f, 1f);
+        page.PrepForTests();
+        page.TextAlignment = TextAlignment.LeftTop;
+        page.PictureAlignment = PictureAlignment.LeftTop;
+        page.OffsetTo(0.125f, 0.125f);
+        page.Write("Line 1");
+        var oldX = page.CurrentX;
+
+        using (page.SaveState()) {
+            page.ForeColor = System.Drawing.Color.Red;
+            page.WriteLine();
+            page.CurrentX = 0;
+            page.ScaleMode = ScaleModes.Points;
+            page.CurrentY += 6;
+            page.Font.Size = 20;
+            page.Font.Italic = true;
+            page.TextAlignment = TextAlignment.CenterTop;
+            page.PictureAlignment = PictureAlignment.CenterCenter;
+            page.LineStyle = new LineStyle(2f, LineCapStyle.Square, LineJoinStyle.Rounded, LineDashStyle.Dot);
+            page.Write("Line 2");
+        }
+
+        page.PictureAlignment.ShouldBe(PictureAlignment.LeftTop);
+        page.TextAlignment.ShouldBe(TextAlignment.LeftTop);
+        page.ScaleMode.ShouldBe(ScaleModes.Inches);
+        page.CurrentX.ShouldBe(oldX, 0.001f);
+        page.CurrentY.ShouldBe(0.125f, 0.001f);
+        page.Font.Size.ShouldBe(12f, 0.001f);
+        page.Font.Italic.ShouldBeFalse();
+        page.ForeColor.ShouldBe(System.Drawing.Color.Black);
+        page.LineStyle.ShouldBe(new LineStyle(null, LineCapStyle.None, LineJoinStyle.Miter, LineDashStyle.Solid));
+
+        page.WriteLine(" continued");
+
+        page.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
+    }
 }

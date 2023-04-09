@@ -40,4 +40,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\logo.64x64.png" />
+    <EmbeddedResource Include="..\..\logo.jpg" />
+  </ItemGroup>
 </Project>
