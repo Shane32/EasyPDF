@@ -14,6 +14,34 @@ public class PositionTests
         _writer.PrepForTests();
     }
 
+    [Theory]
+    [InlineData(1f, 0f, 1f, 0.1103f, 0.1138f, 0.036f, 0.15f, 0f, 0f, 1f, 0f, 0.875f)]
+    [InlineData(1.2f, 0f, 1f, 0.1103f, 0.1138f, 0.036f, 0.18f, 0.03f, 0f, 1f, 0f, 0.875f)]
+    [InlineData(1f, 6f, 1f, 0.1103f, 0.1138f, 0.036f, 0.15f, 0f, 0.083f, 1f, 0f, 0.875f)]
+    [InlineData(1f, 0f, 1.2f, 0.1324f, 0.1366f, 0.043f, 0.18f, 0f, 0f, 1f, 0f, 0.875f)]
+    [InlineData(1.2f, 6f, 1.2f, 0.1324f, 0.1366f, 0.043f, 0.216f, 0.036f, 0.083f, 1f, 0f, 0.875f)]
+    [InlineData(1f, 0f, 1f, 0.1103f, 0.1138f, 0.036f, 0.15f, 0f, 0f, 1.2f, 0f, 1.05f)]
+    [InlineData(1f, 0f, 1f, 0.1103f, 0.1138f, 0.036f, 0.15f, 0f, 0f, 1f, 1f, 1.027f)]
+    [InlineData(1f, 0f, 1f, 0.1103f, 0.1138f, 0.036f, 0.15f, 0f, 0f, 1.2f, 1f, 1.233f)]
+    public void TextSizes(float lineSpacing, float paragraphSpacing, float stretchY, float capHeight, float ascent, float descent, float height, float leading, float paragraphLeading, float stretchX, float characterSpacing, float width)
+    {
+        _writer.Font = new Font(StandardFonts.Times, 12f) {
+            LineSpacing = lineSpacing,
+            ParagraphSpacing = paragraphSpacing,
+            StretchY = stretchY,
+            CharacterSpacing = characterSpacing,
+            StretchX = stretchX,
+        };
+        _writer.TextCapHeight().ShouldBe(capHeight, 0.001f);
+        _writer.TextAscent().ShouldBe(ascent, 0.001f);
+        _writer.TextDescent().ShouldBe(descent, 0.001f);
+        _writer.TextHeight().ShouldBe(height, 0.001f);
+        _writer.TextLeading().ShouldBe(leading, 0.001f);
+        _writer.TextHeight().ShouldBe(_writer.TextAscent() + _writer.TextDescent() + _writer.TextLeading(), 0.001f);
+        _writer.TextParagraphLeading().ShouldBe(paragraphLeading, 0.001f);
+        _writer.TextWidth("Hello World!").ShouldBe(width, 0.001f);
+    }
+    
     [Fact]
     public void Standard()
     {

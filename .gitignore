@@ -341,3 +341,4 @@ healthchecksdb
 
 # Sample PDFs generated during tests
 **/*.pdf
+**/*.received.txt
