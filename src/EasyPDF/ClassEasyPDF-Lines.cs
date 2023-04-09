@@ -12,6 +12,8 @@ public partial class PDFWriter
     /// The current Y position measured in points.
     /// </summary>
     private float _currentY;
+    private float _polygonStartX;
+    private float _polygonStartY;
 
     private bool _inLine;
     private Color _foreColor = Color.Black;
@@ -56,7 +58,8 @@ public partial class PDFWriter
     }
 
     /// <summary>
-    /// Completes the current polygon being drawn.
+    /// Closes the current polygon being drawn, either bordering or filling it.
+    /// Sets the current position to the start of the polygon.
     /// </summary>
     /// <param name="border">Draws a border around the polygon with the current <see cref="ForeColor"/>.</param>
     /// <param name="fill">Fills the polygon with the current <see cref="FillColor"/>.</param>
@@ -83,6 +86,8 @@ public partial class PDFWriter
                 }
             } finally {
                 _inLine = false;
+                _currentX = _polygonStartX;
+                _currentY = _polygonStartY;
             }
         }
 
@@ -207,17 +212,25 @@ public partial class PDFWriter
         return this;
     }
 
+    private void StartOrContinuePolygon()
+    {
+        UpdateLineStyle();
+        if (!_inLine) {
+            _content.MoveTo(_currentX, _currentY);
+            _polygonStartX = _currentX;
+            _polygonStartY = _currentY;
+        }
+    }
+
     /// <summary>
     /// Draws or continues a line from the current position to the specified coordinates.
     /// </summary>
     public PDFWriter LineTo(float offsetX, float offsetY)
     {
-        UpdateLineStyle();
+        StartOrContinuePolygon();
         var x2 = _currentX + _Translate(offsetX);
         var y2 = _currentY + _Translate(offsetY);
 
-        if (!_inLine)
-            _content.MoveTo(_currentX, _currentY);
         _content.LineTo(x2, y2);
         _inLine = true;
         _currentX = x2;
@@ -227,6 +240,7 @@ public partial class PDFWriter
 
     /// <summary>
     /// Draws a rectangle of the specified size, and then draws another rectangle inset by the specified amount.
+    /// Current position is unchanged.
     /// </summary>
     public PDFWriter RectangleDualOffset(float width, float height, float inset, float borderRadius = 0f)
     {
@@ -237,14 +251,14 @@ public partial class PDFWriter
         _currentX = currentX + insetPoints;
         _currentY = currentY + insetPoints;
         Rectangle(width - inset * 2, height - inset * 2, borderRadius);
-        _currentX += insetPoints;
-        _currentY += insetPoints;
+        _currentX = currentX;
+        _currentY = currentY;
         return this;
     }
 
     /// <summary>
     /// Draws a rectangle of the specified size, optionally with rounded corners.
-    /// Current position is moved to the lower-right corner of the rectangle.
+    /// Current position is unchanged.
     /// </summary>
     /// <param name="width">The width of the rectangle.</param>
     /// <param name="height">The height of the rectangle.</param>
@@ -259,7 +273,7 @@ public partial class PDFWriter
         var heightPoints = _Translate(height);
 
         if (!(fill || border)) {
-            goto RectangleDone;
+            return this;
         }
         
         if (borderRadius == 0f) {
@@ -276,10 +290,6 @@ public partial class PDFWriter
         } else {
             _content.Fill();
         }
-
-    RectangleDone:
-        _currentX += widthPoints;
-        _currentY += heightPoints;
 
         return this;
     }
@@ -304,12 +314,10 @@ public partial class PDFWriter
     /// <param name="bulgeVertical">Controls the amount of curvature.</param>
     public PDFWriter CornerTo(float offsetX, float offsetY, bool fromSide, float bulgeHorizontal, float bulgeVertical)
     {
-        UpdateLineStyle();
+        StartOrContinuePolygon();
         var x2 = _currentX + _Translate(offsetX);
         var y2 = _currentY + _Translate(offsetY);
 
-        if (!_inLine)
-            _content.MoveTo(_currentX, _currentY);
         if (fromSide) {
             _content.CurveTo(_currentX, (y2 - _currentY) * bulgeVertical + _currentY, x2 - (x2 - _currentX) * bulgeHorizontal, y2, x2, y2);
         } else {
@@ -329,9 +337,7 @@ public partial class PDFWriter
     /// </summary>
     public PDFWriter BezierTo(float x2, float y2, float x3, float y3, float x4, float y4)
     {
-        UpdateLineStyle();
-        if (!_inLine)
-            _content.MoveTo(_currentX, _currentY);
+        StartOrContinuePolygon();
         x2 = _currentX + _Translate(x2);
         y2 = _currentY + _Translate(y2);
         x3 = _currentX + _Translate(x3);
@@ -352,9 +358,7 @@ public partial class PDFWriter
     /// </summary>
     public PDFWriter BezierTo(float x2, float y2, float x4, float y4)
     {
-        UpdateLineStyle();
-        if (!_inLine)
-            _content.MoveTo(_currentX, _currentY);
+        StartOrContinuePolygon();
         x2 = _currentX + _Translate(x2);
         y2 = _currentY + _Translate(y2);
         x4 = _currentX + _Translate(x4);
