@@ -57,13 +57,36 @@ public class BasicLineTests
         DrawGeometricFigure(0.5f, true, true, false, false, 0.125f, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
         _writer.MoveTo(0, 4f);
-        //DrawGeometricFigure(0.5f, false, false, false, false, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.125f, LineJoinStyle.Rounded, 0, LineCapStyle.Round);
+        _writer.MoveTo(3.75f, 4f);
+        DrawGeometricFigure(0.5f, true, true, false, false, 0.125f, LineJoinStyle.Rounded, 0, LineCapStyle.Round);
 
         _writer.MoveTo(0, 6f);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.125f, LineJoinStyle.Bevel, 0, LineCapStyle.Square);
+        _writer.MoveTo(3.75f, 6f);
+        DrawGeometricFigure(0.5f, true, true, false, false, 0.125f, LineJoinStyle.Bevel, 0, LineCapStyle.Square);
+
+        _writer.LineStyle.Width = null;
+        _writer.MoveTo(0, 0f);
+        _writer.ForeColor = Color.Blue;
+        _writer.LineTo(0, 8f);
+        //_writer.MoveTo(0, 8f);
         //DrawGeometricFigure(0.5f, false, false, false, false, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
-        _writer.MoveTo(0, 8f);
-        //DrawGeometricFigure(0.5f, false, false, false, false, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
+        _writer.NewPage(System.Drawing.Printing.PaperKind.Letter, false, 1f, 1f);
+
+        _writer.MoveTo(0, 0f);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.02f, LineJoinStyle.Miter, 0, LineCapStyle.None);
+        _writer.MoveTo(3.75f, 0f);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.02f, LineJoinStyle.Miter, 1, LineCapStyle.None);
+
+        _writer.MoveTo(0, 2f);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.02f, LineJoinStyle.Miter, 2, LineCapStyle.None);
+        _writer.MoveTo(3.75f, 2f);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.02f, LineJoinStyle.Miter, 3, LineCapStyle.None);
+
+        _writer.MoveTo(0, 4f);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.02f, LineJoinStyle.Miter, 4, LineCapStyle.None);
 
         _writer.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
     }
