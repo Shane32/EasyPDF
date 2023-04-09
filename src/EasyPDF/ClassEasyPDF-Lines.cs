@@ -240,6 +240,7 @@ public partial class PDFWriter
 
     /// <summary>
     /// Draws a rectangle of the specified size, and then draws another rectangle inset by the specified amount.
+    /// Current position is unchanged.
     /// </summary>
     public PDFWriter RectangleDualOffset(float width, float height, float inset, float borderRadius = 0f)
     {
@@ -250,14 +251,14 @@ public partial class PDFWriter
         _currentX = currentX + insetPoints;
         _currentY = currentY + insetPoints;
         Rectangle(width - inset * 2, height - inset * 2, borderRadius);
-        _currentX += insetPoints;
-        _currentY += insetPoints;
+        _currentX = currentX;
+        _currentY = currentY;
         return this;
     }
 
     /// <summary>
     /// Draws a rectangle of the specified size, optionally with rounded corners.
-    /// Current position is moved to the lower-right corner of the rectangle.
+    /// Current position is unchanged.
     /// </summary>
     /// <param name="width">The width of the rectangle.</param>
     /// <param name="height">The height of the rectangle.</param>
@@ -272,7 +273,7 @@ public partial class PDFWriter
         var heightPoints = _Translate(height);
 
         if (!(fill || border)) {
-            goto RectangleDone;
+            return this;
         }
         
         if (borderRadius == 0f) {
@@ -289,10 +290,6 @@ public partial class PDFWriter
         } else {
             _content.Fill();
         }
-
-    RectangleDone:
-        _currentX += widthPoints;
-        _currentY += heightPoints;
 
         return this;
     }

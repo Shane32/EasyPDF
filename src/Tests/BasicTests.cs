@@ -110,6 +110,7 @@ Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "
         page.MoveTo(3, 3);
         page.ForeColor = System.Drawing.Color.Blue;
         page.Rectangle(qrData.ModuleMatrix.Count * 0.03f, qrData.ModuleMatrix.Count * 0.03f);
+        page.OffsetTo(qrData.ModuleMatrix.Count * 0.03f, qrData.ModuleMatrix.Count * 0.03f);
         page.ForeColor = System.Drawing.Color.Red;
         //page.MoveTo(5, 3);
         //page.QRCode(qrData, 2, true);
@@ -117,7 +118,7 @@ Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "
         page.PictureAlignment = PictureAlignment.LeftCenter;
         page.QRCode(qrData, 2, false);
         page.ForeColor = System.Drawing.Color.Blue;
-        page.MoveTo(5, 2).Rectangle(2, 2);
+        page.MoveTo(5, 2).Rectangle(2, 2).OffsetTo(2, 2);
         page.ForeColor = System.Drawing.Color.Red;
 
         page.Barcode("Hello this is a test", BarcodeType.Code128, 1, .5f);

@@ -146,9 +146,9 @@ public class BasicLineTests
 
         _writer.MoveTo(pos);
         _writer.OffsetTo(4.5f * scale, 0).Rectangle(1f * scale, 0.4f * scale, 0, fill, border);
-        _writer.OffsetTo(-1f * scale, 0.3f * scale).Rectangle(1f * scale, 0.5f * scale, 0.2f * scale, fill, border);
-        _writer.OffsetTo(-1f * scale, 0.3f * scale).RectangleDualOffset(1f * scale, 0.7f * scale, 0.15f * scale, 0);
-        _writer.OffsetTo(-1f * scale, 0.3f * scale).RectangleDualOffset(1f * scale, 0.7f * scale, 0.15f * scale, 0.05f);
+        _writer.OffsetTo(0, 0.7f * scale).Rectangle(1f * scale, 0.5f * scale, 0.2f * scale, fill, border);
+        _writer.OffsetTo(0, 0.8f * scale).RectangleDualOffset(1f * scale, 0.7f * scale, 0.15f * scale, 0);
+        _writer.OffsetTo(0, 1f * scale).RectangleDualOffset(1f * scale, 0.7f * scale, 0.15f * scale, 0.05f);
     }
 
     [Fact]
