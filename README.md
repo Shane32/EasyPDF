@@ -7,7 +7,7 @@
 1. Create a new instance with one of the constructors:
 
 ```cs
-// Create a PDF file which will be saved to a byte array via ToArray()
+// Create a PDF file which will be saved to a byte array via ToArray() or ToStream()
 var pdf = new PDFWriter();
 
 // Create a PDF file at the specified path on the hard drive
@@ -157,13 +157,13 @@ using var stream = assembly.GetManifestResourceStream(resourceName)
 // read all bytes from stream into byte array
 var bytes = new byte[stream.Length];
 if (stream.Read(bytes, 0, bytes.Length) != bytes.Length)
-    ?? throw new InvalidOperationException("Could not read resource");
+    throw new InvalidOperationException("Could not read resource");
 // create image from byte array - supports JPEG, PNG, GIF, BMP, TIFF
 var image = iTextSharp.text.Image.GetInstance(bytes);
 // add the image to the pdf, scaled to 3" in width
 pdf.PictureAlignment = PictureAlignment.LeftTop;
 pdf.ScaleMode = ScaleModes.Inches;
-pdf.PaintPicture(interiorImage, width: 3f);
+pdf.PaintPicture(image, width: 3f);
 ```
 
 ## Line drawing commands
@@ -202,12 +202,13 @@ Barcodes are positioned according to the `PictureAlignment` property and colored
 | Method              | Description |
 |---------------------|-------------|
 | AnnotatePage        | Can be used to take an existing PDF and overlay drawing actions on top of it |
-| Close               | Close/saves the PDF |
+| Close               | Saves and closes the PDF |
 | GetDirectContent    | Returns the underlying `iTextSharp.text.pdf.PdfContentByte` which can be used to perform nearly any drawing action on the PDF |
 | GetDocument         | Returns the underlying `iTextSharp.text.Document` instance |
 | GetWriter           | Returns the underlying `iTextSharp.text.pdf.iTextPdfWriter` instance |
 | NewPage             | Creates or appends a new page of the specified size; required before writing to the document |
 | PrintAsync          | Prints the page to a specified network-attached printer that supports direct PDF printing |
+| SaveState           | Saves the current state of the PDFWriter; call `Dispose` on the returned instance to restore |
 | ToArray             | Returns the PDF as a byte array |
 | ToStream            | Returns the PDF as a `System.IO.MemoryStream` |
 

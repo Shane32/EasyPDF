@@ -1,0 +1,38 @@
+%PDF-1.4
+%\xE2\xE3\xCF\xD3
+3 0 obj
+<</Length 188/Filter/FlateDecode>>stream
+x\x9C\xAD\xCF\xC1
+\xC20\x0C\x06\xE0{\x9E"GwXm\xB2\xDA\xCE\xAB\xA0\xC2\xF0\xA2\xF46v\xDA\xA6L\xD8d\xA2\xF8\xFA\xA6\xA2l\xE0\xF0$m\xA1\xA4\xA1\xDF\x9F\x1EV\x1E\x12\x8Bna\xD1W\xB0\xF6\xB0\x07B-+&t,[c\xD9\x82\xC6L\xCE\x19\xB4"|@^\xC8{\x05\xFA\xD5w\xD8\xBE/\xD7\xD3t[/%_\x06g\xBE!$F\x7F\x1C\x88%\x92SVj\xED\xF8\x17\x1D\xB2\xE4\xB3]\xD3\xD5HQ\xE1\xB3q0\x01Y\x1C\x12\x87\x83b\xD0~C\x8C\x12|\x0C\xC5\xEC\x14\x1B4Z\x19\x1B4\x9A\xD6x\xD0>\x08\x19\x13\x18NS4\x09\xFFotC\xCA\xFE\x1C\x1F\xCBKwk\xBA\x88\xF4\xEC^WC\xB0'\x16\xEAZ\x01
+endstream
+endobj
+5 0 obj
+<</Type/Page/MediaBox[0 0 612 792]/Resources<</ProcSet [/PDF /Text /ImageB /ImageC /ImageI]/Font<</F1 1 0 R/F2 2 0 R>>>>/Contents 3 0 R/Parent 4 0 R>>
+endobj
+1 0 obj
+<</Type/Font/Subtype/Type1/BaseFont/Helvetica/Encoding/WinAnsiEncoding>>
+endobj
+2 0 obj
+<</Type/Font/Subtype/Type1/BaseFont/Helvetica-Oblique/Encoding/WinAnsiEncoding>>
+endobj
+4 0 obj
+<</Type/Pages/Count 1/Kids[5 0 R]/ITXT(3.3.2.0)>>
+endobj
+6 0 obj
+<</Type/Catalog/Pages 4 0 R>>
+endobj
+7 0 obj
+<<>>
+endobj
+xref
+0 8
+0000000000 65535 f 
+0000000436 00000 n 
+0000000524 00000 n 
+0000000015 00000 n 
+0000000620 00000 n 
+0000000270 00000 n 
+0000000685 00000 n 
+0000000730 00000 n 
+trailer
+<</Size 8/Root 6 0 R/Info 7 0 
