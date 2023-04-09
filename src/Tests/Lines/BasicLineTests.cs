@@ -70,8 +70,6 @@ public class BasicLineTests
         _writer.MoveTo(0, 0f);
         _writer.ForeColor = Color.Blue;
         _writer.LineTo(0, 8f);
-        //_writer.MoveTo(0, 8f);
-        //DrawGeometricFigure(0.5f, false, false, false, false, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
         _writer.NewPage(System.Drawing.Printing.PaperKind.Letter, false, 1f, 1f);
 
@@ -135,5 +133,32 @@ public class BasicLineTests
         } else {
             _writer.FinishLine();
         }
+    }
+
+    [Fact]
+    public void LineDashStylesCompare()
+    {
+        var style1 = new LineDashStyle(new float[] { 1f, 1f, 2f, 1f, 3f, 5f }, 5f);
+        style1.Array.ShouldBe(new float[] { 1f, 1f, 2f, 1f, 3f, 5f });
+        style1.Array[0] = 50f;
+        style1.Array.ShouldBe(new float[] { 1f, 1f, 2f, 1f, 3f, 5f });
+        var style2 = new LineDashStyle(new float[] { 1f, 1f, 2f, 1f, 3f, 5f }, 5f);
+        (style1 == style2).ShouldBeTrue();
+        style1.Equals(style2).ShouldBeTrue();
+        style2.Equals(style1).ShouldBeTrue();
+        var style3 = new LineDashStyle(new float[] { 1f, 1f, 2f, 1f, 3f, 5f }, 6f);
+        (style1 == style3).ShouldBeFalse();
+        style1.Equals(style3).ShouldBeFalse();
+        style3.Equals(style1).ShouldBeFalse();
+        var style4 = new LineDashStyle(new float[] { 1f, 1f, 2f, 1f, 3f, 5f, 6f }, 5f);
+        (style1 == style4).ShouldBeFalse();
+        style1.Equals(style4).ShouldBeFalse();
+        style4.Equals(style1).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void InvalidLineDashStyleThrows()
+    {
+        Should.Throw<ArgumentNullException>(() => new LineDashStyle(null!, 0f));
     }
 }

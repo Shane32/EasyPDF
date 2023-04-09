@@ -145,6 +145,27 @@ Times, Helvetica, Courier, Symbol and ZapfDingbats.
 There is a single command, `PaintPicture` which can print a `ITextImage` instance
 to the PDF file.  Pictures are positioned according to the `PictureAlignment` property.
 
+The following sample shows how to load a picture from an embedded resource
+and adds it to the PDF:
+
+```cs
+// get the embedded resource
+var assembly = Assembly.GetExecutingAssembly();
+var resourceName = "SampleProject.MyImage.jpg";
+using var stream = assembly.GetManifestResourceStream(resourceName)
+    ?? throw new InvalidOperationException("Could not find resource");
+// read all bytes from stream into byte array
+var bytes = new byte[stream.Length];
+if (stream.Read(bytes, 0, bytes.Length) != bytes.Length)
+    ?? throw new InvalidOperationException("Could not read resource");
+// create image from byte array - supports JPEG, PNG, GIF, BMP, TIFF
+var image = iTextSharp.text.Image.GetInstance(bytes);
+// add the image to the pdf, scaled to 3" in width
+pdf.PictureAlignment = PictureAlignment.LeftTop;
+pdf.ScaleMode = ScaleModes.Inches;
+pdf.PaintPicture(interiorImage, width: 3f);
+```
+
 ## Line drawing commands
 
 | Method              | Description |

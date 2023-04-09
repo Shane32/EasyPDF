@@ -90,7 +90,7 @@ public record LineDashStyle : IEquatable<LineDashStyle>
     /// <summary>
     /// Represents a dashed line.
     /// </summary>
-    public static readonly LineDashStyle Dash = new(6f, 6f, 3f);
+    public static readonly LineDashStyle Dash = new(6f, 3f);
 
     /// <summary>
     /// Represents a dotted line.
