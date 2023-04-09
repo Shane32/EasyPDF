@@ -138,8 +138,10 @@ public class BasicLineTests
 
         if (close) {
             _writer.FinishPolygon(border, fill, eofill);
+            _writer.Position.ShouldBe(pos);
         } else {
             _writer.FinishLine();
+            _writer.Position.ShouldNotBe(pos);
         }
 
         _writer.MoveTo(pos);
