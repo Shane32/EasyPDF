@@ -13,10 +13,10 @@ public record LineStyle
     /// <summary>
     /// Initializes a new instance with the specified parameters.
     /// </summary>
-    /// <param name="width">The current line width used when drawing lines or borders.</param>
-    /// <param name="capStyle">The current <see cref="LineCapStyle"/> used when drawing lines.</param>
-    /// <param name="joinStyle">The current <see cref="LineJoinStyle"/> used when drawing lines or borders.</param>
-    /// <param name="dashStyle">The current <see cref="LineDashStyle"/> used when drawing lines or borders.</param>
+    /// <param name="width">The line width used when drawing lines or borders, specified in the scale of the document. Defaults to 0.1 points when null.</param>
+    /// <param name="capStyle">The <see cref="LineCapStyle"/> used when drawing lines.</param>
+    /// <param name="joinStyle">The <see cref="LineJoinStyle"/> used when drawing lines or borders.</param>
+    /// <param name="dashStyle">The <see cref="LineDashStyle"/> used when drawing lines or borders. Defaults to <see cref="LineDashStyle.Solid"/> when null.</param>
     public LineStyle(float? width = null, LineCapStyle capStyle = LineCapStyle.None, LineJoinStyle joinStyle = LineJoinStyle.Miter, LineDashStyle? dashStyle = null)
     {
         _lineWidth = width;
@@ -77,7 +77,7 @@ public record LineStyle
     }
 
     /// <summary>
-    /// Gets or sets the current line width used when drawing lines or borders.
+    /// Gets or sets the current line width used when drawing lines or borders, specified in the scale of the document. Defaults to 0.1 points when null.
     /// </summary>
     public float? Width {
         get => _lineWidth;
