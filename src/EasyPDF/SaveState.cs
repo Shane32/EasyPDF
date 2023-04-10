@@ -13,6 +13,7 @@ internal class SaveState : IDisposable
     private readonly LineStyle _lineStyle;
     private readonly PictureAlignment _pictureAlignment;
     private readonly TextAlignment _textAlignment;
+    private readonly MarginsF _margins;
 
     public SaveState(PDFWriter writer)
     {
@@ -25,6 +26,7 @@ internal class SaveState : IDisposable
         _lineStyle = writer.LineStyle with { };
         _pictureAlignment = writer.PictureAlignment;
         _textAlignment = writer.TextAlignment;
+        _margins = writer.Margins;
     }
 
     public void Dispose()
@@ -41,5 +43,6 @@ internal class SaveState : IDisposable
         writer.LineStyle = _lineStyle;
         writer.PictureAlignment = _pictureAlignment;
         writer.TextAlignment = _textAlignment;
+        writer.Margins = _margins;
     }
 }

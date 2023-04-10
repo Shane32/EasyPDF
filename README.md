@@ -72,6 +72,7 @@ pdf.Close();
 | LineStyle.DashStyle      | The dash style used to draw lines and borders |
 | LineStyle.JoinStyle      | The style used to draw joined line segments and borders |
 | LineStyle.Width          | The pen width when drawing lines and borders |
+| Margins                  | Gets or sets the current page's margins |
 | MarginOffset             | Returns the offset of the left and top margins |
 | PageSize                 | Returns the size of the current page including margins |
 | PictureAlignment         | The alignment of pictures and barcodes in relation to the current position |
@@ -208,6 +209,7 @@ Barcodes are positioned according to the `PictureAlignment` property and colored
 | GetDocument         | Returns the underlying `iTextSharp.text.Document` instance |
 | GetWriter           | Returns the underlying `iTextSharp.text.pdf.iTextPdfWriter` instance |
 | NewPage             | Creates or appends a new page of the specified size; required before writing to the document |
+| OffsetMargins       | Offsets the current margins by a specified amount |
 | PrintAsync          | Prints the page to a specified network-attached printer that supports direct PDF printing |
 | SaveState           | Saves the current state of the PDFWriter; call `Dispose` on the returned instance to restore |
 | ToArray             | Returns the PDF as a byte array |
