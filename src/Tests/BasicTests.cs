@@ -224,7 +224,7 @@ Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "
         page.Font.Size.ShouldBe(12f, 0.001f);
         page.Font.Italic.ShouldBeFalse();
         page.ForeColor.ShouldBe(System.Drawing.Color.Black);
-        page.LineStyle.ShouldBe(new LineStyle(null, LineCapStyle.None, LineJoinStyle.Miter, LineDashStyle.Solid));
+        page.LineStyle.ShouldBe(new LineStyle());
 
         page.WriteLine(" continued");
 

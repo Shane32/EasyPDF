@@ -99,7 +99,7 @@ public class BasicPictureTests
         using var _ = _writer.SaveState();
         _writer.ScaleMode = ScaleModes.Inches;
         _writer.ForeColor = Color.Red;
-        _writer.LineStyle = new LineStyle(0.03f, dashStyle: LineDashStyle.Dash);
+        _writer.LineStyle = new LineStyle(0.03f * 72f, dashStyle: LineDashStyle.Dash);
         _writer.OffsetTo(-w / 2, 0f).LineTo(w, 0);
         _writer.OffsetTo(-w / 2, -w / 2).LineTo(0, w);
     }

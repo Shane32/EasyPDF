@@ -8,16 +8,16 @@ public record LineStyle
     private LineCapStyle _lineCap;
     private LineJoinStyle _lineJoin;
     private LineDashStyle _lineDash;
-    private float? _lineWidth;
+    private float _lineWidth;
 
     /// <summary>
     /// Initializes a new instance with the specified parameters.
     /// </summary>
-    /// <param name="width">The line width used when drawing lines or borders, specified in the scale of the document. Defaults to 0.1 points when null.</param>
+    /// <param name="width">The line width used when drawing lines or borders, specified in points.</param>
     /// <param name="capStyle">The <see cref="LineCapStyle"/> used when drawing lines.</param>
     /// <param name="joinStyle">The <see cref="LineJoinStyle"/> used when drawing lines or borders.</param>
     /// <param name="dashStyle">The <see cref="LineDashStyle"/> used when drawing lines or borders. Defaults to <see cref="LineDashStyle.Solid"/> when null.</param>
-    public LineStyle(float? width = null, LineCapStyle capStyle = LineCapStyle.None, LineJoinStyle joinStyle = LineJoinStyle.Miter, LineDashStyle? dashStyle = null)
+    public LineStyle(float width = 0.1f, LineCapStyle capStyle = LineCapStyle.None, LineJoinStyle joinStyle = LineJoinStyle.Miter, LineDashStyle? dashStyle = null)
     {
         _lineWidth = width;
         _lineCap = capStyle;
@@ -79,10 +79,10 @@ public record LineStyle
     /// <summary>
     /// Gets or sets the current line width used when drawing lines or borders, specified in the scale of the document. Defaults to 0.1 points when null.
     /// </summary>
-    public float? Width {
+    public float Width {
         get => _lineWidth;
         set {
-            if (value != null && value.Value < 0)
+            if (value < 0)
                 throw new ArgumentOutOfRangeException(nameof(value));
             _lineWidth = value;
         }
