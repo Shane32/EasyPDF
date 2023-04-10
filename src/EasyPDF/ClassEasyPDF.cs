@@ -397,12 +397,11 @@ public partial class PDFWriter : IDisposable
     /// Gets or sets the margins of the current page.
     /// </summary>
     public MarginsF Margins {
-        get {
-            var marginOffset = MarginOffset;
-            var pageSize = PageSize;
-            var size = Size;
-            return new MarginsF(marginOffset.X, marginOffset.Y, pageSize.Width - size.Width - marginOffset.X, pageSize.Height - size.Height - marginOffset.Y);
-        }
+        get => new(
+            _TranslateRev(_marginOffset.X),
+            _TranslateRev(_marginOffset.Y),
+            _TranslateRev(_pageSize.Width - _marginSize.Width - _marginOffset.X),
+            _TranslateRev(_pageSize.Height - _marginSize.Height - _marginOffset.Y));
         set {
             var newMarginOffset = new PointF(_Translate(value.Left), _Translate(value.Top));
             var difference = new PointF(newMarginOffset.X - _marginOffset.X, newMarginOffset.Y - _marginOffset.Y);
