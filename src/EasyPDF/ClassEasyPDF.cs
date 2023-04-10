@@ -94,6 +94,10 @@ public partial class PDFWriter : IDisposable
     public PDFWriter NewPage(PaperKind paperKind, bool landscape, Margins margins)
         => NewPage(_GetPaperSize(paperKind), landscape, margins);
 
+    /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
+    public PDFWriter NewPage(PaperKind paperKind, bool landscape, MarginsF margins)
+        => NewPage(_GetPaperSize(paperKind), landscape, margins.Left, margins.Top, margins.Right, margins.Bottom);
+
     /// <summary>
     /// Creates a document or adds a new page to an existing document as the specified size.
     /// </summary>
@@ -341,12 +345,7 @@ public partial class PDFWriter : IDisposable
     /// Translates a value from the selected scale mode to points.
     /// </summary>
     private float _Translate(float num) => _Translate(num, _scaleMode);
-
-    /// <summary>
-    /// Translates a value from the selected scale mode to points.
-    /// </summary>
-    private float? _Translate(float? num) => num.HasValue ? _Translate(num.Value, _scaleMode) : null;
-
+    
     /// <summary>
     /// Translates a value from a specified scale mode to points.
     /// </summary>
@@ -392,7 +391,7 @@ public partial class PDFWriter : IDisposable
     /// <summary>
     /// Returns the size of the page excluding margins.
     /// </summary>
-    public SizeF Size => new SizeF(_TranslateRev(_marginSize.Width), _TranslateRev(_marginSize.Height));
+    public SizeF Size => new(_TranslateRev(_marginSize.Width), _TranslateRev(_marginSize.Height));
 
     /// <summary>
     /// Gets or sets the margins of the current page.
@@ -419,7 +418,7 @@ public partial class PDFWriter : IDisposable
     /// <summary>
     /// Returns the top and left margin offsets on the page.
     /// </summary>
-    public PointF MarginOffset => new PointF(_TranslateRev(_marginOffset.X), _TranslateRev(_marginOffset.Y));
+    public PointF MarginOffset => new(_TranslateRev(_marginOffset.X), _TranslateRev(_marginOffset.Y));
 
     /// <summary>
     /// Offsets the margins on the current page, as measured in the current scale mode.

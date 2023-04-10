@@ -6,6 +6,29 @@ namespace Shane32.EasyPDF
     public struct MarginsF
     {
         /// <summary>
+        /// Initializes a new instance with no margins.
+        /// </summary>
+        public MarginsF()
+        {
+            Left = 0f;
+            Top = 0f;
+            Right = 0f;
+            Bottom = 0f;
+        }
+
+        /// <summary>
+        /// Initializes a new instance with the specified margins, in the scale mode of the page.
+        /// Right and bottom margins are mirrored from the left and top margins.
+        /// </summary>
+        public MarginsF(float left, float top)
+        {
+            Left = left;
+            Top = top;
+            Right = left;
+            Bottom = top;
+        }
+
+        /// <summary>
         /// Initializes a new instance with the specified margins, in the scale mode of the page.
         /// </summary>
         public MarginsF(float left, float top, float right, float bottom)
