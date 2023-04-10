@@ -94,6 +94,10 @@ public partial class PDFWriter : IDisposable
     public PDFWriter NewPage(PaperKind paperKind, bool landscape, Margins margins)
         => NewPage(_GetPaperSize(paperKind), landscape, margins);
 
+    /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
+    public PDFWriter NewPage(PaperKind paperKind, bool landscape, MarginsF margins)
+        => NewPage(_GetPaperSize(paperKind), landscape, margins.Left, margins.Top, margins.Right, margins.Bottom);
+
     /// <summary>
     /// Creates a document or adds a new page to an existing document as the specified size.
     /// </summary>
@@ -291,7 +295,7 @@ public partial class PDFWriter : IDisposable
             _stamper.Close();
             _stamper = null;
         }
-        
+
         if (_disposeStream && _stream != null) {
             _stream.Dispose();
         }
@@ -301,7 +305,8 @@ public partial class PDFWriter : IDisposable
     /// Disposes of the underlying stream if necessary.
     /// Use <see cref="Close"/> to save the file data prior to closing.
     /// </summary>
-    void IDisposable.Dispose() {
+    void IDisposable.Dispose()
+    {
         if (_disposeStream)
             _stream.Dispose();
         GC.SuppressFinalize(this);
@@ -340,12 +345,7 @@ public partial class PDFWriter : IDisposable
     /// Translates a value from the selected scale mode to points.
     /// </summary>
     private float _Translate(float num) => _Translate(num, _scaleMode);
-
-    /// <summary>
-    /// Translates a value from the selected scale mode to points.
-    /// </summary>
-    private float? _Translate(float? num) => num.HasValue ? _Translate(num.Value, _scaleMode) : null;
-
+    
     /// <summary>
     /// Translates a value from a specified scale mode to points.
     /// </summary>
@@ -357,7 +357,7 @@ public partial class PDFWriter : IDisposable
             }
 
             case ScaleModes.Hundredths: {
-                return num * 72f / 100f;
+                return num * 0.72f;
             }
 
             case ScaleModes.Inches: {
@@ -382,21 +382,52 @@ public partial class PDFWriter : IDisposable
     {
         return scaleMode switch {
             ScaleModes.Points => num,
-            ScaleModes.Hundredths => num * 100f / 72f,
+            ScaleModes.Hundredths => num / 0.72f,
             ScaleModes.Inches => num / 72f,
             _ => throw new ArgumentOutOfRangeException(nameof(scaleMode)),
         };
     }
 
     /// <summary>
-    /// Return the size of the page excluding margins.
+    /// Returns the size of the page excluding margins.
     /// </summary>
-    public SizeF Size => new SizeF(_TranslateRev(_marginSize.Width), _TranslateRev(_marginSize.Height));
+    public SizeF Size => new(_TranslateRev(_marginSize.Width), _TranslateRev(_marginSize.Height));
+
+    /// <summary>
+    /// Gets or sets the margins of the current page.
+    /// </summary>
+    public MarginsF Margins {
+        get => new(
+            _TranslateRev(_marginOffset.X),
+            _TranslateRev(_marginOffset.Y),
+            _TranslateRev(_pageSize.Width - _marginSize.Width - _marginOffset.X),
+            _TranslateRev(_pageSize.Height - _marginSize.Height - _marginOffset.Y));
+        set {
+            var newMarginOffset = new PointF(_Translate(value.Left), _Translate(value.Top));
+            var difference = new PointF(newMarginOffset.X - _marginOffset.X, newMarginOffset.Y - _marginOffset.Y);
+            if (difference.X != 0 && difference.Y != 0) {
+                _content.ConcatCtm(1f, 0f, 0f, 1f, difference.X, difference.Y);
+                _marginOffset = newMarginOffset;
+            }
+
+            _marginSize = new SizeF(_pageSize.Width - newMarginOffset.X - _Translate(value.Right), _pageSize.Height - newMarginOffset.Y - _Translate(value.Bottom));
+        }
+    }
 
     /// <summary>
     /// Returns the top and left margin offsets on the page.
     /// </summary>
-    public PointF MarginOffset => new PointF(_TranslateRev(_marginOffset.X), _TranslateRev(_marginOffset.Y));
+    public PointF MarginOffset => new(_TranslateRev(_marginOffset.X), _TranslateRev(_marginOffset.Y));
+
+    /// <summary>
+    /// Offsets the margins on the current page, as measured in the current scale mode.
+    /// </summary>
+    public PDFWriter OffsetMargins(float left, float top, float right = 0f, float bottom = 0f)
+    {
+        var margins = Margins;
+        Margins = new MarginsF(margins.Left + left, margins.Top + top, margins.Right + right, margins.Bottom + bottom);
+        return this;
+    }
 
     /// <summary>
     /// Saves the current state of the graphics context (fonts, colors, position, scale mode, etc).

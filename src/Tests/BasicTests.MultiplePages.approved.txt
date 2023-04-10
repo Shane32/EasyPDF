@@ -1,0 +1,48 @@
+%PDF-1.4
+%\xE2\xE3\xCF\xD3
+2 0 obj
+<</Length 112/Filter/FlateDecode>>stream
+x\x9C+\xE4r
+\xE126S075S\x08I\xE1r\xE1
+\xE42T0\x00B]C\x05S\x13\xB0xr.\x97\x81\x82\x17\x10gq\x19\xE8\x19*\x94sE\xC7\x02\xE5S\xB8\x0C\xC0\xEA\x82\xDC\xA1\x8C\xA2t\xEC\xCA
+\x81B!\xC9 {\xF4\xDD\x0C\x15\x0C\x8D\x14B\xD2\x10V\x80\xA8\x90\\d\x13\x0C@\xEE\x88\xD6\xF0H\xCD\xC9\xC9\xD7\x8C\xF1\x82\xB8\x09\x00\x00@"h
+endstream
+endobj
+4 0 obj
+<</Type/Page/MediaBox[0 0 612 792]/Resources<</ProcSet [/PDF /Text /ImageB /ImageC /ImageI]/Font<</F1 1 0 R>>>>/Contents 2 0 R/Parent 3 0 R>>
+endobj
+5 0 obj
+<</Length 123/Filter/FlateDecode>>stream
+x\x9C3P0T\xD05T0P034\x02\x92\xC9\xB9\\\x85\\N!\\\xC6f
+\xA6\xE6f
+!)\\\xAE!\\\x81\\ \x05\x06 u\xA6&`q\xA02\x03\xB0P\x90;\x94Q\x94\x0Edx\x01q\x16\x97\x81\x9E\xA1B9Wt,P4\x05h\x9A\x81BH2\xC8H}7C\x05\xA0\x1D!i\x08\xD3@TH.\xB2\x09\x06 +\xA35J2R\x8BR\x155cC\xBC \xF6\x03\x00\x96\xBB!\xD1
+endstream
+endobj
+6 0 obj
+<</Type/Page/MediaBox[0 0 612 1008]/Resources<</ProcSet [/PDF /Text /ImageB /ImageC /ImageI]/Font<</F1 1 0 R>>>>/Rotate 90/Contents 5 0 R/Parent 3 0 R>>
+endobj
+1 0 obj
+<</Type/Font/Subtype/Type1/BaseFont/Helvetica/Encoding/WinAnsiEncoding>>
+endobj
+3 0 obj
+<</Type/Pages/Count 2/Kids[4 0 R 6 0 R]/ITXT(3.3.2.0)>>
+endobj
+7 0 obj
+<</Type/Catalog/Pages 3 0 R>>
+endobj
+8 0 obj
+<<>>
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000709 00000 n 
+0000000015 00000 n 
+0000000797 00000 n 
+0000000194 00000 n 
+0000000351 00000 n 
+0000000541 00000 n 
+0000000868 00000 n 
+0000000913 00000 n 
+trailer
+<</Size 9/Root 7 0 R/Info 8 0 

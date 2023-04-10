@@ -190,6 +190,25 @@ Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "
     }
 
     [Fact]
+    public void MultiplePages()
+    {
+        var page = new PDFWriter();
+        page.ScaleMode = ScaleModes.Inches;
+        page.NewPage(PaperKind.Letter, false, 0.75f, 0.5f);
+        page.PrepForTests();
+        page.Margins.Left.ShouldBe(0.75f, 0.001f);
+        page.Margins.Top.ShouldBe(0.5f, 0.001f);
+        page.Margins.Right.ShouldBe(0.75f, 0.001f);
+        page.Margins.Bottom.ShouldBe(0.5f, 0.001f);
+
+        page.WriteLine("Hello");
+        page.NewPage(PaperKind.Legal, true, 0.75f, 0.5f);
+        page.WriteLine("there!");
+
+        page.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
+    }
+
+    [Fact]
     public void SaveState()
     {
         var page = new PDFWriter();
@@ -198,7 +217,8 @@ Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "
         page.PrepForTests();
         page.TextAlignment = TextAlignment.LeftTop;
         page.PictureAlignment = PictureAlignment.LeftTop;
-        page.OffsetTo(0.125f, 0.125f);
+        page.Rectangle(page.Size.Width, page.Size.Height);
+        page.MoveTo(0.125f, 0.125f);
         page.Write("Line 1");
         var oldX = page.CurrentX;
 
@@ -214,6 +234,8 @@ Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "
             page.PictureAlignment = PictureAlignment.CenterCenter;
             page.LineStyle = new LineStyle(2f, LineCapStyle.Square, LineJoinStyle.Rounded, LineDashStyle.Dot);
             page.Write("Line 2");
+            page.OffsetMargins(72f, 72f, 36f, 36f);
+            page.MoveTo(0, 0).Rectangle(page.Size.Width, page.Size.Height);
         }
 
         page.PictureAlignment.ShouldBe(PictureAlignment.LeftTop);
@@ -225,6 +247,7 @@ Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "
         page.Font.Italic.ShouldBeFalse();
         page.ForeColor.ShouldBe(System.Drawing.Color.Black);
         page.LineStyle.ShouldBe(new LineStyle());
+        page.Margins.ShouldBe(new MarginsF(1f, 1f, 1f, 1f));
 
         page.WriteLine(" continued");
 
