@@ -139,11 +139,11 @@ public partial class PDFWriter
                 _content.SetLineJoin((int)LineStyle.JoinStyle);
             }
             if (force || _lastLineStyle!.Width != LineStyle.Width) {
-                _content.SetLineWidth(_Translate(LineStyle.Width) ?? 0.1f);
+                _content.SetLineWidth(LineStyle.Width);
                 force = true;
             }
             if (force || _lastLineStyle!.DashStyle != LineStyle.DashStyle) {
-                var lineWidth = _Translate(LineStyle.Width) ?? 0.1f;
+                var lineWidth = LineStyle.Width;
                 _content.SetLineDash(LineStyle.DashStyle.MultipliedArray(lineWidth), LineStyle.DashStyle.MultipliedPhase(lineWidth));
             }
             _lastLineStyle = LineStyle with { };

@@ -140,7 +140,7 @@ public class BasicBarcodeTests
 
         _writer.MoveTo(2, 0);
         _writer.LineStyle.JoinStyle = LineJoinStyle.Rounded;
-        _writer.LineStyle.Width = 0.0625f;
+        _writer.LineStyle.Width = 0.0625f * 72;
         _writer.QRCode("https://github.com/Shane32/EasyPDF", quietZone: false);
         _writer.Position.ShouldBe(new PointF(2, 0));
 
@@ -175,7 +175,7 @@ public class BasicBarcodeTests
     {
         using var _ = _writer.SaveState();
         _writer.ForeColor = Color.Blue;
-        _writer.LineStyle = new LineStyle(0.02f, dashStyle: LineDashStyle.Dash);
+        _writer.LineStyle = new LineStyle(0.02f * 72f, dashStyle: LineDashStyle.Dash);
         _writer.Rectangle(w, h ?? w);
     }
     
@@ -184,7 +184,7 @@ public class BasicBarcodeTests
         using var _ = _writer.SaveState();
         _writer.ScaleMode = ScaleModes.Inches;
         _writer.ForeColor = Color.Red;
-        _writer.LineStyle = new LineStyle(0.03f, dashStyle: LineDashStyle.Dash);
+        _writer.LineStyle = new LineStyle(0.03f * 72f, dashStyle: LineDashStyle.Dash);
         _writer.OffsetTo(-w / 2, 0f).LineTo(w, 0);
         _writer.OffsetTo(-w / 2, -w / 2).LineTo(0, w);
     }

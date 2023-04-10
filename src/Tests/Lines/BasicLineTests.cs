@@ -19,25 +19,25 @@ public class BasicLineTests
     {
         _writer.FillColor.ShouldBe(Color.Black);
 
-        DrawGeometricFigure(0.5f, false, false, false, false, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, false, false, false, false, 0.1f, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
         _writer.MoveTo(3.75f, 0);
-        DrawGeometricFigure(0.5f, true, true, false, false, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, true, true, false, false, 0.1f, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
         _writer.MoveTo(0, 2);
-        DrawGeometricFigure(0.5f, true, false, true, false, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, true, false, true, false, 0.1f, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
         _writer.MoveTo(3.75f, 2);
-        DrawGeometricFigure(0.5f, true, false, true, true, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, true, false, true, true, 0.1f, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
         _writer.MoveTo(0, 4);
-        DrawGeometricFigure(0.5f, true, true, true, true, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, true, true, true, true, 0.1f, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
         _writer.MoveTo(3.75f, 4);
-        DrawGeometricFigure(0.5f, true, true, true, false, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, true, true, true, false, 0.1f, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
         _writer.MoveTo(0, 6);
-        DrawGeometricFigure(0.5f, true, false, false, false, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, true, false, false, false, 0.1f, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
         _writer.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
     }
@@ -50,29 +50,29 @@ public class BasicLineTests
         _writer.LineStyle.JoinStyle.ShouldBe(LineJoinStyle.Miter);
         _writer.LineStyle.CapStyle.ShouldBe(LineCapStyle.None);
         _writer.LineStyle.DashStyle.ShouldBe(LineDashStyle.Solid);
-        _writer.LineStyle.Width.ShouldBeNull();
+        _writer.LineStyle.Width.ShouldBe(0.1f, 0.001f);
 
         _writer.MoveTo(0, 0f);
-        DrawGeometricFigure(0.5f, false, true, false, false, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.1f, LineJoinStyle.Miter, 0, LineCapStyle.None);
         _writer.MoveTo(3.75f, 0f);
-        DrawGeometricFigure(0.5f, true, true, false, false, null, LineJoinStyle.Miter, 0, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, true, true, false, false, 0.1f, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
         _writer.MoveTo(0, 2f);
-        DrawGeometricFigure(0.5f, false, true, false, false, 0.0625f, LineJoinStyle.Miter, 0, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.0625f * 72, LineJoinStyle.Miter, 0, LineCapStyle.None);
         _writer.MoveTo(3.75f, 2f);
-        DrawGeometricFigure(0.5f, true, true, false, false, 0.0625f, LineJoinStyle.Miter, 0, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, true, true, false, false, 0.0625f * 72, LineJoinStyle.Miter, 0, LineCapStyle.None);
 
         _writer.MoveTo(0, 4f);
-        DrawGeometricFigure(0.5f, false, true, false, false, 0.0625f, LineJoinStyle.Rounded, 0, LineCapStyle.Round);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.0625f * 72, LineJoinStyle.Rounded, 0, LineCapStyle.Round);
         _writer.MoveTo(3.75f, 4f);
-        DrawGeometricFigure(0.5f, true, true, false, false, 0.0625f, LineJoinStyle.Rounded, 0, LineCapStyle.Round);
+        DrawGeometricFigure(0.5f, true, true, false, false, 0.0625f * 72, LineJoinStyle.Rounded, 0, LineCapStyle.Round);
 
         _writer.MoveTo(0, 6f);
-        DrawGeometricFigure(0.5f, false, true, false, false, 0.0625f, LineJoinStyle.Bevel, 0, LineCapStyle.Square);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.0625f * 72, LineJoinStyle.Bevel, 0, LineCapStyle.Square);
         _writer.MoveTo(3.75f, 6f);
-        DrawGeometricFigure(0.5f, true, true, false, false, 0.0625f, LineJoinStyle.Bevel, 0, LineCapStyle.Square);
+        DrawGeometricFigure(0.5f, true, true, false, false, 0.0625f * 72, LineJoinStyle.Bevel, 0, LineCapStyle.Square);
 
-        _writer.LineStyle.Width = null;
+        _writer.LineStyle.Width = 0.1f;
         _writer.MoveTo(0, 0f);
         _writer.ForeColor = Color.Blue;
         _writer.LineTo(0, 8f);
@@ -80,22 +80,22 @@ public class BasicLineTests
         _writer.NewPage(System.Drawing.Printing.PaperKind.Letter, false, 1f, 1f);
 
         _writer.MoveTo(0, 0f);
-        DrawGeometricFigure(0.5f, false, true, false, false, 0.02f, LineJoinStyle.Miter, 0, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.02f * 72, LineJoinStyle.Miter, 0, LineCapStyle.None);
         _writer.MoveTo(3.75f, 0f);
-        DrawGeometricFigure(0.5f, false, true, false, false, 0.02f, LineJoinStyle.Miter, 1, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.02f * 72, LineJoinStyle.Miter, 1, LineCapStyle.None);
 
         _writer.MoveTo(0, 2f);
-        DrawGeometricFigure(0.5f, false, true, false, false, 0.02f, LineJoinStyle.Miter, 2, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.02f * 72, LineJoinStyle.Miter, 2, LineCapStyle.None);
         _writer.MoveTo(3.75f, 2f);
-        DrawGeometricFigure(0.5f, false, true, false, false, 0.02f, LineJoinStyle.Miter, 3, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.02f * 72, LineJoinStyle.Miter, 3, LineCapStyle.None);
 
         _writer.MoveTo(0, 4f);
-        DrawGeometricFigure(0.5f, false, true, false, false, 0.02f, LineJoinStyle.Miter, 4, LineCapStyle.None);
+        DrawGeometricFigure(0.5f, false, true, false, false, 0.02f * 72, LineJoinStyle.Miter, 4, LineCapStyle.None);
 
         _writer.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
     }
 
-    private void DrawGeometricFigure(float scale, bool close, bool border, bool fill, bool eofill, float? lineWidth, LineJoinStyle joinStyle, int dashStyle, LineCapStyle capStyle)
+    private void DrawGeometricFigure(float scale, bool close, bool border, bool fill, bool eofill, float lineWidth, LineJoinStyle joinStyle, int dashStyle, LineCapStyle capStyle)
     {
         var pos = _writer.Position;
         var len = 0.25f * scale;
