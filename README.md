@@ -82,6 +82,7 @@ pdf.Close();
 
 Note that drawing coordinates are always specified or returned based on the current
 `ScaleMode` setting, and coordinate (0, 0) is the top-left corner of the page/margin.
+Pen widths, font sizes, and paragraph spacing are always specified in points.
 
 ## Methods
 
