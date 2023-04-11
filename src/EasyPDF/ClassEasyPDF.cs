@@ -5,7 +5,6 @@ using System.Net.Sockets;
 using System.Text;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
-using Org.BouncyCastle.Math.EC;
 using iTextPdfWriter = iTextSharp.text.pdf.PdfWriter;
 
 namespace Shane32.EasyPDF;
