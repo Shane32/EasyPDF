@@ -53,10 +53,9 @@ internal static class TestExtensions
 
     public static void PrepForTests(this PDFWriter writer)
     {
-        writer.GetWriter().CompressionLevel = PdfStream.NO_COMPRESSION;
-        writer.GetWriter().Info.Remove(PdfName.Producer);
-        writer.GetWriter().Info.Remove(PdfName.Creationdate);
-        writer.GetWriter().Info.Remove(PdfName.Moddate);
+        writer.Metadata.Producer = null;
+        writer.Metadata.CreationDate = null;
+        writer.Metadata.ModificationDate = null;
     }
 
     private static readonly object _saveSync = new();
