@@ -58,7 +58,7 @@ public class PdfMetadata
     /// <remarks>
     /// Sets the creation date and modification date to the current date and time.
     /// </remarks>
-    public PdfMetadata()
+    internal PdfMetadata()
     {
         CreationDate = DateTime.Now;
         ModificationDate = CreationDate;
