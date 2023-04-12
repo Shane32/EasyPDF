@@ -1,3 +1,4 @@
+using System.Globalization;
 using iTextSharp.text.pdf;
 
 namespace Shane32.EasyPDF;
@@ -80,12 +81,20 @@ public class PdfMetadata
             info.Put(PdfName.Creator, new PdfString(Creator, PdfObject.TEXT_UNICODE));
 
         if (CreationDate.HasValue)
-            info.Put(PdfName.Creationdate, new PdfDate(CreationDate.Value));
+            info.Put(PdfName.Creationdate, PdfDate(CreationDate.Value));
 
         if (ModificationDate.HasValue)
-            info.Put(PdfName.Moddate, new PdfDate(ModificationDate.Value));
+            info.Put(PdfName.Moddate, PdfDate(ModificationDate.Value));
 
         if (Producer != null)
             info.Put(PdfName.Producer, new PdfString(Producer, PdfObject.TEXT_UNICODE));
+
+        static PdfString PdfDate(DateTime d)
+        {
+            var ret = d.ToString("\\D\\:yyyyMMddHHmmss", DateTimeFormatInfo.InvariantInfo);
+            var timezone = d.Kind == DateTimeKind.Utc ? "+00'00" : d.ToString("zzz", DateTimeFormatInfo.InvariantInfo).Replace(':','\'');
+            ret += timezone + "'";
+            return new PdfString(ret, PdfObject.TEXT_UNICODE);
+        }
     }
 }

@@ -53,6 +53,8 @@ internal static class TestExtensions
 
     public static void PrepForTests(this PDFWriter writer)
     {
+        writer.GetWriter().CompressionLevel = PdfStream.NO_COMPRESSION; // <-- does not seem to do anything; the document is not fully compressed, but nor is it fully uncompressed
+        writer.GetWriter().FullCompression.ShouldBeFalse();
         writer.Metadata.Producer = null;
         writer.Metadata.CreationDate = null;
         writer.Metadata.ModificationDate = null;
