@@ -19,6 +19,7 @@ public partial class PDFWriter : IDisposable
     private readonly bool _disposeStream;
     private Document? _document;
     private iTextPdfWriter? _writer;
+    private PdfMetadata? _metadata;
     private PdfContentByte? _content2;
     private PdfStamper? _stamper;
     private PdfContentByte _content => _content2 ?? throw new InvalidOperationException("Create a page first!");
@@ -65,7 +66,7 @@ public partial class PDFWriter : IDisposable
     public PdfContentByte GetDirectContent() => _content;
 
     /// <summary>
-    /// returns the underlying <see cref="iTextPdfWriter"/>.
+    /// Returns the underlying <see cref="iTextPdfWriter"/>.
     /// </summary>
     public iTextPdfWriter GetWriter() => _writer ?? throw new InvalidOperationException("Create a page first!");
 
@@ -73,6 +74,11 @@ public partial class PDFWriter : IDisposable
     /// Returns the underlying <see cref="Document"/>.
     /// </summary>
     public Document GetDocument() => _document ?? throw new InvalidOperationException("Create a page first!");
+    
+    /// <summary>
+    /// Gets the metadata associated with the current PDF document.
+    /// </summary>
+    public PdfMetadata Metadata => _metadata ?? throw new InvalidOperationException("Create a page first!");
 
     private static PaperSize _GetPaperSize(PaperKind paperKind) => paperKind switch {
         PaperKind.Letter => new PaperSize(paperKind.ToString(), 850, 1100),
@@ -167,6 +173,14 @@ public partial class PDFWriter : IDisposable
                 _document = new Document(new iTextSharp.text.Rectangle(pageWidth, pageHeight));
             }
             _writer = iTextPdfWriter.GetInstance(_document, _stream);
+            _metadata = new();
+            var producer = _writer.Info.Get(PdfName.Producer);
+            if (producer != null && producer.IsString() && producer is PdfString producerString) {
+                _metadata.Producer = producerString.ToUnicodeString();
+            }
+            _writer.Info.Remove(PdfName.Producer);
+            _writer.Info.Remove(PdfName.Creationdate);
+            _writer.Info.Remove(PdfName.Moddate);
             _document.Open();
             _content2 = _writer.DirectContent;
         }
@@ -281,6 +295,12 @@ public partial class PDFWriter : IDisposable
             FinishLineAndUpdateLineStyle();
             _content2 = null;
         }
+
+        if (_metadata != null && _writer != null) {
+            _metadata.Save(_writer.Info);
+        }
+        _metadata = null;
+
         if (_document != null) {
             _document.Close();
             _document = null;

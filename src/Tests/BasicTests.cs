@@ -253,4 +253,28 @@ Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "
 
         page.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
     }
+
+    [Fact]
+    public void Metadata()
+    {
+        var page = new PDFWriter();
+        page.NewPage(PaperKind.Letter, false);
+        page.Metadata.Author.ShouldBeNull();
+        page.Metadata.Author = "Test Author";
+        page.Metadata.Title.ShouldBeNull();
+        page.Metadata.Title = "Test Title";
+        page.Metadata.Subject.ShouldBeNull();
+        page.Metadata.Subject = "Test Subject";
+        page.Metadata.Keywords.ShouldBeNull();
+        page.Metadata.Keywords = "Test Keywords";
+        page.Metadata.Creator.ShouldBeNull();
+        page.Metadata.Creator = "Test Creator";
+        page.Metadata.Producer.ShouldStartWith("iTextSharp.LGPLv2.Core");
+        page.Metadata.Producer = "Test Producer";
+        page.Metadata.CreationDate.ShouldNotBeNull().ShouldBeInRange(DateTime.Now.AddMinutes(-5), DateTime.Now);
+        page.Metadata.ModificationDate.ShouldBe(page.Metadata.CreationDate);
+        page.Metadata.CreationDate = new DateTime(2018, 1, 2, 3, 4, 5, DateTimeKind.Utc);
+        page.Metadata.ModificationDate = new DateTime(2019, 2, 3, 4, 5, 6, DateTimeKind.Utc);
+        page.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
+    }
 }
