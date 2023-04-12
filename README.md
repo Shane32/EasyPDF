@@ -74,6 +74,7 @@ pdf.Close();
 | LineStyle.Width          | The pen width when drawing lines and borders |
 | Margins                  | Gets or sets the current page's margins |
 | MarginOffset             | Returns the offset of the left and top margins |
+| Metadata                 | Returns an object that can be used to get and set the document metadata |
 | PageSize                 | Returns the size of the current page including margins |
 | PictureAlignment         | The alignment of pictures and barcodes in relation to the current position |
 | Position                 | The current position |
@@ -211,7 +212,7 @@ Barcodes are positioned according to the `PictureAlignment` property and colored
 | NewPage             | Creates or appends a new page of the specified size; required before writing to the document |
 | OffsetMargins       | Offsets the current margins by a specified amount |
 | PrintAsync          | Prints the page to a specified network-attached printer that supports direct PDF printing |
-| SaveState           | Saves the current state of the PDFWriter; call `Dispose` on the returned instance to restore |
+| SaveState           | Saves the current page margins and state of the graphics properties; call `Dispose` on the returned instance to restore |
 | ToArray             | Returns the PDF as a byte array |
 | ToStream            | Returns the PDF as a `System.IO.MemoryStream` |
 
