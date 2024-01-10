@@ -20,14 +20,15 @@ jobs:
           - windows-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Use .NET Core SDK
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: |
             2.1.x
             3.1.x
             6.0.x
+            8.0.x
           source-url: https://nuget.pkg.github.com/Shane32/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
@@ -62,7 +63,7 @@ jobs:
           tag: 'test_${{ github.run_number }}'
       - name: Upload artifacts
         if: ${{ matrix.os == 'ubuntu-latest' }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: Code coverage artifacts
           path: |
