@@ -10,7 +10,7 @@ public class PositionTests
     public PositionTests()
     {
         _writer.ScaleMode = ScaleModes.Inches;
-        _writer.NewPage(System.Drawing.Printing.PaperKind.Letter, false, 1f, 1f);
+        _writer.NewPage(PageKind.Letter, false, 1f, 1f);
         _writer.PrepForTests();
     }
 

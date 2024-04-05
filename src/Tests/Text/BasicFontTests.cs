@@ -1,4 +1,3 @@
-using System.Drawing;
 using Font = Shane32.EasyPDF.Font;
 
 namespace Tests.Text;
@@ -15,7 +14,7 @@ public class BasicFontTestsTests
     public BasicFontTestsTests()
     {
         _writer.ScaleMode = ScaleModes.Inches;
-        _writer.NewPage(System.Drawing.Printing.PaperKind.Letter, false, 1f, 1f);
+        _writer.NewPage(PageKind.Letter, false, 1f, 1f);
         _writer.PrepForTests();
     }
 
@@ -32,28 +31,30 @@ public class BasicFontTestsTests
             _writer.Font.Size.ShouldBe(12f, 0.001f);
             _writer.Font.FamilyName.ShouldBe(standardFont.ToString());
             _writer.Font.Embedded.ShouldBeFalse();
-            _writer.Font.FontStyle.ShouldBe(FontStyle.Regular);
+            _writer.Font.Bold.ShouldBeFalse();
+            _writer.Font.Italic.ShouldBeFalse();
+            _writer.Font.Underline.ShouldBeFalse();
+            _writer.Font.Strikeout.ShouldBeFalse();
             _writer.WriteLine(standardFont.ToString());
             _writer.Font.Bold = true;
-            _writer.Font.FontStyle.ShouldBe(FontStyle.Bold);
             _writer.WriteLine(standardFont.ToString() + " Bold");
             _writer.Font.Bold = false;
             _writer.Font.Italic = true;
-            _writer.Font.FontStyle.ShouldBe(FontStyle.Italic);
             _writer.WriteLine(standardFont.ToString() + " Italic");
             _writer.Font.Bold = true;
-            _writer.Font.FontStyle.ShouldBe(FontStyle.Bold | FontStyle.Italic);
+            _writer.Font.Italic.ShouldBeTrue();
             _writer.WriteLine(standardFont.ToString() + " Bold Italic");
-            _writer.Font.FontStyle = FontStyle.Underline;
-            _writer.Font.Bold.ShouldBeFalse();
-            _writer.Font.Italic.ShouldBeFalse();
-            _writer.Font.Underline.ShouldBeTrue();
-            _writer.Font.Strikeout.ShouldBeFalse();
+            _writer.Font.Bold = false;
+            _writer.Font.Italic = false;
+            _writer.Font.Underline = true;
             _writer.WriteLine(standardFont.ToString() + " Underline");
-            _writer.Font.FontStyle = FontStyle.Strikeout;
-            _writer.Font.Strikeout.ShouldBeTrue();
+            _writer.Font.Underline = false;
+            _writer.Font.Strikeout = true;
             _writer.WriteLine(standardFont.ToString() + " Strikeout");
-            _writer.Font.FontStyle = FontStyle.Bold | FontStyle.Italic | FontStyle.Underline | FontStyle.Strikeout;
+            _writer.Font.Bold = true;
+            _writer.Font.Italic = true;
+            _writer.Font.Underline = true;
+            _writer.Font.Strikeout = true;
             _writer.WriteLine(standardFont.ToString() + " Bold Italic Underline Strikeout");
             _writer.WriteLine();
         }
@@ -201,12 +202,12 @@ public class BasicFontTestsTests
     [Fact]
     public void FontCanBeCloned()
     {
-        var font = new Font("Righteous", 12f, FontStyle.Bold);
+        var font = new Font("Righteous", 12f, bold: true);
         var font2 = font with { };
         font.ShouldNotBeSameAs(font2);
         font.ShouldBe(font2);
 
-        font = new Font(StandardFonts.Helvetica, 12, FontStyle.Italic);
+        font = new Font(StandardFonts.Helvetica, 12, italic: true);
         font2 = font with { };
         font.ShouldNotBeSameAs(font2);
         font.ShouldBe(font2);

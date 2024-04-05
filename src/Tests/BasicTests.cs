@@ -1,4 +1,3 @@
-using System.Drawing.Printing;
 using QRCoder;
 using static QRCoder.QRCodeGenerator;
 
@@ -15,7 +14,7 @@ public class BasicTests
     public void ItWorks()
     {
         var page = new PDFWriter();
-        page.NewPage(System.Drawing.Printing.PaperKind.Letter, false);
+        page.NewPage(PageKind.Letter, false);
         page.PrepForTests();
         page.ScaleMode = ScaleModes.Inches;
         page.TextAlignment = TextAlignment.LeftTop;
@@ -30,7 +29,7 @@ public class BasicTests
         page.Font = new Font(StandardFonts.Helvetica, 12) { LineSpacing = 1.2f, StretchX = 2f, Justify = true };
         page.WriteLine("This is a very long line of text; the quick brown fox jumps over the lazy dog and hello world a few times over", 3);
 
-        page.Font = new Font("Righteous", 20, System.Drawing.FontStyle.Italic);
+        page.Font = new Font("Righteous", 20, italic: true);
         page.WriteLine("This is a test");
 
         page.Font = page.Font with { StretchX = 3f, StretchY = 3f };
@@ -38,29 +37,29 @@ public class BasicTests
 
         page.Font = new Font(StandardFonts.Times, 10);
         page.WriteLine("Times Regular");
-        page.Font = new Font(StandardFonts.Times, 10, System.Drawing.FontStyle.Bold);
+        page.Font = new Font(StandardFonts.Times, 10, bold: true);
         page.WriteLine("Times Bold");
-        page.Font = new Font(StandardFonts.Times, 10, System.Drawing.FontStyle.Italic);
+        page.Font = new Font(StandardFonts.Times, 10, italic: true);
         page.WriteLine("Times Italic");
-        page.Font = new Font(StandardFonts.Times, 10, System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic);
+        page.Font = new Font(StandardFonts.Times, 10, true, true);
         page.WriteLine("Times Bold Italic");
 
         page.Font = new Font(StandardFonts.Helvetica, 10);
         page.WriteLine("Helvetica Regular");
-        page.Font = new Font(StandardFonts.Helvetica, 10, System.Drawing.FontStyle.Bold);
+        page.Font = new Font(StandardFonts.Helvetica, 10, bold: true);
         page.WriteLine("Helvetica Bold");
-        page.Font = new Font(StandardFonts.Helvetica, 10, System.Drawing.FontStyle.Italic);
+        page.Font = new Font(StandardFonts.Helvetica, 10, italic: true);
         page.WriteLine("Helvetica Italic");
-        page.Font = new Font(StandardFonts.Helvetica, 10, System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic);
+        page.Font = new Font(StandardFonts.Helvetica, 10, true, true);
         page.WriteLine("Helvetica Bold Italic");
 
         page.Font = new Font(StandardFonts.Courier, 10);
         page.WriteLine("Courier Regular");
-        page.Font = new Font(StandardFonts.Courier, 10, System.Drawing.FontStyle.Bold);
+        page.Font = new Font(StandardFonts.Courier, 10, bold: true);
         page.WriteLine("Courier Bold");
-        page.Font = new Font(StandardFonts.Courier, 10, System.Drawing.FontStyle.Italic);
+        page.Font = new Font(StandardFonts.Courier, 10, italic: true);
         page.WriteLine("Courier Italic");
-        page.Font = new Font(StandardFonts.Courier, 10, System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic);
+        page.Font = new Font(StandardFonts.Courier, 10, true, true);
         page.WriteLine("Courier Bold Italic");
 
         page.Font = new Font(StandardFonts.Symbol, 8);
@@ -134,7 +133,6 @@ Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "
     [InlineData(3)]
     [InlineData(4)]
     [InlineData(5)]
-    [InlineData(6)]
     [InlineData(7)]
     [InlineData(8)]
     [InlineData(9)]
@@ -144,22 +142,19 @@ Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "
         page.ScaleMode = ScaleModes.Inches;
         switch (method) {
             case 1:
-                page.NewPage(PaperKind.Ledger, true, 0.75f, 0.5f);
+                page.NewPage(PageKind.Ledger, true, 0.75f, 0.5f);
                 break;
             case 2:
-                page.NewPage(PaperKind.Ledger, true, 0.75f, 0.5f, 0.75f, 0.5f);
+                page.NewPage(PageKind.Ledger, true, 0.75f, 0.5f, 0.75f, 0.5f);
                 break;
             case 3:
-                page.NewPage(PaperKind.Ledger, true, new Margins(75, 75, 50, 50));
+                page.NewPage(PageKind.Ledger, true, new MarginsF(0.75f, 0.5f, 0.75f, 0.5f));
                 break;
             case 4:
-                page.NewPage(new PaperSize("Ledger", 1100, 1700), true, 0.75f, 0.5f);
+                page.NewPage(new System.Drawing.SizeF(11, 17), true, new MarginsF(0.75f, 0.5f));
                 break;
             case 5:
-                page.NewPage(new PaperSize("Ledger", 1100, 1700), true, 0.75f, 0.5f, 0.75f, 0.5f);
-                break;
-            case 6:
-                page.NewPage(new PaperSize("Ledger", 1100, 1700), true, new Margins(75, 75, 50, 50));
+                page.NewPage(new System.Drawing.SizeF(11, 17), true, new MarginsF(0.75f, 0.5f, 0.75f, 0.5f));
                 break;
             case 7:
                 page.NewPage(11, 17, true, 0.75f, 0.5f);
@@ -194,7 +189,7 @@ Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "
     {
         var page = new PDFWriter();
         page.ScaleMode = ScaleModes.Inches;
-        page.NewPage(PaperKind.Letter, false, 0.75f, 0.5f);
+        page.NewPage(PageKind.Letter, false, 0.75f, 0.5f);
         page.PrepForTests();
         page.Margins.Left.ShouldBe(0.75f, 0.001f);
         page.Margins.Top.ShouldBe(0.5f, 0.001f);
@@ -202,7 +197,7 @@ Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "
         page.Margins.Bottom.ShouldBe(0.5f, 0.001f);
 
         page.WriteLine("Hello");
-        page.NewPage(PaperKind.Legal, true, 0.75f, 0.5f);
+        page.NewPage(PageKind.Legal, true, 0.75f, 0.5f);
         page.WriteLine("there!");
 
         page.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
@@ -213,7 +208,7 @@ Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "
     {
         var page = new PDFWriter();
         page.ScaleMode = ScaleModes.Inches;
-        page.NewPage(PaperKind.Letter, false, 1f, 1f);
+        page.NewPage(PageKind.Letter, false, 1f, 1f);
         page.PrepForTests();
         page.TextAlignment = TextAlignment.LeftTop;
         page.PictureAlignment = PictureAlignment.LeftTop;
@@ -258,7 +253,7 @@ Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "
     public void Metadata()
     {
         var page = new PDFWriter();
-        page.NewPage(PaperKind.Letter, false);
+        page.NewPage(PageKind.Letter, false);
         page.Metadata.Author.ShouldBeNull();
         page.Metadata.Author = "Test Author";
         page.Metadata.Title.ShouldBeNull();

@@ -7,7 +7,8 @@
     </Description>
     <Nullable>enable</Nullable>
     <RootNamespace>Shane32.EasyPDF</RootNamespace>
-    <NoWarn>$(NoWarn);IDE0057</NoWarn>
+    <NoWarn>$(NoWarn);IDE0057;CA1845</NoWarn>
+    <WarningsAsErrors>$(WarningsAsErrors);CA1416;CS0618</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
