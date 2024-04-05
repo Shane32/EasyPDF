@@ -148,7 +148,7 @@ Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "
                 page.NewPage(PageKind.Ledger, true, 0.75f, 0.5f, 0.75f, 0.5f);
                 break;
             case 3:
-                page.NewPage(PageKind.Ledger, true, new MarginsF(0.75f, 0.75f, 0.50f, 0.50f));
+                page.NewPage(PageKind.Ledger, true, new MarginsF(0.75f, 0.5f, 0.75f, 0.5f));
                 break;
             case 4:
                 page.NewPage(new System.Drawing.SizeF(11, 17), true, new MarginsF(0.75f, 0.5f));
