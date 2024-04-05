@@ -10,7 +10,7 @@ public class BasicPictureTests
     public BasicPictureTests()
     {
         _writer.ScaleMode = ScaleModes.Inches;
-        _writer.NewPage(System.Drawing.Printing.PaperKind.Letter, false, 0.5f, 0.5f);
+        _writer.NewPage(PageKind.Letter, false, 0.5f, 0.5f);
         _writer.PrepForTests();
     }
 

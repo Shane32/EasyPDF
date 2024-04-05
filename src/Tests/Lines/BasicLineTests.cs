@@ -10,7 +10,7 @@ public class BasicLineTests
     public BasicLineTests()
     {
         _writer.ScaleMode = ScaleModes.Inches;
-        _writer.NewPage(System.Drawing.Printing.PaperKind.Letter, false, 1f, 1f);
+        _writer.NewPage(PageKind.Letter, false, 1f, 1f);
         _writer.PrepForTests();
     }
 
@@ -77,7 +77,7 @@ public class BasicLineTests
         _writer.ForeColor = Color.Blue;
         _writer.LineTo(0, 8f);
 
-        _writer.NewPage(System.Drawing.Printing.PaperKind.Letter, false, 1f, 1f);
+        _writer.NewPage(PageKind.Letter, false, 1f, 1f);
 
         _writer.MoveTo(0, 0f);
         DrawGeometricFigure(0.5f, false, true, false, false, 0.02f * 72, LineJoinStyle.Miter, 0, LineCapStyle.None);

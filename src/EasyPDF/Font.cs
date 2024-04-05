@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Runtime.Versioning;
 
 namespace Shane32.EasyPDF;
 
@@ -43,6 +44,8 @@ public record Font
     /// <summary>
     /// Gets the font style for this font.
     /// </summary>
+    [SupportedOSPlatform("windows")]
+    [Obsolete("Please use the individual boolean font style properties.")]
     public FontStyle FontStyle {
         get {
             FontStyle f = 0;
@@ -129,6 +132,8 @@ public record Font
     /// <param name="familyName">The family name of this font.</param>
     /// <param name="size">The font em-size of the font.</param>
     /// <param name="fontStyle">The style of the font measured in points.</param>
+    [SupportedOSPlatform("windows")]
+    [Obsolete("Please use a constructor with boolean font styles instead.")]
     public Font(string familyName, float size, FontStyle fontStyle = FontStyle.Regular)
     {
         FamilyName = familyName;
@@ -142,8 +147,64 @@ public record Font
     /// <param name="family">The family name of this font.</param>
     /// <param name="size">The font em-size of the font.</param>
     /// <param name="fontStyle">The style of the font measured in points.</param>
+    [SupportedOSPlatform("windows")]
+    [Obsolete("Please use a constructor with boolean font styles instead.")]
     public Font(StandardFonts family, float size, FontStyle fontStyle = FontStyle.Regular)
         : this(family.ToString(), size, fontStyle)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance with the specified variables.
+    /// </summary>
+    /// <param name="familyName">The family name of this font.</param>
+    /// <param name="size">The font em-size of the font.</param>
+    public Font(string familyName, float size)
+    {
+        FamilyName = familyName;
+        Size = size;
+    }
+
+    /// <summary>
+    /// Initializes a new instance with the specified variables.
+    /// </summary>
+    /// <param name="family">The family name of this font.</param>
+    /// <param name="size">The font em-size of the font.</param>
+    public Font(StandardFonts family, float size)
+        : this(family.ToString(), size)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance with the specified variables.
+    /// </summary>
+    /// <param name="familyName">The family name of this font.</param>
+    /// <param name="size">The font em-size of the font.</param>
+    /// <param name="bold">Indicates if the font is bold.</param>
+    /// <param name="italic">Indicates if the font is italic.</param>
+    /// <param name="underline">Indicates if the font is underlined.</param>
+    /// <param name="strikeout">Indicates if the font is strikeout.</param>
+    public Font(string familyName, float size, bool bold = false, bool italic = false, bool underline = false, bool strikeout = false)
+    {
+        FamilyName = familyName;
+        Size = size;
+        Bold = bold;
+        Italic = italic;
+        Underline = underline;
+        Strikeout = strikeout;
+    }
+
+    /// <summary>
+    /// Initializes a new instance with the specified variables.
+    /// </summary>
+    /// <param name="family">The family name of this font.</param>
+    /// <param name="size">The font em-size of the font.</param>
+    /// <param name="bold">Indicates if the font is bold.</param>
+    /// <param name="italic">Indicates if the font is italic.</param>
+    /// <param name="underline">Indicates if the font is underlined.</param>
+    /// <param name="strikeout">Indicates if the font is strikeout.</param>
+    public Font(StandardFonts family, float size, bool bold = false, bool italic = false, bool underline = false, bool strikeout = false)
+        : this(family.ToString(), size, bold, italic, underline, strikeout)
     {
     }
 }

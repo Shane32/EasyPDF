@@ -9,7 +9,7 @@ public class BasicBarcodeTests
     public BasicBarcodeTests()
     {
         _writer.ScaleMode = ScaleModes.Inches;
-        _writer.NewPage(System.Drawing.Printing.PaperKind.Letter, false, 1f, 1f);
+        _writer.NewPage(PageKind.Letter, false, 1f, 1f);
         _writer.PrepForTests();
     }
 
@@ -20,7 +20,7 @@ public class BasicBarcodeTests
         using var qr = generator.CreateQrCode("https://github.com/Shane32/EasyPDF", QRCoder.QRCodeGenerator.ECCLevel.L);
 
         PrintPage(true);
-        _writer.NewPage(System.Drawing.Printing.PaperKind.Letter, false, 1f, 1f);
+        _writer.NewPage(PageKind.Letter, false, 1f, 1f);
         PrintPage(false);
         
         void PrintPage(bool quietZone)
