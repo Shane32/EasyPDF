@@ -47,7 +47,13 @@ internal static class TestExtensions
             // Replace all instances of the font name in the input string with "Dummy"
             data = data.Replace(fontName, "Dummy");
         }
-        
+
+        // Define the regular expression pattern for ITXT version numbers
+        string itxtPattern = @"ITXT\(\d+\.\d+\.\d+\.\d+\)";
+
+        // Replace all matches of the ITXT version pattern in the input string with "ITXT(3.3.2.0)"
+        data = Regex.Replace(data, itxtPattern, "ITXT(3.3.2.0)");
+
         return data;
     }
 
