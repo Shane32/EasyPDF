@@ -42,32 +42,6 @@ public record Font
     public float Size { get; set; }
 
     /// <summary>
-    /// Gets the font style for this font.
-    /// </summary>
-    [SupportedOSPlatform("windows")]
-    [Obsolete("Please use the individual boolean font style properties.")]
-    public FontStyle FontStyle {
-        get {
-            FontStyle f = 0;
-            if (Bold)
-                f |= FontStyle.Bold;
-            if (Italic)
-                f |= FontStyle.Italic;
-            if (Underline)
-                f |= FontStyle.Underline;
-            if (Strikeout)
-                f |= FontStyle.Strikeout;
-            return f;
-        }
-        set {
-            Bold = (value & FontStyle.Bold) == FontStyle.Bold;
-            Italic = (value & FontStyle.Italic) == FontStyle.Italic;
-            Underline = (value & FontStyle.Underline) == FontStyle.Underline;
-            Strikeout = (value & FontStyle.Strikeout) == FontStyle.Strikeout;
-        }
-    }
-
-    /// <summary>
     /// Indicates if the font has a bold style.
     /// </summary>
     public bool Bold { get; set; }
@@ -126,34 +100,6 @@ public record Font
     /// </summary>
     public float CharacterSpacing { get; set; }
     
-    /// <summary>
-    /// Initializes a new instance with the specified variables.
-    /// </summary>
-    /// <param name="familyName">The family name of this font.</param>
-    /// <param name="size">The font em-size of the font.</param>
-    /// <param name="fontStyle">The style of the font measured in points.</param>
-    [SupportedOSPlatform("windows")]
-    [Obsolete("Please use a constructor with boolean font styles instead.")]
-    public Font(string familyName, float size, FontStyle fontStyle = FontStyle.Regular)
-    {
-        FamilyName = familyName;
-        Size = size;
-        FontStyle = fontStyle;
-    }
-
-    /// <summary>
-    /// Initializes a new instance with the specified variables.
-    /// </summary>
-    /// <param name="family">The family name of this font.</param>
-    /// <param name="size">The font em-size of the font.</param>
-    /// <param name="fontStyle">The style of the font measured in points.</param>
-    [SupportedOSPlatform("windows")]
-    [Obsolete("Please use a constructor with boolean font styles instead.")]
-    public Font(StandardFonts family, float size, FontStyle fontStyle = FontStyle.Regular)
-        : this(family.ToString(), size, fontStyle)
-    {
-    }
-
     /// <summary>
     /// Initializes a new instance with the specified variables.
     /// </summary>
