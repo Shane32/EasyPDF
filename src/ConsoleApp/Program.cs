@@ -7,7 +7,7 @@ using Font = Shane32.EasyPDF.Font;
 Console.WriteLine("Creating PDF");
 
 var page = new PDFWriter();
-page.NewPage(System.Drawing.Printing.PaperKind.Letter, false);
+page.NewPage(PageKind.Letter, false);
 page.ScaleMode = ScaleModes.Inches;
 page.TextAlignment = TextAlignment.LeftTop;
 
@@ -21,7 +21,7 @@ page.WriteLine();
 page.Font = new Font(StandardFonts.Helvetica, 12) { LineSpacing = 1.2f, StretchX = 2f, Justify = true };
 page.WriteLine("This is a very long line of text; the quick brown fox jumps over the lazy dog and hello world a few times over", 3);
 
-page.Font = new Font("Algerian", 20, System.Drawing.FontStyle.Italic);
+page.Font = new Font("Algerian", 20, italic: true);
 page.WriteLine("This is a test");
 
 page.Font = page.Font with { StretchX = 3f, StretchY = 3f };
@@ -29,29 +29,29 @@ page.WriteLine("This is a test");
 
 page.Font = new Font(StandardFonts.Times, 10);
 page.WriteLine("Times Regular");
-page.Font = new Font(StandardFonts.Times, 10, System.Drawing.FontStyle.Bold);
+page.Font = new Font(StandardFonts.Times, 10, true);
 page.WriteLine("Times Bold");
-page.Font = new Font(StandardFonts.Times, 10, System.Drawing.FontStyle.Italic);
+page.Font = new Font(StandardFonts.Times, 10, false, true);
 page.WriteLine("Times Italic");
-page.Font = new Font(StandardFonts.Times, 10, System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic);
+page.Font = new Font(StandardFonts.Times, 10, true, true);
 page.WriteLine("Times Bold Italic");
 
 page.Font = new Font(StandardFonts.Helvetica, 10);
 page.WriteLine("Helvetica Regular");
-page.Font = new Font(StandardFonts.Helvetica, 10, System.Drawing.FontStyle.Bold);
+page.Font = new Font(StandardFonts.Helvetica, 10, true);
 page.WriteLine("Helvetica Bold");
-page.Font = new Font(StandardFonts.Helvetica, 10, System.Drawing.FontStyle.Italic);
+page.Font = new Font(StandardFonts.Helvetica, 10, false, true);
 page.WriteLine("Helvetica Italic");
-page.Font = new Font(StandardFonts.Helvetica, 10, System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic);
+page.Font = new Font(StandardFonts.Helvetica, 10, true, true);
 page.WriteLine("Helvetica Bold Italic");
 
 page.Font = new Font(StandardFonts.Courier, 10);
 page.WriteLine("Courier Regular");
-page.Font = new Font(StandardFonts.Courier, 10, System.Drawing.FontStyle.Bold);
+page.Font = new Font(StandardFonts.Courier, 10, true);
 page.WriteLine("Courier Bold");
-page.Font = new Font(StandardFonts.Courier, 10, System.Drawing.FontStyle.Italic);
+page.Font = new Font(StandardFonts.Courier, 10, false, true);
 page.WriteLine("Courier Italic");
-page.Font = new Font(StandardFonts.Courier, 10, System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic);
+page.Font = new Font(StandardFonts.Courier, 10, true, true);
 page.WriteLine("Courier Bold Italic");
 
 page.Font = new Font(StandardFonts.Symbol, 8);

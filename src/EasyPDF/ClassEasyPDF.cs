@@ -81,55 +81,16 @@ public partial class PDFWriter : IDisposable
     /// </summary>
     public PdfMetadata Metadata => _metadata ?? throw new InvalidOperationException("Create a page first!");
 
-    [SupportedOSPlatform("windows")]
-    [Obsolete]
-    private static PaperSize _GetPaperSize(PaperKind paperKind) => paperKind switch {
-        PaperKind.Letter => new PaperSize(paperKind.ToString(), 850, 1100),
-        PaperKind.Legal => new PaperSize(paperKind.ToString(), 850, 1400),
-        PaperKind.Ledger => new PaperSize(paperKind.ToString(), 1100, 1700),
-        _ => throw new NotImplementedException(),
-    };
-
     /// <summary>
     /// Returns the size of the page including margins.
     /// </summary>
     public SizeF PageSize => new SizeF(_TranslateRev(_pageSize.Width), _TranslateRev(_pageSize.Height));
-
-    /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
-    [SupportedOSPlatform("windows")]
-    [Obsolete("Please use the constructor with PageKind instead.")]
-    public PDFWriter NewPage(PaperKind paperKind, bool landscape, float marginLeft = 0f, float marginTop = 0f, float? marginRight = null, float? marginBottom = null)
-        => NewPage(_GetPaperSize(paperKind), landscape, marginLeft, marginTop, marginRight, marginBottom);
-
-    /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
-    [SupportedOSPlatform("windows")]
-    [Obsolete("Please use the constructor with PageKind instead.")]
-    public PDFWriter NewPage(PaperKind paperKind, bool landscape, Margins margins)
-        => NewPage(_GetPaperSize(paperKind), landscape, margins);
-
-    /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
-    [SupportedOSPlatform("windows")]
-    [Obsolete("Please use the constructor with PageKind instead.")]
-    public PDFWriter NewPage(PaperKind paperKind, bool landscape, MarginsF margins)
-        => NewPage(_GetPaperSize(paperKind), landscape, margins.Left, margins.Top, margins.Right, margins.Bottom);
 
     /// <summary>
     /// Creates a document or adds a new page to an existing document as the specified size.
     /// </summary>
     public PDFWriter NewPage(float width, float height, bool landscape, float marginLeft = 0f, float marginTop = 0f, float? marginRight = null, float? marginBottom = null)
         => NewPageAbs(_Translate(width), _Translate(height), landscape, _Translate(marginLeft), _Translate(marginTop), _Translate(marginRight ?? marginLeft), _Translate(marginBottom ?? marginTop));
-
-    /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
-    [SupportedOSPlatform("windows")]
-    [Obsolete("Please use the constructor with SizeF and MarginsF instead.")]
-    public PDFWriter NewPage(PaperSize paperSize, bool landscape, float marginLeft = 0f, float marginTop = 0f, float? marginRight = null, float? marginBottom = null)
-        => NewPageAbs(_Translate(paperSize.Width, ScaleModes.Hundredths), _Translate(paperSize.Height, ScaleModes.Hundredths), landscape, _Translate(marginLeft), _Translate(marginTop), _Translate(marginRight ?? marginLeft), _Translate(marginBottom ?? marginTop));
-
-    /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
-    [SupportedOSPlatform("windows")]
-    [Obsolete("Please use the constructor with SizeF and MarginsF instead.")]
-    public PDFWriter NewPage(PaperSize paperSize, bool landscape, Margins margins)
-        => NewPageAbs(_Translate(paperSize.Width, ScaleModes.Hundredths), _Translate(paperSize.Height, ScaleModes.Hundredths), landscape, _Translate(margins.Left, ScaleModes.Hundredths), _Translate(margins.Top, ScaleModes.Hundredths), _Translate(margins.Right, ScaleModes.Hundredths), _Translate(margins.Bottom, ScaleModes.Hundredths));
 
     /// <inheritdoc cref="NewPage(float, float, bool, float, float, float?, float?)"/>
     public PDFWriter NewPage(SizeF pageSize, bool landscape, MarginsF margins)
