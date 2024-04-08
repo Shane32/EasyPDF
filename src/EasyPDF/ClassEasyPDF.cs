@@ -414,7 +414,7 @@ public partial class PDFWriter : IDisposable
         set {
             var newMarginOffset = new PointF(_Translate(value.Left), _Translate(value.Top));
             var difference = new PointF(newMarginOffset.X - _marginOffset.X, newMarginOffset.Y - _marginOffset.Y);
-            if (difference.X != 0 && difference.Y != 0) {
+            if (difference.X != 0 || difference.Y != 0) {
                 _content.ConcatCtm(1f, 0f, 0f, 1f, difference.X, difference.Y);
                 _marginOffset = newMarginOffset;
             }
