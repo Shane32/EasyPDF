@@ -272,4 +272,50 @@ Fx		➱	➲	➳	➴	➵	➶	➷	➸	➹	➺	➻	➼	➽	➾	".Replace("\t", "  "
         page.Metadata.ModificationDate = new DateTime(2019, 2, 3, 4, 5, 6, DateTimeKind.Utc);
         page.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
     }
+
+    [Fact]
+    public void Margins()
+    {
+        var page = new PDFWriter();
+        page.ScaleMode = ScaleModes.Inches;
+        page.NewPage(PageKind.Letter, false, new MarginsF(0.5f, 1f, 1.5f, 2f));
+        page.PrepForTests();
+        page.Margins.Left.ShouldBe(0.5f, 0.001f);
+        page.Margins.Top.ShouldBe(1f, 0.001f);
+        page.Margins.Right.ShouldBe(1.5f, 0.001f);
+        page.Margins.Bottom.ShouldBe(2f, 0.001f);
+        page.PageSize.Width.ShouldBe(8.5f, 0.01);
+        page.PageSize.Height.ShouldBe(11f, 0.01);
+        page.Size.Width.ShouldBe(6.5f, 0.01);
+        page.Size.Height.ShouldBe(8f, 0.01);
+        page.ForeColor = System.Drawing.Color.Red;
+        page.LineStyle.Width = 0.03f;
+        page.MoveTo(0, 0).Rectangle(page.Size.Width, page.Size.Height);
+
+        page.OffsetMargins(0.5f, 1f, 1.5f, 2f);
+        page.Margins.Left.ShouldBe(1f, 0.001f);
+        page.Margins.Top.ShouldBe(2f, 0.001f);
+        page.Margins.Right.ShouldBe(3f, 0.001f);
+        page.Margins.Bottom.ShouldBe(4f, 0.001f);
+        page.PageSize.Width.ShouldBe(8.5f, 0.01);
+        page.PageSize.Height.ShouldBe(11f, 0.01);
+        page.Size.Width.ShouldBe(4.5f, 0.01);
+        page.Size.Height.ShouldBe(5f, 0.01);
+        page.ForeColor = System.Drawing.Color.Blue;
+        page.MoveTo(0, 0).Rectangle(page.Size.Width, page.Size.Height);
+
+        page.OffsetMargins(0, 1f);
+        page.Margins.Left.ShouldBe(1f, 0.001f);
+        page.Margins.Top.ShouldBe(3f, 0.001f);
+        page.Margins.Right.ShouldBe(3f, 0.001f);
+        page.Margins.Bottom.ShouldBe(4f, 0.001f);
+        page.PageSize.Width.ShouldBe(8.5f, 0.01);
+        page.PageSize.Height.ShouldBe(11f, 0.01);
+        page.Size.Width.ShouldBe(4.5f, 0.01);
+        page.Size.Height.ShouldBe(4f, 0.01);
+        page.ForeColor = System.Drawing.Color.Black;
+        page.MoveTo(0, 0).WriteLine("Testing");
+
+        page.ToArray().SaveAsPdf().ToASCIIString().RemoveID().ShouldMatchApproved(o => o.NoDiff());
+    }
 }
